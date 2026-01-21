@@ -75,12 +75,18 @@ interface BlockItemProps {
 function BlockItem({ block, variant = 'default' }: BlockItemProps) {
   const Icon = iconMap[block.icon] || Type;
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("blockType", block.type);
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
   return (
     <div
       draggable
+      onDragStart={handleDragStart}
       className={cn(
         "flex items-center gap-3 p-2.5 rounded-lg border cursor-grab active:cursor-grabbing transition-all",
-        "hover:shadow-md hover:border-primary/30",
+        "hover:shadow-md hover:border-primary/30 active:scale-[0.98]",
         variant === 'active' 
           ? "bg-accent/5 border-accent/20 hover:bg-accent/10" 
           : "bg-card border-border hover:bg-muted/50"
