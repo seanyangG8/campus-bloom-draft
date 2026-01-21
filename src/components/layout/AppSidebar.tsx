@@ -99,7 +99,7 @@ export function AppSidebar() {
               </div>
               {!sidebarCollapsed && (
                 <div className="text-left flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{currentCentre.name}</p>
+                  <p className="text-sm font-semibold leading-tight">{currentCentre.name}</p>
                   <p className="text-xs text-sidebar-foreground/60">Switch centre</p>
                 </div>
               )}
