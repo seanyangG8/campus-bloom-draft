@@ -49,7 +49,8 @@ const features = [
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-50px" },
   transition: { duration: 0.5 },
 };
 
@@ -93,7 +94,7 @@ export function LandingPage() {
             </div>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
               Your Tuition Centre,{" "}
-              <span className="text-gradient">Elevated</span>
+              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Elevated</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               A premium learning campus platform built for Singapore and Malaysia tuition centres. 
@@ -206,8 +207,9 @@ export function LandingPage() {
                 key={feature.title}
                 className="bg-card rounded-xl p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <feature.icon className="h-6 w-6 text-primary" />
@@ -240,7 +242,7 @@ export function LandingPage() {
                   View Demo
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 gap-2">
+              <Button size="lg" className="bg-white text-primary hover:bg-white/90 gap-2">
                 <CheckCircle2 className="h-4 w-4" />
                 Get Started Free
               </Button>
