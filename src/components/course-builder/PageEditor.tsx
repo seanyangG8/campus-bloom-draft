@@ -211,9 +211,25 @@ function EditorDropZone({
   const { addBlock } = useCourseBuilder();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
+  // Note: dataTransfer.types lowercases format names, so "blockType" becomes "blocktype"
+  const hasBlockType = (e: React.DragEvent) => {
+    return e.dataTransfer.types.includes("blocktype") || 
+           e.dataTransfer.types.includes("blockType") ||
+           e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
-    // Only show drop indicator if it's a library block (not reorder)
-    if (e.dataTransfer.types.includes("blockType") || e.dataTransfer.getData("blockType")) {
+    if (hasBlockType(e)) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!isDraggingOver) {
+        setIsDraggingOver(true);
+      }
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (hasBlockType(e)) {
       e.preventDefault();
       e.stopPropagation();
       setIsDraggingOver(true);
@@ -222,10 +238,7 @@ function EditorDropZone({
 
   const handleDragLeave = (e: React.DragEvent) => {
     // Only trigger leave if we're actually leaving the container
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX;
-    const y = e.clientY;
-    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsDraggingOver(false);
     }
   };
@@ -235,25 +248,26 @@ function EditorDropZone({
     e.stopPropagation();
     setIsDraggingOver(false);
     const blockType = e.dataTransfer.getData("blockType") as BlockType;
+    console.log("Drop event - blockType:", blockType, "isAdmin:", isAdmin);
     if (blockType && isAdmin) {
       addBlock(pageId, blockType);
     }
   };
 
+  if (!isAdmin) {
+    return <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">{children}</div>;
+  }
+
   return (
     <div
       className={cn(
-        "flex-1 overflow-y-auto p-4 scrollbar-thin transition-all",
+        "flex-1 overflow-y-auto p-4 scrollbar-thin transition-all min-h-[200px]",
         isDraggingOver && "bg-primary/5 ring-2 ring-primary/20 ring-inset rounded-lg"
       )}
       onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onDragEnter={(e) => {
-        if (e.dataTransfer.types.includes("blockType")) {
-          e.preventDefault();
-        }
-      }}
     >
       {children}
       {isDraggingOver && (
