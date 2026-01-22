@@ -124,13 +124,14 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
       </div>
 
       {/* Blocks List */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
+      <EditorDropZone pageId={pageId} isAdmin={isAdmin}>
         {blocks.length > 0 ? (
           <Reorder.Group
             axis="y"
             values={blocks}
             onReorder={handleReorder}
             className="space-y-3"
+            layoutScroll
           >
             {blocks.map((block) => (
               <BlockCard
@@ -151,11 +152,7 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
             </div>
           </div>
         )}
-
-        {isAdmin && blocks.length > 0 && (
-          <DropZone pageId={pageId} />
-        )}
-      </div>
+      </EditorDropZone>
 
       {/* Page Footer - Progress for students */}
       {!isAdmin && (
@@ -201,25 +198,44 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
   );
 }
 
-// Drop Zone Component
-function DropZone({ pageId }: { pageId: string }) {
+// Editor Drop Zone - wraps entire editor area to accept blocks from library
+function EditorDropZone({ 
+  pageId, 
+  isAdmin, 
+  children 
+}: { 
+  pageId: string; 
+  isAdmin: boolean;
+  children: React.ReactNode;
+}) {
   const { addBlock } = useCourseBuilder();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDraggingOver(true);
+    // Only show drop indicator if it's a library block (not reorder)
+    if (e.dataTransfer.types.includes("blockType") || e.dataTransfer.getData("blockType")) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDraggingOver(true);
+    }
   };
 
-  const handleDragLeave = () => {
-    setIsDraggingOver(false);
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only trigger leave if we're actually leaving the container
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDraggingOver(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDraggingOver(false);
     const blockType = e.dataTransfer.getData("blockType") as BlockType;
-    if (blockType) {
+    if (blockType && isAdmin) {
       addBlock(pageId, blockType);
     }
   };
@@ -227,18 +243,24 @@ function DropZone({ pageId }: { pageId: string }) {
   return (
     <div
       className={cn(
-        "mt-4 py-8 border-2 border-dashed rounded-xl flex items-center justify-center transition-all",
-        isDraggingOver
-          ? "border-primary bg-primary/5"
-          : "border-muted hover:border-muted-foreground/30"
+        "flex-1 overflow-y-auto p-4 scrollbar-thin transition-all",
+        isDraggingOver && "bg-primary/5 ring-2 ring-primary/20 ring-inset rounded-lg"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onDragEnter={(e) => {
+        if (e.dataTransfer.types.includes("blockType")) {
+          e.preventDefault();
+        }
+      }}
     >
-      <p className="text-sm text-muted-foreground">
-        {isDraggingOver ? "Drop to add block" : "Drop blocks here"}
-      </p>
+      {children}
+      {isDraggingOver && (
+        <div className="mt-4 py-8 border-2 border-dashed border-primary rounded-xl flex items-center justify-center bg-primary/10">
+          <p className="text-sm text-primary font-medium">Drop to add block</p>
+        </div>
+      )}
     </div>
   );
 }
