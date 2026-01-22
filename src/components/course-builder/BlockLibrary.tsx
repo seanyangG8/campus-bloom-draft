@@ -77,7 +77,9 @@ function BlockItem({ block, variant = 'default' }: BlockItemProps) {
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData("blockType", block.type);
+    e.dataTransfer.setData("text/plain", block.type); // Fallback
     e.dataTransfer.effectAllowed = "copy";
+    console.log("Drag started - blockType:", block.type);
   };
 
   return (
