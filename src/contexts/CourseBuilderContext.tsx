@@ -27,7 +27,7 @@ interface CourseBuilderContextType {
   reorderPages: (chapterId: string, orderedIds: string[]) => void;
   
   // Block CRUD
-  addBlock: (pageId: string, type: BlockType, title?: string) => void;
+  addBlock: (pageId: string, type: BlockType, title?: string, insertAtIndex?: number) => void;
   updateBlock: (id: string, updates: Partial<Block>) => void;
   deleteBlock: (id: string) => void;
   reorderBlocks: (pageId: string, orderedIds: string[]) => void;
@@ -166,9 +166,9 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
   }, []);
 
   // Block operations
-  const addBlock = useCallback((pageId: string, type: BlockType, title?: string) => {
-    const pageBlocks = blocks.filter(b => b.pageId === pageId);
-    const blockLabel = {
+  const addBlock = useCallback((pageId: string, type: BlockType, title?: string, insertAtIndex?: number) => {
+    const pageBlocks = blocks.filter(b => b.pageId === pageId).sort((a, b) => a.order - b.order);
+    const blockLabel: Record<BlockType, string> = {
       'text': 'Text Block',
       'video': 'Video',
       'image': 'Image',
@@ -187,12 +187,24 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
       type,
       title: title || blockLabel[type] || 'New Block',
       content: getDefaultContent(type),
-      order: pageBlocks.length + 1,
+      order: insertAtIndex !== undefined ? insertAtIndex + 1 : pageBlocks.length + 1,
       isRequired: false,
       isCompleted: false,
     };
     
-    setBlocks(prev => [...prev, newBlock]);
+    // If inserting at a specific index, update orders of existing blocks
+    if (insertAtIndex !== undefined && insertAtIndex < pageBlocks.length) {
+      setBlocks(prev => {
+        const otherBlocks = prev.filter(b => b.pageId !== pageId);
+        const updatedPageBlocks = pageBlocks.map((b, i) => ({
+          ...b,
+          order: i >= insertAtIndex ? b.order + 1 : b.order
+        }));
+        return [...otherBlocks, ...updatedPageBlocks, newBlock];
+      });
+    } else {
+      setBlocks(prev => [...prev, newBlock]);
+    }
     
     // Update page block count
     setPages(prev => prev.map(p => 

@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { motion, Reorder, useDragControls } from "framer-motion";
+import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
-  Plus,
   Settings,
   GripVertical,
   Trash2,
@@ -73,24 +72,29 @@ interface PageEditorProps {
 }
 
 export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
-  const { pages, getBlocksByPage, updatePage, reorderBlocks } = useCourseBuilder();
+  const { pages, getBlocksByPage, updatePage, addBlock } = useCourseBuilder();
   const page = pages.find((p) => p.id === pageId);
   const blocks = getBlocksByPage(pageId);
 
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
   const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [isLibraryDrag, setIsLibraryDrag] = useState(false);
 
   if (!page) return null;
 
-  const handleReorder = (newOrder: Block[]) => {
-    reorderBlocks(
-      pageId,
-      newOrder.map((b) => b.id)
-    );
-  };
-
   const completedBlocks = blocks.filter((b) => b.isCompleted).length;
   const requiredBlocks = blocks.filter((b) => b.isRequired).length;
+
+  // Check if drag is from library
+  const hasBlockType = (e: React.DragEvent) => {
+    return e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
+  };
+
+  const handleInsertBlock = useCallback((index: number, blockType: BlockType) => {
+    addBlock(pageId, blockType, undefined, index);
+  }, [addBlock, pageId]);
 
   return (
     <div className="h-full flex flex-col">
@@ -124,35 +128,50 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
       </div>
 
       {/* Blocks List */}
-      <EditorDropZone pageId={pageId} isAdmin={isAdmin}>
+      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
         {blocks.length > 0 ? (
-          <Reorder.Group
-            axis="y"
-            values={blocks}
-            onReorder={handleReorder}
-            className="space-y-3"
-            layoutScroll
-          >
-            {blocks.map((block) => (
-              <BlockCard
-                key={block.id}
-                block={block}
-                isAdmin={isAdmin}
-                onEdit={() => setEditingBlock(block)}
+          <div className="space-y-0">
+            {/* Drop zone at the very top */}
+            {isAdmin && (
+              <InsertDropZone 
+                index={0} 
+                isActive={dropTargetIndex === 0 && isLibraryDrag}
+                onDragEnter={() => { setDropTargetIndex(0); setIsLibraryDrag(true); }}
+                onDragLeave={() => setDropTargetIndex(null)}
+                onDrop={(blockType) => { handleInsertBlock(0, blockType); setDropTargetIndex(null); setIsLibraryDrag(false); }}
               />
+            )}
+            
+            {blocks.map((block, index) => (
+              <div key={block.id}>
+                <DraggableBlockCard
+                  block={block}
+                  blocks={blocks}
+                  isAdmin={isAdmin}
+                  onEdit={() => setEditingBlock(block)}
+                  isDragging={draggedBlockId === block.id}
+                  onDragStart={() => setDraggedBlockId(block.id)}
+                  onDragEnd={() => setDraggedBlockId(null)}
+                  pageId={pageId}
+                />
+                
+                {/* Drop zone after each block */}
+                {isAdmin && (
+                  <InsertDropZone 
+                    index={index + 1}
+                    isActive={dropTargetIndex === index + 1 && isLibraryDrag}
+                    onDragEnter={() => { setDropTargetIndex(index + 1); setIsLibraryDrag(true); }}
+                    onDragLeave={() => setDropTargetIndex(null)}
+                    onDrop={(blockType) => { handleInsertBlock(index + 1, blockType); setDropTargetIndex(null); setIsLibraryDrag(false); }}
+                  />
+                )}
+              </div>
             ))}
-          </Reorder.Group>
-        ) : (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center py-12 border-2 border-dashed rounded-xl w-full">
-              <p className="text-muted-foreground mb-2">No blocks yet</p>
-              <p className="text-sm text-muted-foreground">
-                Drag blocks from the library to add content
-              </p>
-            </div>
           </div>
+        ) : (
+          <EmptyDropZone pageId={pageId} isAdmin={isAdmin} />
         )}
-      </EditorDropZone>
+      </div>
 
       {/* Page Footer - Progress for students */}
       {!isAdmin && (
@@ -198,33 +217,28 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
   );
 }
 
-// Editor Drop Zone - wraps entire editor area to accept blocks from library
-function EditorDropZone({ 
-  pageId, 
-  isAdmin, 
-  children 
+// Insert Drop Zone - appears between blocks for inserting new blocks from library
+function InsertDropZone({ 
+  index, 
+  isActive,
+  onDragEnter,
+  onDragLeave,
+  onDrop,
 }: { 
-  pageId: string; 
-  isAdmin: boolean;
-  children: React.ReactNode;
+  index: number;
+  isActive: boolean;
+  onDragEnter: () => void;
+  onDragLeave: () => void;
+  onDrop: (blockType: BlockType) => void;
 }) {
-  const { addBlock } = useCourseBuilder();
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-
-  // Note: dataTransfer.types lowercases format names, so "blockType" becomes "blocktype"
   const hasBlockType = (e: React.DragEvent) => {
-    return e.dataTransfer.types.includes("blocktype") || 
-           e.dataTransfer.types.includes("blockType") ||
-           e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
+    return e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     if (hasBlockType(e)) {
       e.preventDefault();
       e.stopPropagation();
-      if (!isDraggingOver) {
-        setIsDraggingOver(true);
-      }
     }
   };
 
@@ -232,12 +246,69 @@ function EditorDropZone({
     if (hasBlockType(e)) {
       e.preventDefault();
       e.stopPropagation();
+      onDragEnter();
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      onDragLeave();
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const blockType = e.dataTransfer.getData("blockType") as BlockType;
+    if (blockType) {
+      onDrop(blockType);
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "relative transition-all duration-200 ease-out",
+        isActive ? "h-16 my-2" : "h-2 my-0"
+      )}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <div 
+        className={cn(
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all duration-200",
+          isActive 
+            ? "h-14 border-2 border-dashed border-primary rounded-lg bg-primary/10 flex items-center justify-center"
+            : "h-0.5 bg-transparent hover:bg-primary/20 rounded"
+        )}
+      >
+        {isActive && (
+          <p className="text-sm text-primary font-medium">Drop here to insert</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Empty state drop zone
+function EmptyDropZone({ pageId, isAdmin }: { pageId: string; isAdmin: boolean }) {
+  const { addBlock } = useCourseBuilder();
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+  const hasBlockType = (e: React.DragEvent) => {
+    return e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (hasBlockType(e)) {
+      e.preventDefault();
       setIsDraggingOver(true);
     }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    // Only trigger leave if we're actually leaving the container
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsDraggingOver(false);
     }
@@ -245,54 +316,61 @@ function EditorDropZone({
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDraggingOver(false);
     const blockType = e.dataTransfer.getData("blockType") as BlockType;
-    console.log("Drop event - blockType:", blockType, "isAdmin:", isAdmin);
     if (blockType && isAdmin) {
       addBlock(pageId, blockType);
     }
   };
 
-  if (!isAdmin) {
-    return <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">{children}</div>;
-  }
-
   return (
-    <div
+    <div 
       className={cn(
-        "flex-1 overflow-y-auto p-4 scrollbar-thin transition-all min-h-[200px]",
-        isDraggingOver && "bg-primary/5 ring-2 ring-primary/20 ring-inset rounded-lg"
+        "h-full flex items-center justify-center transition-all",
+        isDraggingOver && "bg-primary/5"
       )}
       onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {children}
-      {isDraggingOver && (
-        <div className="mt-4 py-8 border-2 border-dashed border-primary rounded-xl flex items-center justify-center bg-primary/10">
-          <p className="text-sm text-primary font-medium">Drop to add block</p>
-        </div>
-      )}
+      <div className={cn(
+        "text-center py-12 border-2 border-dashed rounded-xl w-full transition-colors",
+        isDraggingOver ? "border-primary bg-primary/10" : "border-muted"
+      )}>
+        <p className="text-muted-foreground mb-2">
+          {isDraggingOver ? "Drop to add block" : "No blocks yet"}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Drag blocks from the library to add content
+        </p>
+      </div>
     </div>
   );
 }
 
-// Block Card Component
-function BlockCard({
+// Draggable Block Card with smooth animations
+function DraggableBlockCard({
   block,
+  blocks,
   isAdmin,
   onEdit,
+  isDragging,
+  onDragStart,
+  onDragEnd,
+  pageId,
 }: {
   block: Block;
+  blocks: Block[];
   isAdmin: boolean;
   onEdit: () => void;
+  isDragging: boolean;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+  pageId: string;
 }) {
-  const { updateBlock, deleteBlock, duplicateBlock, reorderBlocks, getBlocksByPage } =
-    useCourseBuilder();
+  const { updateBlock, deleteBlock, duplicateBlock, reorderBlocks } = useCourseBuilder();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const dragControls = useDragControls();
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const Icon = iconMap[block.type] || Type;
   const isActiveBlock = [
@@ -303,7 +381,6 @@ function BlockCard({
     "qa-thread",
   ].includes(block.type);
 
-  const blocks = getBlocksByPage(block.pageId);
   const currentIndex = blocks.findIndex((b) => b.id === block.id);
 
   const moveBlock = (direction: "up" | "down") => {
@@ -312,31 +389,89 @@ function BlockCard({
 
     const newOrder = [...blocks];
     [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
-    reorderBlocks(
-      block.pageId,
-      newOrder.map((b) => b.id)
-    );
+    reorderBlocks(pageId, newOrder.map((b) => b.id));
+  };
+
+  // Handle reorder drag for existing blocks
+  const handleDragStart = (e: React.DragEvent) => {
+    if (!isAdmin) return;
+    e.dataTransfer.setData("reorderBlockId", block.id);
+    e.dataTransfer.effectAllowed = "move";
+    onDragStart();
+  };
+
+  const handleDragEnd = () => {
+    onDragEnd();
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    // Only handle reorder drags (not library drags)
+    if (e.dataTransfer.types.includes("reorderblockid")) {
+      e.preventDefault();
+      const rect = e.currentTarget.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      const newIndex = e.clientY < midY ? currentIndex : currentIndex + 1;
+      setDragOverIndex(newIndex);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    const draggedId = e.dataTransfer.getData("reorderBlockId");
+    if (draggedId && draggedId !== block.id) {
+      const draggedIndex = blocks.findIndex(b => b.id === draggedId);
+      if (draggedIndex !== -1 && dragOverIndex !== null) {
+        const newOrder = [...blocks];
+        const [removed] = newOrder.splice(draggedIndex, 1);
+        const insertAt = dragOverIndex > draggedIndex ? dragOverIndex - 1 : dragOverIndex;
+        newOrder.splice(insertAt, 0, removed);
+        reorderBlocks(pageId, newOrder.map(b => b.id));
+      }
+    }
+    setDragOverIndex(null);
   };
 
   return (
     <>
-      <Reorder.Item
-        value={block}
-        dragListener={false}
-        dragControls={dragControls}
-        className={cn(
-          "rounded-xl border shadow-card transition-all",
-          isActiveBlock ? "bg-accent/5 border-accent/20" : "bg-card",
-          block.isCompleted && "ring-2 ring-success/20"
-        )}
+      <div
+        draggable={isAdmin}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
-        <div className="p-4">
+        <motion.div
+          layout
+          initial={false}
+          animate={{ 
+            scale: isDragging ? 1.02 : 1,
+            boxShadow: isDragging 
+              ? "0 10px 40px -10px rgba(0,0,0,0.2)" 
+              : "0 1px 3px 0 rgba(0,0,0,0.1)",
+            opacity: isDragging ? 0.9 : 1,
+          }}
+          transition={{ 
+            layout: { type: "spring", stiffness: 350, damping: 30 },
+            scale: { duration: 0.15 },
+            boxShadow: { duration: 0.15 },
+          }}
+          className={cn(
+            "rounded-xl border transition-colors my-2",
+            isActiveBlock ? "bg-accent/5 border-accent/20" : "bg-card",
+            block.isCompleted && "ring-2 ring-success/20",
+            isDragging && "z-50 cursor-grabbing",
+            dragOverIndex !== null && "border-primary"
+          )}
+        >
+          <div className="p-4">
           <div className="flex items-start gap-3">
             {isAdmin && (
-              <div
-                className="pt-1 cursor-grab active:cursor-grabbing"
-                onPointerDown={(e) => dragControls.start(e)}
-              >
+              <div className="pt-1 cursor-grab active:cursor-grabbing">
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
@@ -423,7 +558,8 @@ function BlockCard({
           {/* Block Preview Content */}
           <BlockPreview block={block} isAdmin={isAdmin} />
         </div>
-      </Reorder.Item>
+        </motion.div>
+      </div>
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
@@ -448,6 +584,8 @@ function BlockCard({
     </>
   );
 }
+
+// Old BlockCard removed - using DraggableBlockCard above
 
 // Block Preview Component
 function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
