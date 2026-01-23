@@ -305,32 +305,53 @@ function FullAreaDropZone({
       onDrop={handleDrop}
     >
       <div className="space-y-0">
-        {blocks.map((block, index) => (
-          <div key={block.id} data-block-index={index}>
-            {/* Drop indicator before block */}
+        {blocks.map((block, index) => {
+          // Calculate if drop indicator should be shown
+          // For reordering: don't show indicator directly above or below the dragged block
+          const draggedIndex = draggedBlockId ? blocks.findIndex(b => b.id === draggedBlockId) : -1;
+          const isReordering = !isLibraryDrag && draggedBlockId !== null;
+          const wouldResultInNoChange = isReordering && (
+            index === draggedIndex || // directly above dragged block
+            index === draggedIndex + 1 // directly below dragged block (same position after move)
+          );
+          const showIndicator = dropTargetIndex === index && !wouldResultInNoChange;
+          
+          return (
+            <div key={block.id} data-block-index={index}>
+              {/* Drop indicator before block */}
+              <DropIndicator 
+                isActive={showIndicator} 
+                isLibraryDrag={isLibraryDrag}
+              />
+              
+              <DraggableBlockCard
+                block={block}
+                blocks={blocks}
+                isAdmin={isAdmin}
+                onEdit={() => onEditBlock(block)}
+                isDragging={draggedBlockId === block.id}
+                onDragStart={() => setDraggedBlockId(block.id)}
+                onDragEnd={() => setDraggedBlockId(null)}
+                pageId={pageId}
+              />
+            </div>
+          );
+        })}
+        
+        {/* Drop indicator at end - also check if it's the same position */}
+        {(() => {
+          const draggedIndex = draggedBlockId ? blocks.findIndex(b => b.id === draggedBlockId) : -1;
+          const isReordering = !isLibraryDrag && draggedBlockId !== null;
+          const wouldResultInNoChange = isReordering && draggedIndex === blocks.length - 1;
+          const showIndicator = dropTargetIndex === blocks.length && !wouldResultInNoChange;
+          
+          return (
             <DropIndicator 
-              isActive={dropTargetIndex === index} 
+              isActive={showIndicator} 
               isLibraryDrag={isLibraryDrag}
             />
-            
-            <DraggableBlockCard
-              block={block}
-              blocks={blocks}
-              isAdmin={isAdmin}
-              onEdit={() => onEditBlock(block)}
-              isDragging={draggedBlockId === block.id}
-              onDragStart={() => setDraggedBlockId(block.id)}
-              onDragEnd={() => setDraggedBlockId(null)}
-              pageId={pageId}
-            />
-          </div>
-        ))}
-        
-        {/* Drop indicator at end */}
-        <DropIndicator 
-          isActive={dropTargetIndex === blocks.length} 
-          isLibraryDrag={isLibraryDrag}
-        />
+          );
+        })()}
       </div>
     </div>
   );
