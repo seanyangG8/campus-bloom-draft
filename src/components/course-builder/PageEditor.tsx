@@ -212,13 +212,7 @@ function FullAreaDropZone({
   setDraggedBlockId: (id: string | null) => void;
   onEditBlock: (block: Block) => void;
 }) {
-  const { addBlock, reorderBlocks } = useCourseBuilder();
-  const [blockRefs, setBlockRefs] = useState<Map<string, HTMLDivElement>>(new Map());
-  const containerRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      // Store container ref
-    }
-  }, []);
+  const { reorderBlocks } = useCourseBuilder();
 
   const hasBlockType = (e: React.DragEvent) => {
     return e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
@@ -305,7 +299,6 @@ function FullAreaDropZone({
 
   return (
     <div 
-      ref={containerRef}
       className="flex-1 overflow-y-auto p-4 scrollbar-thin"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -349,7 +342,7 @@ function DropIndicator({ isActive, isLibraryDrag }: { isActive: boolean; isLibra
     <motion.div
       initial={false}
       animate={{
-        height: isActive ? 56 : 4,
+        height: isActive ? 64 : 0,
         opacity: isActive ? 1 : 0,
         marginTop: isActive ? 8 : 0,
         marginBottom: isActive ? 8 : 0,
@@ -359,17 +352,18 @@ function DropIndicator({ isActive, isLibraryDrag }: { isActive: boolean; isLibra
         stiffness: 500,
         damping: 35,
       }}
-      className="relative overflow-hidden"
+      className="relative flex items-center justify-center"
+      style={{ pointerEvents: "none" }}
     >
       <motion.div
         initial={false}
         animate={{
-          scale: isActive ? 1 : 0.95,
+          scale: isActive ? 1 : 0.98,
           opacity: isActive ? 1 : 0,
         }}
         transition={{ duration: 0.15 }}
         className={cn(
-          "absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 rounded-lg border-2 border-dashed flex items-center justify-center",
+          "w-full h-12 rounded-lg border-2 border-dashed flex items-center justify-center",
           isLibraryDrag 
             ? "border-primary bg-primary/10" 
             : "border-accent bg-accent/10"
@@ -501,8 +495,8 @@ function DraggableBlockCard({
     <>
       <div
         draggable={isAdmin}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+        onDragStartCapture={handleDragStart}
+        onDragEndCapture={handleDragEnd}
       >
         <motion.div
           layout
