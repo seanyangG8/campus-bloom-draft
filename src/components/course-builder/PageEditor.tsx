@@ -127,51 +127,20 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
         </div>
       </div>
 
-      {/* Blocks List */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
-        {blocks.length > 0 ? (
-          <div className="space-y-0">
-            {/* Drop zone at the very top */}
-            {isAdmin && (
-              <InsertDropZone 
-                index={0} 
-                isActive={dropTargetIndex === 0 && isLibraryDrag}
-                onDragEnter={() => { setDropTargetIndex(0); setIsLibraryDrag(true); }}
-                onDragLeave={() => setDropTargetIndex(null)}
-                onDrop={(blockType) => { handleInsertBlock(0, blockType); setDropTargetIndex(null); setIsLibraryDrag(false); }}
-              />
-            )}
-            
-            {blocks.map((block, index) => (
-              <div key={block.id}>
-                <DraggableBlockCard
-                  block={block}
-                  blocks={blocks}
-                  isAdmin={isAdmin}
-                  onEdit={() => setEditingBlock(block)}
-                  isDragging={draggedBlockId === block.id}
-                  onDragStart={() => setDraggedBlockId(block.id)}
-                  onDragEnd={() => setDraggedBlockId(null)}
-                  pageId={pageId}
-                />
-                
-                {/* Drop zone after each block */}
-                {isAdmin && (
-                  <InsertDropZone 
-                    index={index + 1}
-                    isActive={dropTargetIndex === index + 1 && isLibraryDrag}
-                    onDragEnter={() => { setDropTargetIndex(index + 1); setIsLibraryDrag(true); }}
-                    onDragLeave={() => setDropTargetIndex(null)}
-                    onDrop={(blockType) => { handleInsertBlock(index + 1, blockType); setDropTargetIndex(null); setIsLibraryDrag(false); }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyDropZone pageId={pageId} isAdmin={isAdmin} />
-        )}
-      </div>
+      {/* Blocks List - Full area drop zone */}
+      <FullAreaDropZone
+        pageId={pageId}
+        blocks={blocks}
+        isAdmin={isAdmin}
+        dropTargetIndex={dropTargetIndex}
+        setDropTargetIndex={setDropTargetIndex}
+        isLibraryDrag={isLibraryDrag}
+        setIsLibraryDrag={setIsLibraryDrag}
+        onInsertBlock={handleInsertBlock}
+        draggedBlockId={draggedBlockId}
+        setDraggedBlockId={setDraggedBlockId}
+        onEditBlock={setEditingBlock}
+      />
 
       {/* Page Footer - Progress for students */}
       {!isAdmin && (
@@ -217,78 +186,203 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
   );
 }
 
-// Insert Drop Zone - appears between blocks for inserting new blocks from library
-function InsertDropZone({ 
-  index, 
-  isActive,
-  onDragEnter,
-  onDragLeave,
-  onDrop,
-}: { 
-  index: number;
-  isActive: boolean;
-  onDragEnter: () => void;
-  onDragLeave: () => void;
-  onDrop: (blockType: BlockType) => void;
+// Full Area Drop Zone - allows dropping anywhere and auto-calculates position
+function FullAreaDropZone({
+  pageId,
+  blocks,
+  isAdmin,
+  dropTargetIndex,
+  setDropTargetIndex,
+  isLibraryDrag,
+  setIsLibraryDrag,
+  onInsertBlock,
+  draggedBlockId,
+  setDraggedBlockId,
+  onEditBlock,
+}: {
+  pageId: string;
+  blocks: Block[];
+  isAdmin: boolean;
+  dropTargetIndex: number | null;
+  setDropTargetIndex: (index: number | null) => void;
+  isLibraryDrag: boolean;
+  setIsLibraryDrag: (value: boolean) => void;
+  onInsertBlock: (index: number, blockType: BlockType) => void;
+  draggedBlockId: string | null;
+  setDraggedBlockId: (id: string | null) => void;
+  onEditBlock: (block: Block) => void;
 }) {
+  const { addBlock, reorderBlocks } = useCourseBuilder();
+  const [blockRefs, setBlockRefs] = useState<Map<string, HTMLDivElement>>(new Map());
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      // Store container ref
+    }
+  }, []);
+
   const hasBlockType = (e: React.DragEvent) => {
     return e.dataTransfer.types.some(t => t.toLowerCase() === "blocktype");
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    if (hasBlockType(e)) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const hasReorderBlockId = (e: React.DragEvent) => {
+    return e.dataTransfer.types.some(t => t.toLowerCase() === "reorderblockid");
   };
 
-  const handleDragEnter = (e: React.DragEvent) => {
-    if (hasBlockType(e)) {
+  // Calculate insert position based on cursor Y position
+  const calculateInsertIndex = useCallback((e: React.DragEvent): number => {
+    const container = e.currentTarget as HTMLElement;
+    const blockElements = container.querySelectorAll('[data-block-index]');
+    
+    if (blockElements.length === 0) return 0;
+
+    const mouseY = e.clientY;
+    
+    for (let i = 0; i < blockElements.length; i++) {
+      const rect = blockElements[i].getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      
+      if (mouseY < midY) {
+        return i;
+      }
+    }
+    
+    return blockElements.length;
+  }, []);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (hasBlockType(e) || hasReorderBlockId(e)) {
       e.preventDefault();
-      e.stopPropagation();
-      onDragEnter();
+      const insertIndex = calculateInsertIndex(e);
+      
+      if (hasBlockType(e)) {
+        setIsLibraryDrag(true);
+        setDropTargetIndex(insertIndex);
+      } else if (hasReorderBlockId(e)) {
+        setIsLibraryDrag(false);
+        setDropTargetIndex(insertIndex);
+      }
     }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      onDragLeave();
+      setDropTargetIndex(null);
+      setIsLibraryDrag(false);
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
+    
     const blockType = e.dataTransfer.getData("blockType") as BlockType;
-    if (blockType) {
-      onDrop(blockType);
+    const reorderBlockId = e.dataTransfer.getData("reorderBlockId");
+    
+    if (blockType && dropTargetIndex !== null) {
+      onInsertBlock(dropTargetIndex, blockType);
+    } else if (reorderBlockId && dropTargetIndex !== null) {
+      const draggedIndex = blocks.findIndex(b => b.id === reorderBlockId);
+      if (draggedIndex !== -1 && draggedIndex !== dropTargetIndex && draggedIndex !== dropTargetIndex - 1) {
+        const newOrder = [...blocks];
+        const [removed] = newOrder.splice(draggedIndex, 1);
+        const insertAt = dropTargetIndex > draggedIndex ? dropTargetIndex - 1 : dropTargetIndex;
+        newOrder.splice(insertAt, 0, removed);
+        reorderBlocks(pageId, newOrder.map(b => b.id));
+      }
     }
+    
+    setDropTargetIndex(null);
+    setIsLibraryDrag(false);
+    setDraggedBlockId(null);
   };
 
+  if (blocks.length === 0) {
+    return (
+      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
+        <EmptyDropZone pageId={pageId} isAdmin={isAdmin} />
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={cn(
-        "relative transition-all duration-200 ease-out",
-        isActive ? "h-16 my-2" : "h-2 my-0"
-      )}
+    <div 
+      ref={containerRef}
+      className="flex-1 overflow-y-auto p-4 scrollbar-thin"
       onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div 
-        className={cn(
-          "absolute inset-x-0 top-1/2 -translate-y-1/2 transition-all duration-200",
-          isActive 
-            ? "h-14 border-2 border-dashed border-primary rounded-lg bg-primary/10 flex items-center justify-center"
-            : "h-0.5 bg-transparent hover:bg-primary/20 rounded"
-        )}
-      >
-        {isActive && (
-          <p className="text-sm text-primary font-medium">Drop here to insert</p>
-        )}
+      <div className="space-y-0">
+        {blocks.map((block, index) => (
+          <div key={block.id} data-block-index={index}>
+            {/* Drop indicator before block */}
+            <DropIndicator 
+              isActive={dropTargetIndex === index} 
+              isLibraryDrag={isLibraryDrag}
+            />
+            
+            <DraggableBlockCard
+              block={block}
+              blocks={blocks}
+              isAdmin={isAdmin}
+              onEdit={() => onEditBlock(block)}
+              isDragging={draggedBlockId === block.id}
+              onDragStart={() => setDraggedBlockId(block.id)}
+              onDragEnd={() => setDraggedBlockId(null)}
+              pageId={pageId}
+            />
+          </div>
+        ))}
+        
+        {/* Drop indicator at end */}
+        <DropIndicator 
+          isActive={dropTargetIndex === blocks.length} 
+          isLibraryDrag={isLibraryDrag}
+        />
       </div>
     </div>
+  );
+}
+
+// Drop Indicator - smooth animated line showing where block will be inserted
+function DropIndicator({ isActive, isLibraryDrag }: { isActive: boolean; isLibraryDrag: boolean }) {
+  return (
+    <motion.div
+      initial={false}
+      animate={{
+        height: isActive ? 56 : 4,
+        opacity: isActive ? 1 : 0,
+        marginTop: isActive ? 8 : 0,
+        marginBottom: isActive ? 8 : 0,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 35,
+      }}
+      className="relative overflow-hidden"
+    >
+      <motion.div
+        initial={false}
+        animate={{
+          scale: isActive ? 1 : 0.95,
+          opacity: isActive ? 1 : 0,
+        }}
+        transition={{ duration: 0.15 }}
+        className={cn(
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 rounded-lg border-2 border-dashed flex items-center justify-center",
+          isLibraryDrag 
+            ? "border-primary bg-primary/10" 
+            : "border-accent bg-accent/10"
+        )}
+      >
+        <p className={cn(
+          "text-sm font-medium",
+          isLibraryDrag ? "text-primary" : "text-accent"
+        )}>
+          {isLibraryDrag ? "Drop to insert" : "Move here"}
+        </p>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -370,7 +464,6 @@ function DraggableBlockCard({
 }) {
   const { updateBlock, deleteBlock, duplicateBlock, reorderBlocks } = useCourseBuilder();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const Icon = iconMap[block.type] || Type;
   const isActiveBlock = [
@@ -402,37 +495,6 @@ function DraggableBlockCard({
 
   const handleDragEnd = () => {
     onDragEnd();
-    setDragOverIndex(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    // Only handle reorder drags (not library drags)
-    if (e.dataTransfer.types.includes("reorderblockid")) {
-      e.preventDefault();
-      const rect = e.currentTarget.getBoundingClientRect();
-      const midY = rect.top + rect.height / 2;
-      const newIndex = e.clientY < midY ? currentIndex : currentIndex + 1;
-      setDragOverIndex(newIndex);
-    }
-  };
-
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    const draggedId = e.dataTransfer.getData("reorderBlockId");
-    if (draggedId && draggedId !== block.id) {
-      const draggedIndex = blocks.findIndex(b => b.id === draggedId);
-      if (draggedIndex !== -1 && dragOverIndex !== null) {
-        const newOrder = [...blocks];
-        const [removed] = newOrder.splice(draggedIndex, 1);
-        const insertAt = dragOverIndex > draggedIndex ? dragOverIndex - 1 : dragOverIndex;
-        newOrder.splice(insertAt, 0, removed);
-        reorderBlocks(pageId, newOrder.map(b => b.id));
-      }
-    }
-    setDragOverIndex(null);
   };
 
   return (
@@ -441,31 +503,37 @@ function DraggableBlockCard({
         draggable={isAdmin}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
       >
         <motion.div
           layout
+          layoutId={block.id}
           initial={false}
           animate={{ 
-            scale: isDragging ? 1.02 : 1,
-            boxShadow: isDragging 
-              ? "0 10px 40px -10px rgba(0,0,0,0.2)" 
-              : "0 1px 3px 0 rgba(0,0,0,0.1)",
-            opacity: isDragging ? 0.9 : 1,
+            scale: isDragging ? 1.03 : 1,
+            y: isDragging ? -4 : 0,
+            zIndex: isDragging ? 50 : 1,
           }}
           transition={{ 
-            layout: { type: "spring", stiffness: 350, damping: 30 },
-            scale: { duration: 0.15 },
-            boxShadow: { duration: 0.15 },
+            layout: { 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 28,
+              mass: 0.8,
+            },
+            scale: { type: "spring", stiffness: 500, damping: 30 },
+            y: { type: "spring", stiffness: 500, damping: 30 },
+          }}
+          style={{
+            boxShadow: isDragging 
+              ? "0 20px 50px -15px rgba(0,0,0,0.25), 0 10px 20px -10px rgba(0,0,0,0.15)" 
+              : "0 1px 3px 0 rgba(0,0,0,0.1)",
           }}
           className={cn(
-            "rounded-xl border transition-colors my-2",
+            "rounded-xl border bg-card my-2 cursor-default",
             isActiveBlock ? "bg-accent/5 border-accent/20" : "bg-card",
             block.isCompleted && "ring-2 ring-success/20",
-            isDragging && "z-50 cursor-grabbing",
-            dragOverIndex !== null && "border-primary"
+            isDragging && "cursor-grabbing opacity-95",
+            isAdmin && "cursor-grab"
           )}
         >
           <div className="p-4">
