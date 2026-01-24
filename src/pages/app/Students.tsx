@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Plus, 
@@ -44,6 +45,7 @@ import {
 
 export function StudentsPage() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [filters, setFilters] = useState<StudentFilters>({
@@ -111,7 +113,7 @@ export function StudentsPage() {
     setSelectedStudent(student);
     switch (action) {
       case "view":
-        setViewProfileOpen(true);
+        navigate(`/app/students/${student.id}`);
         break;
       case "edit":
         setEditStudentOpen(true);

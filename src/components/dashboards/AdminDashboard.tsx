@@ -104,7 +104,11 @@ export function AdminDashboard() {
           <div className="p-4 space-y-3">
             {atRiskStudents.length > 0 ? (
               atRiskStudents.map((student) => (
-                <div key={student.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div 
+                  key={student.id} 
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
+                  onClick={() => navigate(`/app/students/${student.id}`)}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
                       <span className="text-xs font-medium text-warning">
