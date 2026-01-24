@@ -20,6 +20,10 @@ import { SettingsPage } from "@/pages/app/Settings";
 import { ReportsPage } from "@/pages/app/Reports";
 import { CohortsPage } from "@/pages/app/Cohorts";
 import { ParentsPage } from "@/pages/app/Parents";
+import { ProgressPage } from "@/pages/app/Progress";
+import { QuizzesPage } from "@/pages/app/Quizzes";
+import { SubmissionsPage } from "@/pages/app/Submissions";
+import { AnnouncementsPage } from "@/pages/app/Announcements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +46,10 @@ function AppRoutes() {
       <Route path="/app/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
       <Route path="/app/cohorts" element={<AppLayout><CohortsPage /></AppLayout>} />
       <Route path="/app/parents" element={<AppLayout><ParentsPage /></AppLayout>} />
+      <Route path="/app/progress" element={<AppLayout><ProgressPage /></AppLayout>} />
+      <Route path="/app/quizzes" element={<AppLayout><QuizzesPage /></AppLayout>} />
+      <Route path="/app/submissions" element={<AppLayout><SubmissionsPage /></AppLayout>} />
+      <Route path="/app/announcements" element={<AppLayout><AnnouncementsPage /></AppLayout>} />
       <Route path="/app/*" element={<AppLayout><DashboardPage /></AppLayout>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
