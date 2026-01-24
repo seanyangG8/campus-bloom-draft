@@ -16,6 +16,10 @@ import { MessagesPage } from "@/pages/app/Messages";
 import { InvoicesPage } from "@/pages/app/Invoices";
 import { InvoiceDetailPage } from "@/pages/app/InvoiceDetail";
 import { TimetablePage } from "@/pages/app/Timetable";
+import { SettingsPage } from "@/pages/app/Settings";
+import { ReportsPage } from "@/pages/app/Reports";
+import { CohortsPage } from "@/pages/app/Cohorts";
+import { ParentsPage } from "@/pages/app/Parents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +38,10 @@ function AppRoutes() {
       <Route path="/app/invoices" element={<AppLayout><InvoicesPage /></AppLayout>} />
       <Route path="/app/invoices/:invoiceId" element={<AppLayout><InvoiceDetailPage /></AppLayout>} />
       <Route path="/app/timetable" element={<AppLayout><TimetablePage /></AppLayout>} />
+      <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+      <Route path="/app/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
+      <Route path="/app/cohorts" element={<AppLayout><CohortsPage /></AppLayout>} />
+      <Route path="/app/parents" element={<AppLayout><ParentsPage /></AppLayout>} />
       <Route path="/app/*" element={<AppLayout><DashboardPage /></AppLayout>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

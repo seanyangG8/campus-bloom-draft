@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { cn } from "@/lib/utils";
 import { NavLink } from "@/components/NavLink";
@@ -78,8 +79,13 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
 };
 
 export function AppSidebar() {
+  const navigate = useNavigate();
   const { currentRole, currentUser, currentCentre, centres, setCurrentCentre, sidebarCollapsed, setSidebarCollapsed } = useApp();
   const navItems = roleNavItems[currentRole];
+
+  const handleSignOut = () => {
+    navigate('/');
+  };
 
   return (
     <aside
@@ -171,16 +177,16 @@ export function AppSidebar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/app/settings')}>
               <UserIcon className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/app/settings')}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>
