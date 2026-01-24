@@ -64,11 +64,13 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   student: [
     { label: 'Home', href: '/app', icon: Home },
     { label: 'My Courses', href: '/app/courses', icon: BookOpen },
+    { label: 'Timetable', href: '/app/timetable', icon: Calendar },
     { label: 'Progress', href: '/app/progress', icon: Trophy },
     { label: 'Announcements', href: '/app/announcements', icon: Bell },
   ],
   parent: [
     { label: 'Home', href: '/app', icon: Home },
+    { label: 'Timetable', href: '/app/timetable', icon: Calendar },
     { label: 'Progress', href: '/app/progress', icon: BarChart3 },
     { label: 'Invoices', href: '/app/invoices', icon: CreditCard },
     { label: 'Messages', href: '/app/messages', icon: MessageSquare },
