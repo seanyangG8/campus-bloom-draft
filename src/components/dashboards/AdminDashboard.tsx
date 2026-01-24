@@ -99,7 +99,10 @@ export function AdminDashboard() {
               <AlertTriangle className="h-4 w-4 text-warning" />
               <h2 className="font-semibold">At-Risk Students</h2>
             </div>
-            <StatusBadge status="warning" label={`${atRiskStudents.length} students`} />
+            <StatusBadge
+              status="warning"
+              label={`${atRiskStudents.length} student${atRiskStudents.length === 1 ? "" : "s"}`}
+            />
           </div>
           <div className="p-4 space-y-3">
             {atRiskStudents.length > 0 ? (

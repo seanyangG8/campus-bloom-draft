@@ -97,7 +97,7 @@ export function NewAnnouncementDialog({ open, onOpenChange }: NewAnnouncementDia
                 <SelectItem value="all">All Parents</SelectItem>
                 {demoCohorts.map(cohort => (
                   <SelectItem key={cohort.id} value={cohort.id}>
-                    {cohort.name} ({cohort.studentsCount} students)
+                    {cohort.name} ({cohort.studentsCount} student{cohort.studentsCount === 1 ? "" : "s"})
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -124,23 +124,23 @@ export function TimetablePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Timetable</h1>
           <p className="text-muted-foreground">Manage your class schedule and sessions</p>
         </div>
         {(currentRole === 'admin' || currentRole === 'tutor') && (
-          <Button onClick={() => setCreateSessionOpen(true)} className="gap-2">
+          <Button onClick={() => setCreateSessionOpen(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             New Session
           </Button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar Sidebar */}
         <motion.div
-          className="bg-card rounded-xl border shadow-card p-4"
+          className="bg-card rounded-xl border shadow-card p-4 min-w-0"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
@@ -149,7 +149,7 @@ export function TimetablePage() {
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
-            className="rounded-md"
+            className="w-full rounded-md"
           />
           
           {/* Quick Stats */}
@@ -171,7 +171,7 @@ export function TimetablePage() {
 
         {/* Sessions List */}
         <motion.div
-          className="lg:col-span-2 space-y-4"
+          className="xl:col-span-2 space-y-4 min-w-0"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
