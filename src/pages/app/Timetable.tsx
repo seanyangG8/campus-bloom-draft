@@ -140,7 +140,7 @@ export function TimetablePage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar Sidebar */}
         <motion.div
-          className="bg-card rounded-xl border shadow-card p-4 min-w-0"
+          className="bg-card rounded-xl border shadow-card p-4 min-w-0 h-fit"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}

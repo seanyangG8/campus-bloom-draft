@@ -76,17 +76,17 @@ export function ChapterPageNav({ courseId, isAdmin }: ChapterPageNavProps) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b flex items-center justify-between">
-        <h2 className="font-semibold">Course Structure</h2>
+      <div className="p-3 sm:p-4 border-b flex items-center justify-between gap-2 min-w-0">
+        <h2 className="font-semibold text-sm sm:text-base truncate">Course Structure</h2>
         {isAdmin && (
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1"
+            className="gap-1 shrink-0 px-2 sm:px-3"
             onClick={() => setIsAddingChapter(true)}
           >
             <Plus className="h-3 w-3" />
-            Chapter
+            <span className="hidden sm:inline">Chapter</span>
           </Button>
         )}
       </div>
