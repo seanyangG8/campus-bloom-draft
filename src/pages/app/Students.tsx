@@ -207,41 +207,43 @@ export function StudentsPage() {
 
       {/* Students Table */}
       <motion.div
-        className="bg-card rounded-xl border shadow-card overflow-hidden"
+        className="bg-card rounded-xl border shadow-card"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead className="w-12">
-                <Checkbox 
-                  checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
-                  onCheckedChange={toggleSelectAll}
+        <div className="overflow-x-auto">
+          <Table className="min-w-[920px]">
+            <TableHeader>
+              <TableRow className="bg-muted/30">
+                <TableHead className="w-12">
+                  <Checkbox 
+                    checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
+                <TableHead>Student</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Courses</TableHead>
+                <TableHead>Progress</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Make-ups</TableHead>
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStudents.map((student) => (
+                <StudentRow
+                  key={student.id}
+                  student={student}
+                  isSelected={selectedStudents.includes(student.id)}
+                  onToggle={() => toggleStudent(student.id)}
+                  onAction={handleRowAction}
                 />
-              </TableHead>
-              <TableHead>Student</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Courses</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Make-ups</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <StudentRow
-                key={student.id}
-                student={student}
-                isSelected={selectedStudents.includes(student.id)}
-                onToggle={() => toggleStudent(student.id)}
-                onAction={handleRowAction}
-              />
-            ))}
-          </TableBody>
-        </Table>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </motion.div>
 
       {/* Dialogs */}
@@ -294,30 +296,32 @@ function StudentRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <span className="text-sm font-medium text-primary">
               {student.name.split(' ').map(n => n[0]).join('')}
             </span>
           </div>
-          <div>
-            <p className="font-medium">{student.name}</p>
-            <p className="text-xs text-muted-foreground">{student.email}</p>
+          <div className="min-w-0">
+            <p className="font-medium truncate">{student.name}</p>
+            <p className="text-xs text-muted-foreground truncate">{student.email}</p>
           </div>
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap tabular-nums">
           <Phone className="h-3 w-3" />
           {student.phone}
         </div>
       </TableCell>
       <TableCell>
-        <span className="text-sm">{student.enrolledCourses} courses</span>
+        <span className="text-sm whitespace-nowrap">
+          {student.enrolledCourses} course{student.enrolledCourses === 1 ? "" : "s"}
+        </span>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
-          <ProgressRing progress={student.completionRate} size={28} strokeWidth={3} />
-          <span className="text-sm">{student.completionRate}%</span>
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <ProgressRing progress={student.completionRate} size={28} strokeWidth={3} showLabel={false} className="shrink-0" />
+          <span className="text-sm tabular-nums">{student.completionRate}%</span>
         </div>
       </TableCell>
       <TableCell>
@@ -329,8 +333,8 @@ function StudentRow({
       </TableCell>
       <TableCell>
         {student.makeUpCredits > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info/10 text-info text-xs font-medium">
-            {student.makeUpCredits} credits
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-info/10 text-info text-xs font-medium whitespace-nowrap">
+            {student.makeUpCredits} credit{student.makeUpCredits === 1 ? "" : "s"}
           </span>
         )}
       </TableCell>

@@ -21,7 +21,7 @@ export function StatusBadge({ status, label, className, dot = false }: StatusBad
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border max-w-full",
         statusConfig[status],
         className
       )}
@@ -36,7 +36,7 @@ export function StatusBadge({ status, label, className, dot = false }: StatusBad
           status === 'neutral' && 'bg-muted-foreground',
         )} />
       )}
-      {label}
+      <span className="min-w-0 truncate">{label}</span>
     </span>
   );
 }
