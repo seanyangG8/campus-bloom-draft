@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Users, 
@@ -22,6 +23,7 @@ import {
 
 export function ParentDashboard() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const children = [demoStudents[0]]; // Mock linked children
   const selectedChild = children[0];
@@ -37,11 +39,11 @@ export function ParentDashboard() {
   };
 
   const handlePayNow = (invoice: typeof demoInvoices[0]) => {
-    toast({
-      title: "Payment",
-      description: `Redirecting to payment for ${invoice.description}...`,
-    });
-    // In a real app, this would redirect to a payment gateway
+    navigate(`/app/invoices/${invoice.id}`);
+  };
+
+  const handleViewTimetable = () => {
+    navigate('/app/timetable');
   };
 
   return (
@@ -158,12 +160,17 @@ export function ParentDashboard() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <div className="p-4 border-b">
+          <div className="p-4 border-b flex items-center justify-between">
             <h2 className="font-semibold">Upcoming Classes</h2>
+            <Button variant="ghost" size="sm" onClick={handleViewTimetable}>View All</Button>
           </div>
           <div className="p-4 space-y-3">
             {upcomingSessions.map((session) => (
-              <div key={session.id} className="p-3 bg-muted/30 rounded-lg">
+              <div 
+                key={session.id} 
+                className="p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={handleViewTimetable}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-medium text-sm">{session.title}</p>
                   <StatusBadge status="info" label={session.date} />
@@ -184,12 +191,14 @@ export function ParentDashboard() {
       >
         <div className="p-4 border-b flex items-center justify-between">
           <h2 className="font-semibold">Invoices</h2>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/app/invoices')}>View All</Button>
         </div>
         <div className="p-4 space-y-3">
           {childInvoices.map((invoice) => (
             <div 
               key={invoice.id}
-              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => navigate(`/app/invoices/${invoice.id}`)}
             >
               <div>
                 <p className="font-medium text-sm">{invoice.description}</p>
@@ -206,7 +215,10 @@ export function ParentDashboard() {
                 {invoice.status !== 'paid' && (
                   <Button 
                     size="sm"
-                    onClick={() => handlePayNow(invoice)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePayNow(invoice);
+                    }}
                   >
                     Pay Now
                   </Button>

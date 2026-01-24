@@ -207,7 +207,11 @@ export function TutorDashboard() {
           </div>
           <div className="p-4 space-y-3">
             {atRiskStudents.map((student) => (
-              <div key={student.id} className="flex items-center justify-between p-3 bg-warning/5 rounded-lg border border-warning/20">
+              <div 
+                key={student.id} 
+                className="flex items-center justify-between p-3 bg-warning/5 rounded-lg border border-warning/20 cursor-pointer hover:bg-warning/10 transition-colors"
+                onClick={() => navigate(`/app/students/${student.id}`)}
+              >
                 <div>
                   <p className="text-sm font-medium">{student.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -217,7 +221,10 @@ export function TutorDashboard() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleMessageParent(student)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMessageParent(student);
+                  }}
                 >
                   Message Parent
                 </Button>

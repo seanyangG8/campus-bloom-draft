@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Plus, 
@@ -40,6 +41,7 @@ import { GenerateInvoicesDialog, InvoiceDetailDialog } from "@/components/dialog
 
 export function InvoicesPage() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const [generateInvoicesOpen, setGenerateInvoicesOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -67,8 +69,7 @@ export function InvoicesPage() {
   const handleRowAction = (action: string, invoice: Invoice) => {
     switch (action) {
       case "view":
-        setSelectedInvoice(invoice);
-        setInvoiceDetailOpen(true);
+        navigate(`/app/invoices/${invoice.id}`);
         break;
       case "download":
         toast({
