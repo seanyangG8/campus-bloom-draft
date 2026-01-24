@@ -19,6 +19,7 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { EmptyState } from "@/components/ui/empty-state";
 import { demoCourses, Course } from "@/lib/demo-data";
 import { useApp } from "@/contexts/AppContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,15 +29,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { CreateCourseDialog } from "@/components/dialogs";
 
 export function CoursesPage() {
+  const { toast } = useToast();
   const { currentRole } = useApp();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [createCourseOpen, setCreateCourseOpen] = useState(false);
 
   const isAdmin = currentRole === 'admin' || currentRole === 'tutor';
 
@@ -45,6 +48,30 @@ export function CoursesPage() {
     const matchesTab = activeTab === 'all' || course.status === activeTab;
     return matchesSearch && matchesTab;
   });
+
+  const handleCourseAction = (action: string, course: Course) => {
+    switch (action) {
+      case "duplicate":
+        toast({
+          title: "Course Duplicated",
+          description: `"${course.title}" has been duplicated.`,
+        });
+        break;
+      case "preview":
+        toast({
+          title: "Opening Preview",
+          description: `Opening preview for "${course.title}"...`,
+        });
+        break;
+      case "delete":
+        toast({
+          title: "Course Deleted",
+          description: `"${course.title}" has been deleted.`,
+          variant: "destructive",
+        });
+        break;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -57,7 +84,10 @@ export function CoursesPage() {
           </p>
         </div>
         {isAdmin && (
-          <Button className="gradient-hero text-primary-foreground gap-2">
+          <Button 
+            className="gradient-hero text-primary-foreground gap-2"
+            onClick={() => setCreateCourseOpen(true)}
+          >
             <Plus className="h-4 w-4" />
             Create Course
           </Button>
@@ -84,7 +114,11 @@ export function CoursesPage() {
             </TabsList>
           </Tabs>
         )}
-        <Button variant="outline" size="icon">
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => toast({ title: "Filters", description: "Filter panel coming soon." })}
+        >
           <Filter className="h-4 w-4" />
         </Button>
       </div>
@@ -98,7 +132,13 @@ export function CoursesPage() {
           transition={{ duration: 0.3 }}
         >
           {filteredCourses.map((course, index) => (
-            <CourseCard key={course.id} course={course} isAdmin={isAdmin} index={index} />
+            <CourseCard 
+              key={course.id} 
+              course={course} 
+              isAdmin={isAdmin} 
+              index={index}
+              onAction={handleCourseAction}
+            />
           ))}
         </motion.div>
       ) : (
@@ -106,14 +146,27 @@ export function CoursesPage() {
           icon={BookOpen}
           title="No courses found"
           description={searchQuery ? "Try adjusting your search" : "Create your first course to get started"}
-          action={isAdmin ? { label: "Create Course", onClick: () => {} } : undefined}
+          action={isAdmin ? { label: "Create Course", onClick: () => setCreateCourseOpen(true) } : undefined}
         />
       )}
+
+      {/* Dialogs */}
+      <CreateCourseDialog open={createCourseOpen} onOpenChange={setCreateCourseOpen} />
     </div>
   );
 }
 
-function CourseCard({ course, isAdmin, index }: { course: Course; isAdmin: boolean; index: number }) {
+function CourseCard({ 
+  course, 
+  isAdmin, 
+  index,
+  onAction,
+}: { 
+  course: Course; 
+  isAdmin: boolean; 
+  index: number;
+  onAction: (action: string, course: Course) => void;
+}) {
   return (
     <motion.div
       className="bg-card rounded-xl border shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden group"
@@ -143,20 +196,25 @@ function CourseCard({ course, isAdmin, index }: { course: Course; isAdmin: boole
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                <DropdownMenuItem>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Course
+                <DropdownMenuItem asChild>
+                  <Link to={`/app/courses/${course.id}`}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Course
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAction("duplicate", course)}>
                   <Copy className="mr-2 h-4 w-4" />
                   Duplicate
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAction("preview", course)}>
                   <Eye className="mr-2 h-4 w-4" />
                   Preview
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem 
+                  className="text-destructive"
+                  onClick={() => onAction("delete", course)}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>

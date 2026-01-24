@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -13,6 +13,7 @@ import {
   GraduationCap,
   MessageSquare,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const features = [
   {
@@ -55,6 +56,26 @@ const fadeInUp = {
 };
 
 export function LandingPage() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleBookCall = () => {
+    toast({
+      title: "Book a Call",
+      description: "Redirecting to scheduling page...",
+    });
+    // In production, this would open Calendly or similar
+    window.open("https://calendly.com", "_blank");
+  };
+
+  const handleGetStarted = () => {
+    navigate("/auth/signin");
+    toast({
+      title: "Get Started",
+      description: "Create your free account to get started.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -107,7 +128,12 @@ export function LandingPage() {
                   View Demo
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="gap-2">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2"
+                onClick={handleBookCall}
+              >
                 Book a Call
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -242,7 +268,11 @@ export function LandingPage() {
                   View Demo
                 </Button>
               </Link>
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 gap-2">
+              <Button 
+                size="lg" 
+                className="bg-white text-primary hover:bg-white/90 gap-2"
+                onClick={handleGetStarted}
+              >
                 <CheckCircle2 className="h-4 w-4" />
                 Get Started Free
               </Button>

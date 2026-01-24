@@ -4,7 +4,6 @@ import {
   Calendar, 
   CreditCard,
   BarChart3,
-  AlertTriangle,
   Download,
   ChevronDown,
 } from "lucide-react";
@@ -13,6 +12,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { demoStudents, demoInvoices, demoSessions } from "@/lib/demo-data";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,11 +21,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ParentDashboard() {
+  const { toast } = useToast();
+
   const children = [demoStudents[0]]; // Mock linked children
   const selectedChild = children[0];
   const childInvoices = demoInvoices.filter(i => i.studentId === 'stu-1');
   const unpaidInvoices = childInvoices.filter(i => i.status !== 'paid');
   const upcomingSessions = demoSessions.filter(s => s.status === 'scheduled').slice(0, 2);
+
+  const handleDownloadReport = () => {
+    toast({
+      title: "Downloading Report",
+      description: `Progress report for ${selectedChild.name} is being generated.`,
+    });
+  };
+
+  const handlePayNow = (invoice: typeof demoInvoices[0]) => {
+    toast({
+      title: "Payment",
+      description: `Redirecting to payment for ${invoice.description}...`,
+    });
+    // In a real app, this would redirect to a payment gateway
+  };
 
   return (
     <div className="space-y-6">
@@ -92,7 +109,12 @@ export function ParentDashboard() {
         >
           <div className="p-4 border-b flex items-center justify-between">
             <h2 className="font-semibold">Progress Snapshot</h2>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={handleDownloadReport}
+            >
               <Download className="h-4 w-4" />
               Download Report
             </Button>
@@ -182,7 +204,12 @@ export function ParentDashboard() {
                   />
                 </div>
                 {invoice.status !== 'paid' && (
-                  <Button size="sm">Pay Now</Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => handlePayNow(invoice)}
+                  >
+                    Pay Now
+                  </Button>
                 )}
               </div>
             </div>

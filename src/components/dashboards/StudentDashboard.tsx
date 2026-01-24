@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Play, 
   BookOpen, 
@@ -11,11 +12,29 @@ import {
 import { Button } from "@/components/ui/button";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { demoCourses, demoSessions } from "@/lib/demo-data";
-import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export function StudentDashboard() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
   const nextSession = demoSessions.find(s => s.status === 'scheduled');
   const enrolledCourses = demoCourses.filter(c => c.status === 'published').slice(0, 2);
+
+  const handleJoinClass = () => {
+    if (nextSession?.meetingLink) {
+      window.open(nextSession.meetingLink, '_blank');
+      toast({
+        title: "Joining Class",
+        description: `Opening ${nextSession.title}...`,
+      });
+    } else {
+      toast({
+        title: "Class Not Started",
+        description: "The meeting link will be available when class starts.",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -51,7 +70,12 @@ export function StudentDashboard() {
                 <span>{nextSession.time}</span>
               </div>
             </div>
-            <Button size="lg" variant="secondary" className="gap-2">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="gap-2"
+              onClick={handleJoinClass}
+            >
               <Play className="h-4 w-4" />
               Join Class
             </Button>
@@ -81,14 +105,20 @@ export function StudentDashboard() {
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg border border-success/20">
+            <button 
+              className="w-full flex items-center justify-between p-3 bg-success/5 rounded-lg border border-success/20 hover:bg-success/10 transition-colors text-left"
+              onClick={() => navigate('/app/courses/course-1')}
+            >
               <span className="text-sm">Complete "Quadratic Formula" page</span>
               <span className="text-xs text-success font-medium">In Progress</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            </button>
+            <button 
+              className="w-full flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors text-left"
+              onClick={() => navigate('/app/courses/course-1')}
+            >
               <span className="text-sm">Submit whiteboard activity</span>
               <span className="text-xs text-muted-foreground">Due Tomorrow</span>
-            </div>
+            </button>
           </div>
         </div>
       </motion.div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Users, 
@@ -16,13 +17,30 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { demoCourses, demoStudents, demoSessions, demoInvoices } from "@/lib/demo-data";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { GenerateInvoicesDialog } from "@/components/dialogs";
 
 export function AdminDashboard() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [generateInvoicesOpen, setGenerateInvoicesOpen] = useState(false);
+
   const atRiskStudents = demoStudents.filter(s => s.status === 'at-risk');
   const upcomingSessions = demoSessions.filter(s => s.status === 'scheduled');
   const overdueInvoices = demoInvoices.filter(i => i.status === 'overdue');
   const pendingInvoices = demoInvoices.filter(i => i.status === 'pending');
+
+  const handleJoinLink = (session: typeof demoSessions[0]) => {
+    if (session.meetingLink) {
+      window.open(session.meetingLink, '_blank');
+    } else {
+      toast({
+        title: "No Meeting Link",
+        description: "Meeting link not available for this session.",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,7 +122,12 @@ export function AdminDashboard() {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">No at-risk students</p>
             )}
-            <Button variant="ghost" size="sm" className="w-full mt-2 gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full mt-2 gap-2"
+              onClick={() => navigate('/app/students')}
+            >
               View All Students
               <ArrowRight className="h-3 w-3" />
             </Button>
@@ -141,7 +164,12 @@ export function AdminDashboard() {
                   <span className="text-xs text-muted-foreground">
                     {session.totalStudents} students enrolled
                   </span>
-                  <Button variant="outline" size="sm" className="h-7 text-xs">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs"
+                    onClick={() => handleJoinLink(session)}
+                  >
                     Join Link
                   </Button>
                 </div>
@@ -189,7 +217,10 @@ export function AdminDashboard() {
                 Total: ${pendingInvoices.reduce((sum, i) => sum + i.amount, 0)}
               </p>
             </div>
-            <Button className="w-full gradient-hero text-primary-foreground">
+            <Button 
+              className="w-full gradient-hero text-primary-foreground"
+              onClick={() => setGenerateInvoicesOpen(true)}
+            >
               Generate Invoices
             </Button>
           </div>
@@ -249,6 +280,12 @@ export function AdminDashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Dialogs */}
+      <GenerateInvoicesDialog 
+        open={generateInvoicesOpen} 
+        onOpenChange={setGenerateInvoicesOpen} 
+      />
     </div>
   );
 }
