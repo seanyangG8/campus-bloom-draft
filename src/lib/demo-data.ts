@@ -124,6 +124,14 @@ export interface Invoice {
   description: string;
 }
 
+export interface Parent {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  studentIds: string[];
+}
+
 // Demo Data
 export const demoCentres: Centre[] = [
   {
@@ -266,6 +274,14 @@ export const demoInvoices: Invoice[] = [
   { id: 'inv-2', studentId: 'stu-2', studentName: 'Aisha Binti Hassan', amount: 350, currency: 'MYR', status: 'pending', dueDate: '2024-01-25', description: 'Jan 2024 - P6 Science' },
   { id: 'inv-3', studentId: 'stu-3', studentName: 'Ryan Koh', amount: 480, currency: 'SGD', status: 'overdue', dueDate: '2024-01-10', description: 'Jan 2024 - Sec 3 Math' },
   { id: 'inv-4', studentId: 'stu-4', studentName: 'Priya Sharma', amount: 480, currency: 'SGD', status: 'pending', dueDate: '2024-01-28', description: 'Jan 2024 - Sec 3 Math' },
+];
+
+export const demoParents: Parent[] = [
+  { id: 'par-1', name: 'Mrs. Tan Mei Ling', email: 'meiling.tan@email.com', phone: '+65 9123 4567', studentIds: ['stu-1'] },
+  { id: 'par-2', name: 'Mr. Hassan Bin Ahmad', email: 'hassan.ahmad@email.com', phone: '+60 12-345 6789', studentIds: ['stu-2'] },
+  { id: 'par-3', name: 'Mrs. Koh Siew Lian', email: 'siewlian.koh@email.com', phone: '+65 8765 4321', studentIds: ['stu-3'] },
+  { id: 'par-4', name: 'Mr. Rajesh Sharma', email: 'rajesh.sharma@email.com', phone: '+65 9876 5432', studentIds: ['stu-4'] },
+  { id: 'par-5', name: 'Mrs. Fatimah Binti Yusof', email: 'fatimah.yusof@email.com', phone: '+60 11-234 5678', studentIds: ['stu-5'] },
 ];
 
 export const blockTypes: { type: BlockType; label: string; icon: string; description: string }[] = [
