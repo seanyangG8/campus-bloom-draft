@@ -137,9 +137,9 @@ export function TimetablePage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6">
         {/* Calendar Sidebar */}
-        <div className="flex justify-center xl:justify-start">
+        <div className="flex justify-center md:justify-start">
           <motion.div
             className="bg-card rounded-xl border shadow-card p-4 h-fit w-fit"
             initial={{ opacity: 0, x: -20 }}
@@ -173,7 +173,7 @@ export function TimetablePage() {
 
         {/* Sessions List */}
         <motion.div
-          className="xl:col-span-2 space-y-4 min-w-0"
+          className="space-y-4 min-w-0"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
