@@ -78,29 +78,29 @@ export function InvoiceDetailPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/app/invoices")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/app/invoices")} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Invoice {invoice.id}</h1>
-            <p className="text-muted-foreground">View and manage invoice details</p>
+          <div className="min-w-0">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground truncate">Invoice {invoice.id}</h1>
+            <p className="text-sm text-muted-foreground">View and manage invoice details</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
             <Printer className="h-4 w-4" />
-            Print
+            <span className="hidden sm:inline">Print</span>
           </Button>
           <Button variant="outline" size="sm" onClick={handleDownload} className="gap-2">
             <Download className="h-4 w-4" />
-            Download PDF
+            <span className="hidden sm:inline">Download</span>
           </Button>
           {invoice.status !== 'paid' && (
             <Button variant="outline" size="sm" onClick={handleSendReminder} className="gap-2">
               <Send className="h-4 w-4" />
-              Send Reminder
+              <span className="hidden sm:inline">Remind</span>
             </Button>
           )}
         </div>
@@ -114,7 +114,7 @@ export function InvoiceDetailPage() {
         transition={{ duration: 0.3 }}
       >
         {/* Status Banner */}
-        <div className={`p-4 flex items-center justify-between ${
+        <div className={`p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
           invoice.status === 'paid' ? 'bg-success/10' : 
           invoice.status === 'overdue' ? 'bg-destructive/10' : 'bg-warning/10'
         }`}>
@@ -129,7 +129,7 @@ export function InvoiceDetailPage() {
             </div>
           </div>
           {invoice.status !== 'paid' && (
-            <Button onClick={handleMarkPaid} className="gap-2">
+            <Button onClick={handleMarkPaid} className="gap-2 w-full sm:w-auto">
               <CreditCard className="h-4 w-4" />
               Mark as Paid
             </Button>
@@ -137,23 +137,23 @@ export function InvoiceDetailPage() {
         </div>
 
         {/* Invoice Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {/* Header Info */}
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Building className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-semibold">{centre.name}</h3>
+                <Building className="h-5 w-5 text-muted-foreground shrink-0" />
+                <h3 className="font-semibold truncate">{centre.name}</h3>
               </div>
               <p className="text-sm text-muted-foreground">123 Education Street</p>
               <p className="text-sm text-muted-foreground">Singapore 123456</p>
               <p className="text-sm text-muted-foreground">Tel: +65 1234 5678</p>
             </div>
-            <div className="text-right">
-              <h2 className="text-3xl font-bold text-foreground">INVOICE</h2>
+            <div className="sm:text-right">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">INVOICE</h2>
               <p className="text-muted-foreground mt-1">{invoice.id}</p>
-              <p className="text-sm text-muted-foreground mt-2">Issue Date: {invoice.dueDate}</p>
-              <p className="text-sm text-muted-foreground">Due Date: {invoice.dueDate}</p>
+              <p className="text-sm text-muted-foreground mt-2">Issue: {invoice.dueDate}</p>
+              <p className="text-sm text-muted-foreground">Due: {invoice.dueDate}</p>
             </div>
           </div>
 
@@ -172,23 +172,23 @@ export function InvoiceDetailPage() {
           <Separator />
 
           {/* Line Items */}
-          <div>
-            <table className="w-full">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <table className="w-full min-w-[400px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 text-sm font-medium text-muted-foreground">Description</th>
+                  <th className="text-left py-2 px-4 sm:px-0 text-sm font-medium text-muted-foreground">Description</th>
                   <th className="text-right py-2 text-sm font-medium text-muted-foreground">Qty</th>
                   <th className="text-right py-2 text-sm font-medium text-muted-foreground">Rate</th>
-                  <th className="text-right py-2 text-sm font-medium text-muted-foreground">Amount</th>
+                  <th className="text-right py-2 px-4 sm:px-0 text-sm font-medium text-muted-foreground">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {lineItems.map((item, index) => (
                   <tr key={index} className="border-b">
-                    <td className="py-3">{item.description}</td>
-                    <td className="py-3 text-right">{item.quantity}</td>
-                    <td className="py-3 text-right">${item.rate.toFixed(2)}</td>
-                    <td className="py-3 text-right">${item.amount.toFixed(2)}</td>
+                    <td className="py-3 px-4 sm:px-0 text-sm">{item.description}</td>
+                    <td className="py-3 text-right text-sm">{item.quantity}</td>
+                    <td className="py-3 text-right text-sm">${item.rate.toFixed(2)}</td>
+                    <td className="py-3 px-4 sm:px-0 text-right text-sm">${item.amount.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -234,7 +234,7 @@ export function InvoiceDetailPage() {
       </motion.div>
 
       {/* Related Actions */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button 
           variant="outline" 
           className="flex-1"

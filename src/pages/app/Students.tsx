@@ -140,26 +140,26 @@ export function StudentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Students</h1>
-          <p className="text-muted-foreground">Manage student enrolments and progress</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Students</h1>
+          <p className="text-sm text-muted-foreground">Manage student enrolments and progress</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => setImportCSVOpen(true)}>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setImportCSVOpen(true)}>
             <Upload className="h-4 w-4" />
-            Import CSV
+            <span className="hidden sm:inline">Import CSV</span>
           </Button>
-          <Button className="gradient-hero text-primary-foreground gap-2" onClick={() => setAddStudentOpen(true)}>
+          <Button size="sm" className="gradient-hero text-primary-foreground gap-2" onClick={() => setAddStudentOpen(true)}>
             <Plus className="h-4 w-4" />
-            Add Student
+            <span className="hidden sm:inline">Add Student</span>
           </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 max-w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search students..."
@@ -168,15 +168,17 @@ export function StudentsPage() {
             className="pl-9"
           />
         </div>
-        <FilterStudentsPopover 
-          filters={filters} 
-          onFiltersChange={setFilters} 
-          onClear={clearFilters}
-        />
-        <Button variant="outline" className="gap-2" onClick={handleExport}>
-          <Download className="h-4 w-4" />
-          Export
-        </Button>
+        <div className="flex items-center gap-2">
+          <FilterStudentsPopover 
+            filters={filters} 
+            onFiltersChange={setFilters} 
+            onClear={clearFilters}
+          />
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+        </div>
       </div>
 
       {/* Bulk Actions */}
