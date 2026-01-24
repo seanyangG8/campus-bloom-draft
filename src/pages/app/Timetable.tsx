@@ -139,18 +139,19 @@ export function TimetablePage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar Sidebar */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-4 min-w-0 h-fit"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            className="w-full rounded-md"
-          />
+        <div className="flex justify-center xl:justify-start">
+          <motion.div
+            className="bg-card rounded-xl border shadow-card p-4 h-fit w-fit"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="rounded-md"
+            />
           
           {/* Quick Stats */}
           <div className="mt-4 pt-4 border-t space-y-2">
@@ -167,7 +168,8 @@ export function TimetablePage() {
               <span className="font-semibold">48</span>
             </div>
           </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Sessions List */}
         <motion.div
