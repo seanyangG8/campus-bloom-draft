@@ -177,25 +177,25 @@ export function TimetablePage() {
           transition={{ duration: 0.3, delay: 0.1 }}
         >
           {/* View Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Button variant="ghost" size="icon" className="shrink-0">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <h2 className="font-semibold">
+              <h2 className="font-semibold text-sm sm:text-base truncate">
                 {selectedDate?.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                  weekday: 'short', 
+                  month: 'short', 
+                  day: 'numeric',
+                  year: 'numeric'
                 })}
               </h2>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="shrink-0">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             <Select value={viewMode} onValueChange={(v) => setViewMode(v as 'day' | 'week')}>
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-[110px] shrink-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover">
@@ -214,10 +214,10 @@ export function TimetablePage() {
                 onClick={() => openSessionDetail(session)}
                 whileHover={{ scale: 1.01 }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold">{session.title}</h3>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="font-semibold truncate">{session.title}</h3>
                       <StatusBadge 
                         status={
                           session.status === 'live' ? 'error' : 
@@ -227,23 +227,23 @@ export function TimetablePage() {
                         label={session.status === 'live' ? '● LIVE' : session.status} 
                       />
                     </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <CalendarIcon className="h-4 w-4" />
-                        {session.date}
+                        <CalendarIcon className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{session.date}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {session.time} ({session.duration} mins)
+                        <Clock className="h-4 w-4 shrink-0" />
+                        <span className="whitespace-nowrap">{session.time} ({session.duration}m)</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {session.attendanceCount}/{session.totalStudents} students
+                        <Users className="h-4 w-4 shrink-0" />
+                        <span className="whitespace-nowrap">{session.attendanceCount}/{session.totalStudents}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                     {session.status === 'live' && (
                       <Button size="sm" className="gap-1 bg-destructive hover:bg-destructive/90" onClick={() => handleStartSession(session)}>
                         <Play className="h-3 w-3" />

@@ -101,29 +101,30 @@ export function InvoicesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Invoices</h1>
-          <p className="text-muted-foreground">Manage billing and payments</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Invoices</h1>
+          <p className="text-sm text-muted-foreground">Manage billing and payments</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2" onClick={handleExport}>
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleExport}>
             <Download className="h-4 w-4" />
-            Export
+            <span className="hidden sm:inline">Export</span>
           </Button>
           <Button 
+            size="sm"
             className="gradient-hero text-primary-foreground gap-2"
             onClick={() => setGenerateInvoicesOpen(true)}
           >
             <Plus className="h-4 w-4" />
-            Generate Invoices
+            <span className="hidden sm:inline">Generate</span>
           </Button>
         </div>
       </div>
 
       {/* Stats */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-4 gap-4"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -158,13 +159,13 @@ export function InvoicesPage() {
       </motion.div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between">
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All ({demoInvoices.length})</TabsTrigger>
-            <TabsTrigger value="paid">Paid ({paidInvoices.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({pendingInvoices.length})</TabsTrigger>
-            <TabsTrigger value="overdue">Overdue ({overdueInvoices.length})</TabsTrigger>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">All ({demoInvoices.length})</TabsTrigger>
+            <TabsTrigger value="paid" className="text-xs sm:text-sm">Paid ({paidInvoices.length})</TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm">Pending ({pendingInvoices.length})</TabsTrigger>
+            <TabsTrigger value="overdue" className="text-xs sm:text-sm">Overdue ({overdueInvoices.length})</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

@@ -76,16 +76,17 @@ export function CoursesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Courses</h1>
-          <p className="text-muted-foreground">
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Courses</h1>
+          <p className="text-sm text-muted-foreground">
             {isAdmin ? 'Manage your courses and learning content' : 'Your enrolled courses'}
           </p>
         </div>
         {isAdmin && (
           <Button 
-            className="gradient-hero text-primary-foreground gap-2"
+            size="sm"
+            className="gradient-hero text-primary-foreground gap-2 w-full sm:w-auto"
             onClick={() => setCreateCourseOpen(true)}
           >
             <Plus className="h-4 w-4" />
@@ -95,8 +96,8 @@ export function CoursesPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 max-w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search courses..."
@@ -105,28 +106,31 @@ export function CoursesPage() {
             className="pl-9"
           />
         </div>
-        {isAdmin && (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="published">Published</TabsTrigger>
-              <TabsTrigger value="draft">Drafts</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        )}
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={() => toast({ title: "Filters", description: "Filter panel coming soon." })}
-        >
-          <Filter className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {isAdmin && (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+                <TabsTrigger value="published" className="text-xs sm:text-sm">Published</TabsTrigger>
+                <TabsTrigger value="draft" className="text-xs sm:text-sm">Drafts</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="shrink-0"
+            onClick={() => toast({ title: "Filters", description: "Filter panel coming soon." })}
+          >
+            <Filter className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Course Grid */}
       {filteredCourses.length > 0 ? (
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}

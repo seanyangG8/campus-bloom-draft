@@ -70,30 +70,30 @@ export function StudentProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/app/students")}>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/app/students")} className="shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="font-display text-2xl font-bold text-foreground">Student Profile</h1>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Student Profile</h1>
       </div>
 
       {/* Profile Card */}
       <motion.div
-        className="bg-card rounded-xl border shadow-card p-6"
+        className="bg-card rounded-xl border shadow-card p-4 sm:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Avatar & Basic Info */}
           <div className="flex items-start gap-4">
-            <Avatar className="h-20 w-20">
+            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 shrink-0">
               <AvatarImage src={student.avatar} />
-              <AvatarFallback className="text-xl">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+              <AvatarFallback className="text-lg sm:text-xl">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-semibold">{student.name}</h2>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg sm:text-xl font-semibold truncate">{student.name}</h2>
                 <StatusBadge 
                   status={student.status === 'active' ? 'success' : student.status === 'at-risk' ? 'warning' : 'neutral'} 
                   label={student.status} 
@@ -101,37 +101,37 @@ export function StudentProfilePage() {
               </div>
               <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {student.email}
+                  <Mail className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{student.email}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  {student.phone}
+                  <Phone className="h-4 w-4 shrink-0" />
+                  <span>{student.phone}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Last active: {student.lastActive}
+                  <Clock className="h-4 w-4 shrink-0" />
+                  <span>Last active: {student.lastActive}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 md:ml-auto">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 lg:ml-auto">
             <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <ProgressRing progress={student.completionRate} size={48} strokeWidth={4} />
+              <ProgressRing progress={student.completionRate} size={40} strokeWidth={4} />
               <p className="text-xs text-muted-foreground mt-1">Completion</p>
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <p className="text-2xl font-bold text-foreground">{student.enrolledCourses}</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{student.enrolledCourses}</p>
               <p className="text-xs text-muted-foreground">Courses</p>
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <p className="text-2xl font-bold text-foreground">{student.makeUpCredits}</p>
-              <p className="text-xs text-muted-foreground">Make-up Credits</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{student.makeUpCredits}</p>
+              <p className="text-xs text-muted-foreground">Make-ups</p>
             </div>
             <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <p className="text-2xl font-bold text-foreground">92%</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">92%</p>
               <p className="text-xs text-muted-foreground">Attendance</p>
             </div>
           </div>
@@ -139,39 +139,39 @@ export function StudentProfilePage() {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t">
-          <Button onClick={() => setEditDialogOpen(true)} variant="outline" className="gap-2">
+          <Button onClick={() => setEditDialogOpen(true)} variant="outline" size="sm" className="gap-2">
             <Edit className="h-4 w-4" />
-            Edit Profile
+            <span className="hidden sm:inline">Edit</span>
           </Button>
-          <Button onClick={handleSendMessage} variant="outline" className="gap-2">
+          <Button onClick={handleSendMessage} variant="outline" size="sm" className="gap-2">
             <MessageSquare className="h-4 w-4" />
-            Send Message
+            <span className="hidden sm:inline">Message</span>
           </Button>
-          <Button onClick={() => setMakeUpCreditDialogOpen(true)} variant="outline" className="gap-2">
+          <Button onClick={() => setMakeUpCreditDialogOpen(true)} variant="outline" size="sm" className="gap-2">
             <Plus className="h-4 w-4" />
-            Add Make-up Credit
+            <span className="hidden sm:inline">Make-up</span>
           </Button>
-          <Button onClick={handleDownloadReport} variant="outline" className="gap-2">
+          <Button onClick={handleDownloadReport} variant="outline" size="sm" className="gap-2">
             <Download className="h-4 w-4" />
-            Download Report
+            <span className="hidden sm:inline">Report</span>
           </Button>
         </div>
       </motion.div>
 
       {/* Tabs */}
       <Tabs defaultValue="courses" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="courses" className="gap-2">
+        <TabsList className="w-full sm:w-auto flex overflow-x-auto">
+          <TabsTrigger value="courses" className="gap-2 flex-1 sm:flex-none">
             <BookOpen className="h-4 w-4" />
-            Courses
+            <span className="hidden sm:inline">Courses</span>
           </TabsTrigger>
-          <TabsTrigger value="attendance" className="gap-2">
+          <TabsTrigger value="attendance" className="gap-2 flex-1 sm:flex-none">
             <Calendar className="h-4 w-4" />
-            Attendance
+            <span className="hidden sm:inline">Attendance</span>
           </TabsTrigger>
-          <TabsTrigger value="billing" className="gap-2">
+          <TabsTrigger value="billing" className="gap-2 flex-1 sm:flex-none">
             <CreditCard className="h-4 w-4" />
-            Billing
+            <span className="hidden sm:inline">Billing</span>
           </TabsTrigger>
         </TabsList>
 

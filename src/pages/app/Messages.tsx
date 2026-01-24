@@ -72,13 +72,14 @@ export function MessagesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Messages</h1>
-          <p className="text-muted-foreground">Communicate with parents and students</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Messages</h1>
+          <p className="text-sm text-muted-foreground">Communicate with parents and students</p>
         </div>
         <Button 
-          className="gradient-hero text-primary-foreground gap-2"
+          size="sm"
+          className="gradient-hero text-primary-foreground gap-2 w-full sm:w-auto"
           onClick={() => setAnnouncementOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -87,18 +88,20 @@ export function MessagesPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="threads">Threads</TabsTrigger>
-          <TabsTrigger value="announcements">Announcements</TabsTrigger>
-          <TabsTrigger value="templates">WhatsApp Templates</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="threads" className="text-xs sm:text-sm">Threads</TabsTrigger>
+            <TabsTrigger value="announcements" className="text-xs sm:text-sm">Announcements</TabsTrigger>
+            <TabsTrigger value="templates" className="text-xs sm:text-sm">Templates</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Threads Tab */}
         <TabsContent value="threads" className="mt-6">
-          <div className="grid grid-cols-12 gap-6 h-[calc(100vh-16rem)]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[400px] lg:h-[calc(100vh-16rem)]">
             {/* Thread List */}
             <motion.div
-              className="col-span-4 bg-card rounded-xl border shadow-card overflow-hidden"
+              className="lg:col-span-4 bg-card rounded-xl border shadow-card overflow-hidden"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
@@ -142,30 +145,31 @@ export function MessagesPage() {
 
             {/* Message Thread */}
             <motion.div
-              className="col-span-8 bg-card rounded-xl border shadow-card overflow-hidden flex flex-col"
+              className="lg:col-span-8 bg-card rounded-xl border shadow-card overflow-hidden flex flex-col min-h-[300px]"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
               {selectedThread ? (
                 <>
-                  <div className="p-4 border-b flex items-center justify-between">
+                  <div className="p-3 sm:p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <Users className="h-5 w-5 text-primary" />
                       </div>
-                      <div>
-                        <p className="font-semibold">Mrs. Tan Mei Ling</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold truncate">Mrs. Tan Mei Ling</p>
                         <p className="text-xs text-muted-foreground">Parent of Wei Lin Tan</p>
                       </div>
                     </div>
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="gap-2"
+                      className="gap-2 w-full sm:w-auto shrink-0"
                       onClick={handleCopyForWhatsApp}
                     >
                       <Copy className="h-4 w-4" />
-                      Copy for WhatsApp
+                      <span className="hidden sm:inline">Copy for WhatsApp</span>
+                      <span className="sm:hidden">Copy</span>
                     </Button>
                   </div>
                   <div className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar-thin">
@@ -232,14 +236,15 @@ export function MessagesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="p-4 border-b flex items-center justify-between">
+            <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h2 className="font-semibold">WhatsApp Templates</h2>
                 <p className="text-sm text-muted-foreground">Quick copy templates for WhatsApp messages</p>
               </div>
               <Button 
                 variant="outline" 
-                className="gap-2"
+                size="sm"
+                className="gap-2 w-full sm:w-auto"
                 onClick={() => setNewTemplateOpen(true)}
               >
                 <Plus className="h-4 w-4" />
