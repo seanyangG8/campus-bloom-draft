@@ -3,21 +3,17 @@ import { motion } from "framer-motion";
 import { 
   Plus, 
   Search, 
-  Filter,
   Download,
   Upload,
   MoreVertical,
-  Mail,
   Phone,
-  Calendar,
-  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { RoleBadge } from "@/components/ui/role-badge";
 import { demoStudents, Student } from "@/lib/demo-data";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -34,15 +30,52 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AddStudentDialog,
+  EditStudentDialog,
+  StudentProfileDialog,
+  AddMakeUpCreditDialog,
+  FilterStudentsPopover,
+  StudentFilters,
+  GenerateInvoicesDialog,
+  SendBulkMessageDialog,
+  ImportCSVDialog,
+} from "@/components/dialogs";
 
 export function StudentsPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [filters, setFilters] = useState<StudentFilters>({
+    status: [],
+    course: "",
+    progressMin: "",
+    progressMax: "",
+  });
 
-  const filteredStudents = demoStudents.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Dialog states
+  const [addStudentOpen, setAddStudentOpen] = useState(false);
+  const [importCSVOpen, setImportCSVOpen] = useState(false);
+  const [generateInvoicesOpen, setGenerateInvoicesOpen] = useState(false);
+  const [sendMessageOpen, setSendMessageOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [viewProfileOpen, setViewProfileOpen] = useState(false);
+  const [editStudentOpen, setEditStudentOpen] = useState(false);
+  const [addCreditOpen, setAddCreditOpen] = useState(false);
+
+  const filteredStudents = demoStudents.filter(student => {
+    const matchesSearch = 
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(student.status);
+    
+    const matchesProgress = 
+      (!filters.progressMin || student.completionRate >= parseInt(filters.progressMin)) &&
+      (!filters.progressMax || student.completionRate <= parseInt(filters.progressMax));
+
+    return matchesSearch && matchesStatus && matchesProgress;
+  });
 
   const toggleSelectAll = () => {
     if (selectedStudents.length === filteredStudents.length) {
@@ -58,6 +91,50 @@ export function StudentsPage() {
     );
   };
 
+  const handleExport = () => {
+    toast({
+      title: "Export Started",
+      description: "students_export.csv is being downloaded.",
+    });
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      status: [],
+      course: "",
+      progressMin: "",
+      progressMax: "",
+    });
+  };
+
+  const handleRowAction = (action: string, student: Student) => {
+    setSelectedStudent(student);
+    switch (action) {
+      case "view":
+        setViewProfileOpen(true);
+        break;
+      case "edit":
+        setEditStudentOpen(true);
+        break;
+      case "message":
+        navigator.clipboard.writeText(
+          `Hi, this is regarding ${student.name}'s progress at our centre...`
+        );
+        toast({
+          title: "Message Copied",
+          description: "Message template copied to clipboard for WhatsApp.",
+        });
+        break;
+      case "invoice":
+        setSelectedStudents([student.id]);
+        setGenerateInvoicesOpen(true);
+        break;
+      case "credit":
+        setAddCreditOpen(true);
+        break;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -67,11 +144,11 @@ export function StudentsPage() {
           <p className="text-muted-foreground">Manage student enrolments and progress</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setImportCSVOpen(true)}>
             <Upload className="h-4 w-4" />
             Import CSV
           </Button>
-          <Button className="gradient-hero text-primary-foreground gap-2">
+          <Button className="gradient-hero text-primary-foreground gap-2" onClick={() => setAddStudentOpen(true)}>
             <Plus className="h-4 w-4" />
             Add Student
           </Button>
@@ -89,11 +166,12 @@ export function StudentsPage() {
             className="pl-9"
           />
         </div>
-        <Button variant="outline" className="gap-2">
-          <Filter className="h-4 w-4" />
-          Filters
-        </Button>
-        <Button variant="outline" className="gap-2">
+        <FilterStudentsPopover 
+          filters={filters} 
+          onFiltersChange={setFilters} 
+          onClear={clearFilters}
+        />
+        <Button variant="outline" className="gap-2" onClick={handleExport}>
           <Download className="h-4 w-4" />
           Export
         </Button>
@@ -110,8 +188,12 @@ export function StudentsPage() {
             {selectedStudents.length} student{selectedStudents.length > 1 ? 's' : ''} selected
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">Send Message</Button>
-            <Button variant="outline" size="sm">Generate Invoices</Button>
+            <Button variant="outline" size="sm" onClick={() => setSendMessageOpen(true)}>
+              Send Message
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setGenerateInvoicesOpen(true)}>
+              Generate Invoices
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setSelectedStudents([])}>
               Clear
             </Button>
@@ -151,11 +233,41 @@ export function StudentsPage() {
                 student={student}
                 isSelected={selectedStudents.includes(student.id)}
                 onToggle={() => toggleStudent(student.id)}
+                onAction={handleRowAction}
               />
             ))}
           </TableBody>
         </Table>
       </motion.div>
+
+      {/* Dialogs */}
+      <AddStudentDialog open={addStudentOpen} onOpenChange={setAddStudentOpen} />
+      <ImportCSVDialog open={importCSVOpen} onOpenChange={setImportCSVOpen} type="students" />
+      <GenerateInvoicesDialog 
+        open={generateInvoicesOpen} 
+        onOpenChange={setGenerateInvoicesOpen}
+        selectedStudentIds={selectedStudents}
+      />
+      <SendBulkMessageDialog 
+        open={sendMessageOpen} 
+        onOpenChange={setSendMessageOpen}
+        studentCount={selectedStudents.length}
+      />
+      <StudentProfileDialog 
+        student={selectedStudent} 
+        open={viewProfileOpen} 
+        onOpenChange={setViewProfileOpen} 
+      />
+      <EditStudentDialog 
+        student={selectedStudent} 
+        open={editStudentOpen} 
+        onOpenChange={setEditStudentOpen} 
+      />
+      <AddMakeUpCreditDialog 
+        student={selectedStudent} 
+        open={addCreditOpen} 
+        onOpenChange={setAddCreditOpen} 
+      />
     </div>
   );
 }
@@ -163,11 +275,13 @@ export function StudentsPage() {
 function StudentRow({ 
   student, 
   isSelected, 
-  onToggle 
+  onToggle,
+  onAction,
 }: { 
   student: Student; 
   isSelected: boolean;
   onToggle: () => void;
+  onAction: (action: string, student: Student) => void;
 }) {
   return (
     <TableRow className="hover:bg-muted/30">
@@ -224,12 +338,22 @@ function StudentRow({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>View Profile</DropdownMenuItem>
-            <DropdownMenuItem>Edit Details</DropdownMenuItem>
-            <DropdownMenuItem>Message Parent</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("view", student)}>
+              View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("edit", student)}>
+              Edit Details
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("message", student)}>
+              Message Parent
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Generate Invoice</DropdownMenuItem>
-            <DropdownMenuItem>Add Make-up Credit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("invoice", student)}>
+              Generate Invoice
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAction("credit", student)}>
+              Add Make-up Credit
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

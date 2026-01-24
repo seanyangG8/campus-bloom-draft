@@ -8,24 +8,31 @@ import {
   Send,
   Users,
   Search,
-  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { whatsappTemplates, demoStudents } from "@/lib/demo-data";
+import { whatsappTemplates } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { NewAnnouncementDialog, NewTemplateDialog } from "@/components/dialogs";
 
 export function MessagesPage() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("threads");
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [copiedTemplate, setCopiedTemplate] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState("");
+  
+  // Dialog states
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
+  const [newTemplateOpen, setNewTemplateOpen] = useState(false);
 
   const threads = [
     { id: '1', name: 'Mrs. Tan Mei Ling', lastMessage: 'Thank you for the update on Wei Lin\'s progress!', time: '2h ago', unread: true },
@@ -39,6 +46,29 @@ export function MessagesPage() {
     setTimeout(() => setCopiedTemplate(null), 2000);
   };
 
+  const handleCopyForWhatsApp = () => {
+    const threadData = threads.find(t => t.id === selectedThread);
+    if (threadData) {
+      navigator.clipboard.writeText(
+        `Hi ${threadData.name},\n\nThank you for your message. Wei Lin is doing great in class!\n\nBest regards,\nBright Minds Tuition`
+      );
+      toast({
+        title: "Copied for WhatsApp",
+        description: "Conversation copied to clipboard.",
+      });
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!messageText.trim()) return;
+    
+    toast({
+      title: "Message Sent",
+      description: "Your message has been sent successfully.",
+    });
+    setMessageText("");
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -47,7 +77,10 @@ export function MessagesPage() {
           <h1 className="font-display text-2xl font-bold text-foreground">Messages</h1>
           <p className="text-muted-foreground">Communicate with parents and students</p>
         </div>
-        <Button className="gradient-hero text-primary-foreground gap-2">
+        <Button 
+          className="gradient-hero text-primary-foreground gap-2"
+          onClick={() => setAnnouncementOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           New Announcement
         </Button>
@@ -125,7 +158,12 @@ export function MessagesPage() {
                         <p className="text-xs text-muted-foreground">Parent of Wei Lin Tan</p>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={handleCopyForWhatsApp}
+                    >
                       <Copy className="h-4 w-4" />
                       Copy for WhatsApp
                     </Button>
@@ -157,8 +195,19 @@ export function MessagesPage() {
                         placeholder="Type a message..." 
                         className="min-h-[44px] max-h-32 resize-none"
                         rows={1}
+                        value={messageText}
+                        onChange={(e) => setMessageText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
                       />
-                      <Button className="gradient-accent text-accent-foreground">
+                      <Button 
+                        className="gradient-accent text-accent-foreground"
+                        onClick={handleSendMessage}
+                      >
                         <Send className="h-4 w-4" />
                       </Button>
                     </div>
@@ -188,7 +237,11 @@ export function MessagesPage() {
                 <h2 className="font-semibold">WhatsApp Templates</h2>
                 <p className="text-sm text-muted-foreground">Quick copy templates for WhatsApp messages</p>
               </div>
-              <Button variant="outline" className="gap-2">
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => setNewTemplateOpen(true)}
+              >
                 <Plus className="h-4 w-4" />
                 New Template
               </Button>
@@ -244,13 +297,20 @@ export function MessagesPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Send announcements to all parents or specific cohorts
             </p>
-            <Button className="gradient-hero text-primary-foreground gap-2">
+            <Button 
+              className="gradient-hero text-primary-foreground gap-2"
+              onClick={() => setAnnouncementOpen(true)}
+            >
               <Plus className="h-4 w-4" />
               Create Announcement
             </Button>
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <NewAnnouncementDialog open={announcementOpen} onOpenChange={setAnnouncementOpen} />
+      <NewTemplateDialog open={newTemplateOpen} onOpenChange={setNewTemplateOpen} />
     </div>
   );
 }
