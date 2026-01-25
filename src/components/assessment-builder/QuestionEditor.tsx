@@ -55,17 +55,46 @@ const iconMap: Record<string, any> = {
 };
 
 export function QuestionEditor() {
-  const { questions, selectedQuestionId, updateQuestion } = useAssessmentBuilder();
+  const { questions, selectedQuestionId, updateQuestion, addQuestion } = useAssessmentBuilder();
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const questionType = e.dataTransfer.getData('questionType') || e.dataTransfer.getData('text/plain');
+    if (questionType) {
+      addQuestion(questionType as QuestionType);
+    }
+  };
+
   if (!selectedQuestion) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-card rounded-xl border shadow-card">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          "flex-1 flex items-center justify-center bg-card rounded-xl border shadow-card min-h-[500px] transition-all",
+          isDragOver && "border-primary border-dashed bg-primary/5"
+        )}
+      >
         <div className="text-center text-muted-foreground">
-          <CircleDot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p className="font-medium">No question selected</p>
-          <p className="text-sm">Select a question or add a new one</p>
+          <CircleDot className={cn("h-12 w-12 mx-auto mb-4 opacity-50", isDragOver && "text-primary opacity-100")} />
+          <p className="font-medium">{isDragOver ? "Drop to add question" : "No question selected"}</p>
+          <p className="text-sm">{isDragOver ? "Release to create a new question" : "Select a question or drag one from the library"}</p>
         </div>
       </div>
     );
