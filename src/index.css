@@ -149,6 +149,23 @@
     box-shadow: var(--shadow-card-hover);
   }
   
+  /* Subtle semantic backgrounds */
+  .bg-subtle-warning {
+    background: linear-gradient(135deg, hsl(var(--warning) / 0.05) 0%, transparent 60%);
+  }
+  
+  .bg-subtle-destructive {
+    background: linear-gradient(135deg, hsl(var(--destructive) / 0.05) 0%, transparent 60%);
+  }
+  
+  .bg-subtle-info {
+    background: linear-gradient(135deg, hsl(var(--info) / 0.05) 0%, transparent 60%);
+  }
+  
+  .bg-subtle-success {
+    background: linear-gradient(135deg, hsl(var(--success) / 0.05) 0%, transparent 60%);
+  }
+  
   /* Custom scrollbar - Minimal */
   .scrollbar-thin {
     scrollbar-width: thin;

@@ -92,35 +92,37 @@ export function AdminDashboard() {
               label={`${atRiskStudents.length} student${atRiskStudents.length === 1 ? "" : "s"}`}
             />
           </div>
-          <div className="p-4 space-y-2">
+          <div className="p-4">
             {atRiskStudents.length > 0 ? (
-              atRiskStudents.map((student) => (
-                <div 
-                  key={student.id} 
-                  className="flex items-center justify-between p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
-                  onClick={() => navigate(`/app/students/${student.id}`)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {student.name.split(' ').map(n => n[0]).join('')}
-                      </span>
+              <div className="divide-y divide-border/50">
+                {atRiskStudents.map((student) => (
+                  <div 
+                    key={student.id} 
+                    className="flex items-center justify-between p-3 first:rounded-t-md last:rounded-b-md cursor-pointer bg-subtle-warning hover:bg-warning/10 transition-colors border-l-2 border-l-warning/40"
+                    onClick={() => navigate(`/app/students/${student.id}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
+                        <span className="text-xs font-medium text-warning">
+                          {student.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">Last active: {student.lastActive}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">{student.name}</p>
-                      <p className="text-xs text-muted-foreground">Last active: {student.lastActive}</p>
-                    </div>
+                    <ProgressRing progress={student.completionRate} size={32} strokeWidth={2} variant="warning" />
                   </div>
-                  <ProgressRing progress={student.completionRate} size={32} strokeWidth={2} variant="warning" />
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">No at-risk students</p>
             )}
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full mt-2 gap-2 text-muted-foreground"
+              className="w-full mt-3 gap-2 text-muted-foreground"
               onClick={() => navigate('/app/students')}
             >
               View All Students
@@ -140,31 +142,33 @@ export function AdminDashboard() {
               <Button variant="ghost" size="sm" className="text-xs">View All</Button>
             </Link>
           </div>
-          <div className="p-4 space-y-2">
-            {upcomingSessions.slice(0, 3).map((session) => (
-              <div key={session.id} className="p-3 rounded-md hover:bg-muted transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="text-sm font-medium">{session.title}</p>
-                    <p className="text-xs text-muted-foreground">{session.date} at {session.time}</p>
+          <div className="p-4">
+            <div className="divide-y divide-border/50">
+              {upcomingSessions.slice(0, 3).map((session) => (
+                <div key={session.id} className="p-3 border-l-2 border-l-info/40 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-sm font-medium">{session.title}</p>
+                      <p className="text-xs text-muted-foreground">{session.date} at {session.time}</p>
+                    </div>
+                    <StatusBadge status="info" label="Scheduled" />
                   </div>
-                  <StatusBadge status="info" label="Scheduled" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {session.totalStudents} students
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 text-xs"
+                      onClick={() => handleJoinLink(session)}
+                    >
+                      Join Link
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {session.totalStudents} students
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-7 text-xs"
-                    onClick={() => handleJoinLink(session)}
-                  >
-                    Join Link
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -181,7 +185,7 @@ export function AdminDashboard() {
           </div>
           <div className="p-4 space-y-3">
             {overdueInvoices.length > 0 && (
-              <div className="p-3 border rounded-md">
+              <div className="p-3 rounded-md border border-destructive/20 bg-subtle-destructive">
                 <div className="flex items-center gap-2 mb-1">
                   <Clock className="h-3 w-3 text-destructive" />
                   <span className="text-xs font-medium text-destructive">Overdue</span>
@@ -192,7 +196,7 @@ export function AdminDashboard() {
                 </p>
               </div>
             )}
-            <div className="p-3 border rounded-md">
+            <div className="p-3 rounded-md border border-warning/20 bg-subtle-warning">
               <div className="flex items-center gap-2 mb-1">
                 <Clock className="h-3 w-3 text-warning" />
                 <span className="text-xs font-medium text-warning">Pending</span>
@@ -232,10 +236,10 @@ export function AdminDashboard() {
               <Link 
                 key={course.id} 
                 to={`/app/courses/${course.id}`}
-                className="p-4 rounded-md hover:bg-muted transition-colors group"
+                className="p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 hover:shadow-sm transition-all group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-md bg-background border border-border/50 flex items-center justify-center">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <StatusBadge 
