@@ -338,7 +338,8 @@ export function TutorAssessmentPreview() {
           top: 125px;
           animation: 
             tutor-cursor-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards,
-            tutor-cursor-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
+            tutor-cursor-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards,
+            tutor-cursor-fade-out 0.3s ease-out 2.4s forwards;
         }
         
         /* Ghost appears when drag starts - same size as source - POSITIONED FROM ROOT */
@@ -438,6 +439,12 @@ export function TutorAssessmentPreview() {
           0% { right: 35px; top: 125px; left: auto; }
           25% { right: 35px; top: 125px; left: auto; }
           100% { left: 50%; top: 160px; right: auto; transform: translateX(-50%); }
+        }
+        
+        /* Cursor fades out after drag completes */
+        @keyframes tutor-cursor-fade-out {
+          from { opacity: 1; }
+          to { opacity: 0; }
         }
         
         @keyframes tutor-ghost-appear {
