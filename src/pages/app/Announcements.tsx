@@ -134,7 +134,7 @@ export function AnnouncementsPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="font-display text-2xl font-bold text-foreground">Announcements</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Announcements</h1>
           <p className="text-muted-foreground">Stay updated with the latest news</p>
         </motion.div>
         <div className="flex items-center gap-3">

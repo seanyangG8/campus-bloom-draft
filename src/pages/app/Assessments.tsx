@@ -116,7 +116,7 @@ export function AssessmentsPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="font-display text-2xl font-bold text-foreground">Assessments</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Assessments</h1>
           <p className="text-muted-foreground">Create quizzes, essays, and file submissions</p>
         </motion.div>
         <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 w-full sm:w-auto">

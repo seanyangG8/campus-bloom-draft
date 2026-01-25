@@ -74,7 +74,7 @@ export function StudentProfilePage() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/app/students")} className="shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Student Profile</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Student Profile</h1>
       </div>
 
       {/* Profile Card */}

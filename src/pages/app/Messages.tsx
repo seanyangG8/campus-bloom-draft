@@ -74,7 +74,7 @@ export function MessagesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Messages</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Messages</h1>
           <p className="text-sm text-muted-foreground">Communicate with parents and students</p>
         </div>
         <Button 

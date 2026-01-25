@@ -54,7 +54,7 @@ export function ProgressPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="font-display text-2xl font-bold text-foreground">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
           {isParent ? `${studentName}'s Progress` : "My Progress"}
         </h1>
         <p className="text-muted-foreground">
