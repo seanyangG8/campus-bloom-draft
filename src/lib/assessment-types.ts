@@ -1,4 +1,4 @@
-// Quiz Builder Types
+// Assessment Builder Types
 
 export type QuestionType =
   | 'multiple-choice'
@@ -6,9 +6,12 @@ export type QuestionType =
   | 'true-false'
   | 'short-answer'
   | 'fill-blank'
-  | 'matching';
+  | 'matching'
+  | 'essay'
+  | 'file-upload'
+  | 'long-answer';
 
-export interface Quiz {
+export interface Assessment {
   id: string;
   title: string;
   description?: string;
@@ -29,7 +32,7 @@ export interface Quiz {
 
 export interface Question {
   id: string;
-  quizId: string;
+  assessmentId: string;
   type: QuestionType;
   text: string;
   points: number;
@@ -45,7 +48,10 @@ export type QuestionContent =
   | TrueFalseContent
   | ShortAnswerContent
   | FillBlankContent
-  | MatchingContent;
+  | MatchingContent
+  | EssayContent
+  | FileUploadContent
+  | LongAnswerContent;
 
 export interface MultipleChoiceContent {
   type: 'multiple-choice';
@@ -79,55 +85,107 @@ export interface MatchingContent {
   pairs: { id: string; left: string; right: string }[];
 }
 
-// Question type metadata for the library
+export interface EssayContent {
+  type: 'essay';
+  minWords?: number;
+  maxWords?: number;
+  rubric?: string;
+}
+
+export interface FileUploadContent {
+  type: 'file-upload';
+  allowedTypes: ('image' | 'video' | 'audio' | 'document' | 'presentation')[];
+  maxFileSize: number; // in MB
+  maxFiles: number;
+  instructions?: string;
+}
+
+export interface LongAnswerContent {
+  type: 'long-answer';
+  minWords?: number;
+  maxWords?: number;
+  placeholder?: string;
+}
+
+// Question type metadata for the library - split into categories
 export const questionTypes: {
   type: QuestionType;
   label: string;
   icon: string;
   description: string;
+  category: 'auto-graded' | 'submission';
 }[] = [
+  // Auto-graded questions
   {
     type: 'multiple-choice',
     label: 'Multiple Choice',
     icon: 'CircleDot',
     description: 'Single correct answer',
+    category: 'auto-graded',
   },
   {
     type: 'multiple-select',
     label: 'Multiple Select',
     icon: 'CheckSquare',
     description: 'Multiple correct answers',
+    category: 'auto-graded',
   },
   {
     type: 'true-false',
     label: 'True/False',
     icon: 'ToggleLeft',
     description: 'Boolean question',
+    category: 'auto-graded',
   },
   {
     type: 'short-answer',
     label: 'Short Answer',
     icon: 'Type',
     description: 'Text input response',
+    category: 'auto-graded',
   },
   {
     type: 'fill-blank',
     label: 'Fill in the Blank',
     icon: 'TextCursorInput',
     description: 'Complete the sentence',
+    category: 'auto-graded',
   },
   {
     type: 'matching',
     label: 'Matching',
     icon: 'ArrowRightLeft',
     description: 'Match pairs of items',
+    category: 'auto-graded',
+  },
+  // Submission-based questions
+  {
+    type: 'essay',
+    label: 'Essay',
+    icon: 'FileText',
+    description: 'Long-form written response',
+    category: 'submission',
+  },
+  {
+    type: 'long-answer',
+    label: 'Long Answer',
+    icon: 'AlignLeft',
+    description: 'Extended text response',
+    category: 'submission',
+  },
+  {
+    type: 'file-upload',
+    label: 'File Upload',
+    icon: 'Upload',
+    description: 'Upload files (essays, presentations, videos)',
+    category: 'submission',
   },
 ];
 
-// Demo quizzes with full data
-export const demoQuizzes: Quiz[] = [
+// Demo assessments with full data
+export const demoAssessments: Assessment[] = [
   {
-    id: 'quiz-1',
+    id: 'assessment-1',
     title: 'Quadratic Equations - Chapter Test',
     description: 'Test your understanding of quadratic equations and their solutions.',
     courseId: 'course-1',
@@ -145,7 +203,7 @@ export const demoQuizzes: Quiz[] = [
     updatedAt: '2024-01-15',
   },
   {
-    id: 'quiz-2',
+    id: 'assessment-2',
     title: 'Indices Quick Check',
     description: 'A quick assessment on indices and their properties.',
     courseId: 'course-1',
@@ -163,36 +221,36 @@ export const demoQuizzes: Quiz[] = [
     updatedAt: '2024-01-18',
   },
   {
-    id: 'quiz-3',
-    title: 'Energy Forms Assessment',
-    description: 'Comprehensive test on different forms of energy and conversions.',
+    id: 'assessment-3',
+    title: 'Energy Forms Essay',
+    description: 'Write an essay explaining different forms of energy and their conversions.',
     courseId: 'course-2',
-    duration: 45,
+    duration: 60,
     passMark: 50,
-    shuffleQuestions: true,
+    shuffleQuestions: false,
     showResults: false,
     allowRetakes: false,
     maxAttempts: 1,
     status: 'published',
-    questionsCount: 15,
+    questionsCount: 2,
     attempts: 28,
     avgScore: 71,
     createdAt: '2024-01-10',
     updatedAt: '2024-01-10',
   },
   {
-    id: 'quiz-4',
-    title: 'Polynomials Practice',
-    description: 'Practice questions on polynomial operations.',
-    courseId: 'course-1',
-    duration: 20,
+    id: 'assessment-4',
+    title: 'Science Project Submission',
+    description: 'Submit your science project presentation and video.',
+    courseId: 'course-2',
+    duration: 0,
     passMark: 60,
     shuffleQuestions: false,
     showResults: true,
     allowRetakes: true,
-    maxAttempts: 5,
+    maxAttempts: 3,
     status: 'draft',
-    questionsCount: 8,
+    questionsCount: 2,
     attempts: 0,
     avgScore: 0,
     createdAt: '2024-01-20',
@@ -202,10 +260,10 @@ export const demoQuizzes: Quiz[] = [
 
 // Demo questions
 export const demoQuestions: Question[] = [
-  // Quiz 1 questions
+  // Assessment 1 questions
   {
     id: 'q-1',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'multiple-choice',
     text: 'What is the standard form of a quadratic equation?',
     points: 1,
@@ -224,7 +282,7 @@ export const demoQuestions: Question[] = [
   },
   {
     id: 'q-2',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'true-false',
     text: 'A quadratic equation always has two real roots.',
     points: 1,
@@ -238,7 +296,7 @@ export const demoQuestions: Question[] = [
   },
   {
     id: 'q-3',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'short-answer',
     text: 'What is the quadratic formula? (Use "x =" format)',
     points: 2,
@@ -257,7 +315,7 @@ export const demoQuestions: Question[] = [
   },
   {
     id: 'q-4',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'multiple-select',
     text: 'Which of the following are methods to solve quadratic equations?',
     points: 2,
@@ -276,7 +334,7 @@ export const demoQuestions: Question[] = [
   },
   {
     id: 'q-5',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'fill-blank',
     text: 'Complete the sentence:',
     points: 2,
@@ -294,7 +352,7 @@ export const demoQuestions: Question[] = [
   },
   {
     id: 'q-6',
-    quizId: 'quiz-1',
+    assessmentId: 'assessment-1',
     type: 'matching',
     text: 'Match the discriminant value with the number of real roots:',
     points: 3,
@@ -310,54 +368,70 @@ export const demoQuestions: Question[] = [
     },
     order: 6,
   },
-  // Quiz 2 questions
+  // Assessment 3 - Essay questions
   {
-    id: 'q-7',
-    quizId: 'quiz-2',
-    type: 'multiple-choice',
-    text: 'Simplify: 2³ × 2⁴',
-    points: 1,
+    id: 'q-10',
+    assessmentId: 'assessment-3',
+    type: 'essay',
+    text: 'Explain the law of conservation of energy and provide three real-world examples.',
+    points: 20,
     required: true,
-    explanation: 'When multiplying powers with the same base, add the exponents: 2³ × 2⁴ = 2⁷',
+    explanation: 'A good essay should clearly define the law and provide relevant, explained examples.',
     content: {
-      type: 'multiple-choice',
-      options: [
-        { id: 'opt-1', text: '2⁷', isCorrect: true },
-        { id: 'opt-2', text: '2¹²', isCorrect: false },
-        { id: 'opt-3', text: '4⁷', isCorrect: false },
-        { id: 'opt-4', text: '2¹', isCorrect: false },
-      ],
+      type: 'essay',
+      minWords: 300,
+      maxWords: 800,
+      rubric: 'Content accuracy (40%), Examples quality (30%), Writing clarity (20%), Structure (10%)',
     },
     order: 1,
   },
   {
-    id: 'q-8',
-    quizId: 'quiz-2',
-    type: 'true-false',
-    text: 'Any number raised to the power of 0 equals 0.',
-    points: 1,
+    id: 'q-11',
+    assessmentId: 'assessment-3',
+    type: 'long-answer',
+    text: 'Describe how energy transforms in a hydroelectric power plant.',
+    points: 10,
     required: true,
-    explanation: 'Any non-zero number raised to the power of 0 equals 1, not 0.',
     content: {
-      type: 'true-false',
-      correctAnswer: false,
+      type: 'long-answer',
+      minWords: 100,
+      maxWords: 300,
+      placeholder: 'Explain the energy transformations step by step...',
     },
     order: 2,
   },
+  // Assessment 4 - File upload questions
   {
-    id: 'q-9',
-    quizId: 'quiz-2',
-    type: 'short-answer',
-    text: 'What is 5⁻²? (Give your answer as a fraction)',
-    points: 1,
+    id: 'q-12',
+    assessmentId: 'assessment-4',
+    type: 'file-upload',
+    text: 'Upload your science project presentation (PowerPoint or PDF).',
+    points: 40,
     required: true,
-    explanation: '5⁻² = 1/5² = 1/25',
     content: {
-      type: 'short-answer',
-      acceptedAnswers: ['1/25', '1/25', '0.04'],
-      caseSensitive: false,
+      type: 'file-upload',
+      allowedTypes: ['presentation', 'document'],
+      maxFileSize: 50,
+      maxFiles: 1,
+      instructions: 'Your presentation should include: Introduction, Hypothesis, Methodology, Results, and Conclusion.',
     },
-    order: 3,
+    order: 1,
+  },
+  {
+    id: 'q-13',
+    assessmentId: 'assessment-4',
+    type: 'file-upload',
+    text: 'Upload a video demonstration of your experiment (max 5 minutes).',
+    points: 30,
+    required: false,
+    content: {
+      type: 'file-upload',
+      allowedTypes: ['video'],
+      maxFileSize: 500,
+      maxFiles: 1,
+      instructions: 'Record yourself explaining and demonstrating your experiment. Keep it under 5 minutes.',
+    },
+    order: 2,
   },
 ];
 
@@ -412,6 +486,28 @@ export function getDefaultQuestionContent(type: QuestionType): QuestionContent {
           { id: generateId('pair'), left: 'Item A', right: 'Match A' },
           { id: generateId('pair'), left: 'Item B', right: 'Match B' },
         ],
+      };
+    case 'essay':
+      return {
+        type: 'essay',
+        minWords: 200,
+        maxWords: 1000,
+        rubric: '',
+      };
+    case 'long-answer':
+      return {
+        type: 'long-answer',
+        minWords: 50,
+        maxWords: 500,
+        placeholder: 'Enter your answer here...',
+      };
+    case 'file-upload':
+      return {
+        type: 'file-upload',
+        allowedTypes: ['document', 'image'],
+        maxFileSize: 10,
+        maxFiles: 1,
+        instructions: '',
       };
   }
 }

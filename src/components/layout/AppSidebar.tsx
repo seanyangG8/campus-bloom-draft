@@ -58,7 +58,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { label: 'Today', href: '/app', icon: Home },
     { label: 'Courses', href: '/app/courses', icon: BookOpen },
     { label: 'Cohorts', href: '/app/cohorts', icon: UserCheck },
-    { label: 'Quizzes', href: '/app/quizzes', icon: GraduationCap },
+    { label: 'Assessments', href: '/app/assessments', icon: GraduationCap },
     { label: 'Submissions', href: '/app/submissions', icon: FileText },
     { label: 'Messages', href: '/app/messages', icon: MessageSquare },
   ],

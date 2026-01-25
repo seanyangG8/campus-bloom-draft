@@ -21,8 +21,8 @@ import { ReportsPage } from "@/pages/app/Reports";
 import { CohortsPage } from "@/pages/app/Cohorts";
 import { ParentsPage } from "@/pages/app/Parents";
 import { ProgressPage } from "@/pages/app/Progress";
-import { QuizzesPage } from "@/pages/app/Quizzes";
-import { QuizDetailPage } from "@/pages/app/QuizDetail";
+import { AssessmentsPage } from "@/pages/app/Assessments";
+import { AssessmentDetailPage } from "@/pages/app/AssessmentDetail";
 import { SubmissionsPage } from "@/pages/app/Submissions";
 import { AnnouncementsPage } from "@/pages/app/Announcements";
 import NotFound from "./pages/NotFound";
@@ -48,8 +48,8 @@ function AppRoutes() {
       <Route path="/app/cohorts" element={<AppLayout><CohortsPage /></AppLayout>} />
       <Route path="/app/parents" element={<AppLayout><ParentsPage /></AppLayout>} />
       <Route path="/app/progress" element={<AppLayout><ProgressPage /></AppLayout>} />
-      <Route path="/app/quizzes" element={<AppLayout><QuizzesPage /></AppLayout>} />
-      <Route path="/app/quizzes/:quizId" element={<AppLayout><QuizDetailPage /></AppLayout>} />
+      <Route path="/app/assessments" element={<AppLayout><AssessmentsPage /></AppLayout>} />
+      <Route path="/app/assessments/:assessmentId" element={<AppLayout><AssessmentDetailPage /></AppLayout>} />
       <Route path="/app/submissions" element={<AppLayout><SubmissionsPage /></AppLayout>} />
       <Route path="/app/announcements" element={<AppLayout><AnnouncementsPage /></AppLayout>} />
       <Route path="/app/*" element={<AppLayout><DashboardPage /></AppLayout>} />

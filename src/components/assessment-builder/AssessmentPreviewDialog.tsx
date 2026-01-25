@@ -4,15 +4,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  HelpCircle,
+  ClipboardList,
   Check,
   X,
-  CircleDot,
-  CheckSquare,
-  ToggleLeft,
-  Type,
-  TextCursorInput,
   ArrowRightLeft,
+  Upload,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -20,6 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import {
   Dialog,
@@ -31,7 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import {
-  Quiz,
+  Assessment,
   Question,
   MultipleChoiceContent,
   MultipleSelectContent,
@@ -39,21 +37,24 @@ import {
   ShortAnswerContent,
   FillBlankContent,
   MatchingContent,
-} from '@/lib/quiz-types';
+  EssayContent,
+  FileUploadContent,
+  LongAnswerContent,
+} from '@/lib/assessment-types';
 
-interface QuizPreviewDialogProps {
-  quiz: Quiz | null;
+interface AssessmentPreviewDialogProps {
+  assessment: Assessment | null;
   questions: Question[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function QuizPreviewDialog({
-  quiz,
+export function AssessmentPreviewDialog({
+  assessment,
   questions,
   open,
   onOpenChange,
-}: QuizPreviewDialogProps) {
+}: AssessmentPreviewDialogProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [showResults, setShowResults] = useState(false);
@@ -87,17 +88,17 @@ export function QuizPreviewDialog({
     onOpenChange(false);
   };
 
-  if (!quiz || questions.length === 0) {
+  if (!assessment || questions.length === 0) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Quiz Preview</DialogTitle>
+            <DialogTitle>Assessment Preview</DialogTitle>
             <DialogDescription>No questions to preview</DialogDescription>
           </DialogHeader>
           <div className="py-8 text-center text-muted-foreground">
-            <HelpCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Add some questions to preview the quiz.</p>
+            <ClipboardList className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Add some questions to preview the assessment.</p>
           </div>
           <DialogFooter>
             <Button onClick={() => onOpenChange(false)}>Close</Button>
@@ -112,24 +113,26 @@ export function QuizPreviewDialog({
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-primary" />
-            {quiz.title}
+            <ClipboardList className="h-5 w-5 text-primary" />
+            {assessment.title}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {quiz.duration} mins
-            </span>
+            {assessment.duration > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {assessment.duration} mins
+              </span>
+            )}
             <span>
               {sortedQuestions.length} {sortedQuestions.length === 1 ? 'question' : 'questions'}
             </span>
-            <span>Pass: {quiz.passMark}%</span>
+            <span>Pass: {assessment.passMark}%</span>
           </DialogDescription>
         </DialogHeader>
 
         {showResults ? (
           <ResultsView
-            quiz={quiz}
+            assessment={assessment}
             questions={sortedQuestions}
             answers={answers}
             onRetry={handleReset}
@@ -180,7 +183,7 @@ export function QuizPreviewDialog({
               </Button>
               <Button onClick={handleNext} className="gap-2">
                 {currentIndex === sortedQuestions.length - 1 ? (
-                  'Submit Quiz'
+                  'Submit'
                 ) : (
                   <>
                     Next
@@ -205,11 +208,16 @@ function QuestionPreview({
   answer: any;
   onAnswer: (value: any) => void;
 }) {
+  const isSubmission = ['essay', 'long-answer', 'file-upload'].includes(question.type);
+
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
+          <span className={cn(
+            "text-xs px-2 py-0.5 rounded font-medium",
+            isSubmission ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"
+          )}>
             {question.points} {question.points === 1 ? 'pt' : 'pts'}
           </span>
           {question.required && (
@@ -259,6 +267,25 @@ function QuestionPreview({
             content={question.content as MatchingContent}
             answer={answer}
             onAnswer={onAnswer}
+          />
+        )}
+        {question.type === 'essay' && (
+          <EssayPreview
+            content={question.content as EssayContent}
+            answer={answer}
+            onAnswer={onAnswer}
+          />
+        )}
+        {question.type === 'long-answer' && (
+          <LongAnswerPreview
+            content={question.content as LongAnswerContent}
+            answer={answer}
+            onAnswer={onAnswer}
+          />
+        )}
+        {question.type === 'file-upload' && (
+          <FileUploadPreview
+            content={question.content as FileUploadContent}
           />
         )}
       </Card>
@@ -465,24 +492,109 @@ function MatchingPreview({
   );
 }
 
+function EssayPreview({
+  content,
+  answer,
+  onAnswer,
+}: {
+  content: EssayContent;
+  answer: string;
+  onAnswer: (value: string) => void;
+}) {
+  const wordCount = (answer || '').split(/\s+/).filter(Boolean).length;
+
+  return (
+    <div className="space-y-2">
+      <Textarea
+        value={answer || ''}
+        onChange={(e) => onAnswer(e.target.value)}
+        placeholder="Write your essay here..."
+        className="min-h-[200px] resize-none"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>{wordCount} words</span>
+        {(content.minWords || content.maxWords) && (
+          <span>
+            {content.minWords && `Min: ${content.minWords}`}
+            {content.minWords && content.maxWords && ' | '}
+            {content.maxWords && `Max: ${content.maxWords}`}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LongAnswerPreview({
+  content,
+  answer,
+  onAnswer,
+}: {
+  content: LongAnswerContent;
+  answer: string;
+  onAnswer: (value: string) => void;
+}) {
+  const wordCount = (answer || '').split(/\s+/).filter(Boolean).length;
+
+  return (
+    <div className="space-y-2">
+      <Textarea
+        value={answer || ''}
+        onChange={(e) => onAnswer(e.target.value)}
+        placeholder={content.placeholder || 'Enter your answer here...'}
+        className="min-h-[120px] resize-none"
+      />
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>{wordCount} words</span>
+        {(content.minWords || content.maxWords) && (
+          <span>
+            {content.minWords && `Min: ${content.minWords}`}
+            {content.minWords && content.maxWords && ' | '}
+            {content.maxWords && `Max: ${content.maxWords}`}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FileUploadPreview({ content }: { content: FileUploadContent }) {
+  return (
+    <div className="space-y-4">
+      <div className="border-2 border-dashed rounded-lg p-8 text-center">
+        <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+        <p className="text-sm font-medium">Drop files here or click to upload</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Max {content.maxFileSize}MB • Up to {content.maxFiles} file(s)
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Allowed: {content.allowedTypes.join(', ')}
+        </p>
+      </div>
+      {content.instructions && (
+        <p className="text-sm text-muted-foreground">{content.instructions}</p>
+      )}
+    </div>
+  );
+}
+
 function ResultsView({
-  quiz,
+  assessment,
   questions,
   answers,
   onRetry,
   onClose,
 }: {
-  quiz: Quiz;
+  assessment: Assessment;
   questions: Question[];
   answers: Record<string, any>;
   onRetry: () => void;
   onClose: () => void;
 }) {
-  // Simple scoring (just count answered questions for demo)
   const answeredCount = Object.keys(answers).length;
   const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
   const scorePercent = Math.round((answeredCount / questions.length) * 100);
-  const passed = scorePercent >= quiz.passMark;
+  const passed = scorePercent >= assessment.passMark;
 
   return (
     <div className="py-6 text-center">
@@ -503,10 +615,10 @@ function ResultsView({
       </motion.div>
 
       <h3 className="text-2xl font-bold mb-2">
-        {passed ? 'Quiz Passed!' : 'Quiz Not Passed'}
+        {passed ? 'Assessment Complete!' : 'Assessment Submitted'}
       </h3>
       <p className="text-muted-foreground mb-6">
-        You scored {scorePercent}% ({answeredCount}/{questions.length} questions answered)
+        You answered {answeredCount}/{questions.length} questions
       </p>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
@@ -519,7 +631,7 @@ function ResultsView({
           <p className="text-xs text-muted-foreground">Total Points</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold">{quiz.passMark}%</p>
+          <p className="text-2xl font-bold">{assessment.passMark}%</p>
           <p className="text-xs text-muted-foreground">Pass Mark</p>
         </div>
       </div>
