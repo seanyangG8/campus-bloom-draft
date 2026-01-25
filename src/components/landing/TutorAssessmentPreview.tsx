@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { 
   CheckCircle2,
   Circle,
@@ -10,65 +10,13 @@ import {
   Plus,
 } from "lucide-react";
 
-const QUESTION_TEXT = "Select all the prime numbers:";
-
 export function TutorAssessmentPreview() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showNewQuestion, setShowNewQuestion] = useState(false);
   const [showNewEditor, setShowNewEditor] = useState(false);
   const [editorStage, setEditorStage] = useState(0);
-  
-  // Typing animation state
-  const [typedText, setTypedText] = useState("");
-  const [showCaret, setShowCaret] = useState(false);
-  
-  // Drag animation state (percentage-based for responsiveness)
-  const [dragPhase, setDragPhase] = useState<"idle" | "appearing" | "moving" | "dropped">("idle");
-  
-  // Selection click cursor state
-  const [selectionPhase, setSelectionPhase] = useState<"idle" | "moving1" | "click1" | "moving2" | "click2" | "done">("idle");
-  
   const containerRef = useRef<HTMLDivElement>(null);
-  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Cleanup function
-  const clearAllTimeouts = useCallback(() => {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  // Add timeout with tracking
-  const addTimeout = useCallback((fn: () => void, delay: number) => {
-    const id = setTimeout(fn, delay);
-    timeoutsRef.current.push(id);
-    return id;
-  }, []);
-
-  // Typing effect
-  useEffect(() => {
-    if (editorStage === 2 && typedText === "") {
-      setShowCaret(true);
-      let charIndex = 0;
-      intervalRef.current = setInterval(() => {
-        charIndex++;
-        setTypedText(QUESTION_TEXT.substring(0, charIndex));
-        if (charIndex >= QUESTION_TEXT.length) {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          // Keep caret blinking for a moment then hide
-          addTimeout(() => setShowCaret(false), 600);
-        }
-      }, 70); // Slower typing speed
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [editorStage, typedText, addTimeout]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,57 +29,35 @@ export function TutorAssessmentPreview() {
         setIsAnimating(true);
         setHasAnimated(true);
         
-        // Phase 1: Drag animation
-        addTimeout(() => setDragPhase("appearing"), 600);
-        addTimeout(() => setDragPhase("moving"), 1000);
-        addTimeout(() => setDragPhase("dropped"), 2400);
-        
         // Show new question after drag animation completes
-        addTimeout(() => setShowNewQuestion(true), 2600);
+        setTimeout(() => {
+          setShowNewQuestion(true);
+        }, 2400);
         
         // Update editor to show new question type with progressive reveal
-        addTimeout(() => {
+        setTimeout(() => {
           setShowNewEditor(true);
-          // Progressive editor build-out - much slower pacing
-          addTimeout(() => setEditorStage(1), 100);     // Header
-          addTimeout(() => setEditorStage(2), 400);     // Start typing
-          addTimeout(() => setEditorStage(3), 2800);    // Option 1 (after typing done ~2.2s)
-          addTimeout(() => setEditorStage(4), 3500);    // Option 2
-          addTimeout(() => setEditorStage(5), 4200);    // Option 3
-          addTimeout(() => setEditorStage(6), 4900);    // Option 4
-          addTimeout(() => setEditorStage(7), 5700);    // Points input
-          addTimeout(() => setEditorStage(8), 6400);    // Add option button
-          
-          // Phase 2: Selection animation (separate, clear phase)
-          addTimeout(() => {
-            setSelectionPhase("moving1");
-          }, 7200);
-          addTimeout(() => {
-            setSelectionPhase("click1");
-            setEditorStage(9); // Select first correct answer
-          }, 7800);
-          addTimeout(() => {
-            setSelectionPhase("moving2");
-          }, 8400);
-          addTimeout(() => {
-            setSelectionPhase("click2");
-            setEditorStage(10); // Select second correct answer
-          }, 9000);
-          addTimeout(() => {
-            setSelectionPhase("done");
-          }, 9600);
-        }, 2800);
+          // Progressive editor build-out - slower pacing
+          setTimeout(() => setEditorStage(1), 0);      // Header
+          setTimeout(() => setEditorStage(2), 300);    // Question text (with typing)
+          setTimeout(() => setEditorStage(3), 1400);   // Option 1 (after typing - unchecked)
+          setTimeout(() => setEditorStage(4), 1700);   // Option 2 (unchecked)
+          setTimeout(() => setEditorStage(5), 2000);   // Option 3 (unchecked)
+          setTimeout(() => setEditorStage(6), 2300);   // Option 4 (unchecked)
+          setTimeout(() => setEditorStage(7), 2700);   // Points input
+          setTimeout(() => setEditorStage(8), 3100);   // Add option button
+          // Now animate selecting correct answers
+          setTimeout(() => setEditorStage(9), 3600);   // Select option 1 as correct (2)
+          setTimeout(() => setEditorStage(10), 4100);  // Select option 3 as correct (7)
+        }, 2600);
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearAllTimeouts();
-    };
-  }, [hasAnimated, addTimeout, clearAllTimeouts]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasAnimated]);
 
   return (
     <div 
@@ -175,7 +101,7 @@ export function TutorAssessmentPreview() {
         </div>
 
         {/* 3-Column Layout - Entirely visible from start */}
-        <div className="flex-1 flex overflow-hidden relative">
+        <div className="flex-1 flex overflow-hidden">
           {/* Left: Question List */}
           <div className="w-[140px] border-r p-2 bg-muted/20 relative">
             <p className="text-[9px] font-medium text-muted-foreground mb-2">Questions</p>
@@ -200,7 +126,7 @@ export function TutorAssessmentPreview() {
                 <span className="text-[8px] text-muted-foreground">10</span>
               </div>
               
-              {/* New Question - expands after drop */}
+              {/* New Question - expands after drag completes */}
               <div className={`anim-new-question flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${showNewQuestion ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
                 <SquareCheck className="h-2.5 w-2.5 text-success" />
@@ -210,12 +136,12 @@ export function TutorAssessmentPreview() {
             </div>
           </div>
 
-          {/* Center: Question Editor */}
+          {/* Center: Question Editor - Updates to show new question type */}
           <div className="flex-1 p-3 relative">
-            {/* Drop Zone Highlight */}
-            <div className={`anim-drop-zone absolute inset-3 rounded-lg pointer-events-none ${dragPhase === "moving" ? "active" : ""} ${dragPhase === "dropped" ? "success" : ""}`} />
+            {/* Drop Zone Highlight - animates during drag in center */}
+            <div className="anim-drop-zone absolute inset-3 rounded-lg pointer-events-none z-10" />
             
-            <div className={`anim-editor bg-card rounded-lg border p-3 transition-all duration-300 relative ${showNewEditor ? 'ring-2 ring-primary/20' : ''}`}>
+            <div className={`anim-editor bg-card rounded-lg border p-3 transition-all duration-300 ${showNewEditor ? 'ring-2 ring-primary/20' : ''}`}>
               {showNewEditor ? (
                 // New Multi-select question editor with progressive reveal
                 <>
@@ -227,17 +153,13 @@ export function TutorAssessmentPreview() {
                   
                   <div className={`mb-3 anim-editor-item ${editorStage >= 2 ? 'visible' : ''}`}>
                     <p className="text-[11px] font-medium mb-2">
-                      {typedText}
-                      {showCaret && <span className="anim-caret">|</span>}
+                      <span className="anim-typing">Select all the prime numbers:</span>
                     </p>
                   </div>
                   
                   <div className="space-y-1.5 mb-3">
                     {/* Option 1: "2" - initially unchecked, becomes correct at stage 9 */}
-                    <div 
-                      className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 3 ? 'visible' : ''} ${editorStage >= 9 ? 'selected' : ''}`}
-                      data-option="1"
-                    >
+                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 3 ? 'visible' : ''} ${editorStage >= 9 ? 'selected' : ''}`}>
                       {editorStage >= 9 ? (
                         <SquareCheck className="h-3.5 w-3.5 text-success" />
                       ) : (
@@ -252,10 +174,7 @@ export function TutorAssessmentPreview() {
                       <span className="text-[10px]">4</span>
                     </div>
                     {/* Option 3: "7" - initially unchecked, becomes correct at stage 10 */}
-                    <div 
-                      className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 5 ? 'visible' : ''} ${editorStage >= 10 ? 'selected' : ''}`}
-                      data-option="3"
-                    >
+                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 5 ? 'visible' : ''} ${editorStage >= 10 ? 'selected' : ''}`}>
                       {editorStage >= 10 ? (
                         <SquareCheck className="h-3.5 w-3.5 text-success" />
                       ) : (
@@ -278,7 +197,7 @@ export function TutorAssessmentPreview() {
                   
                   {/* Add Option Button */}
                   <div className={`flex items-center gap-1.5 mt-3 anim-editor-item anim-add-option ${editorStage >= 8 ? 'visible' : ''}`}>
-                    <button className="flex items-center gap-1 px-2 py-1 rounded border border-dashed border-muted-foreground/50 text-[9px] text-muted-foreground">
+                    <button className="flex items-center gap-1 px-2 py-1 rounded border border-dashed border-muted-foreground/50 text-[9px] text-muted-foreground hover:border-primary hover:text-primary transition-colors">
                       <Plus className="h-3 w-3" />
                       Add option
                     </button>
@@ -331,7 +250,7 @@ export function TutorAssessmentPreview() {
               </div>
               
               {/* Multi-select - the dragged item */}
-              <div className={`anim-drag-source flex items-center gap-1.5 p-1.5 rounded border bg-background text-[9px] relative ${dragPhase !== "idle" && dragPhase !== "dropped" ? "dimmed" : ""}`}>
+              <div className="anim-drag-source flex items-center gap-1.5 p-1.5 rounded border bg-background text-[9px] relative">
                 <SquareCheck className="h-2.5 w-2.5 text-muted-foreground" />
                 <span>Multi-select</span>
               </div>
@@ -345,235 +264,173 @@ export function TutorAssessmentPreview() {
                 <span>Fill in blank</span>
               </div>
             </div>
-          </div>
-
-          {/* OVERLAY LAYER - Cursor and Ghost that move across entire preview */}
-          <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 100 }}>
-            {/* Drag Cursor */}
-            <div 
-              className={`anim-cursor absolute w-7 h-7 ${dragPhase}`}
-              style={{
-                transition: dragPhase === "moving" ? "left 1.2s cubic-bezier(0.4, 0, 0.2, 1), top 1.2s cubic-bezier(0.4, 0, 0.2, 1)" : "none"
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-lg">
-                <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="white" stroke="black" strokeWidth="1.5"/>
-              </svg>
-            </div>
             
-            {/* Drag Ghost */}
-            <div 
-              className={`anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg whitespace-nowrap ${dragPhase}`}
-              style={{
-                transition: dragPhase === "moving" ? "left 1.2s cubic-bezier(0.4, 0, 0.2, 1), top 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease" : "opacity 0.2s ease"
-              }}
-            >
+            {/* Dragging Ghost Element - Same size as source */}
+            <div className="anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg pointer-events-none z-50">
               <SquareCheck className="h-2.5 w-2.5 text-primary" />
               <span className="font-medium">Multi-select</span>
             </div>
             
-            {/* Selection Click Cursor */}
-            <div 
-              className={`anim-click-cursor absolute w-6 h-6 ${selectionPhase}`}
-              style={{
-                transition: selectionPhase.startsWith("moving") ? "left 0.5s cubic-bezier(0.4, 0, 0.2, 1), top 0.5s cubic-bezier(0.4, 0, 0.2, 1)" : "none"
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-md">
+            {/* Cursor - High z-index to stay on top */}
+            <div className="anim-cursor absolute w-8 h-8 pointer-events-none z-50">
+              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-lg">
                 <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="white" stroke="black" strokeWidth="1.5"/>
               </svg>
-              {/* Click ripple */}
-              <div className="click-ripple absolute inset-0 rounded-full" />
             </div>
           </div>
         </div>
       </div>
 
       <style>{`
-        /* Drag source dims during drag */
-        .anim-drag-source.dimmed {
-          opacity: 0.3;
-        }
+        /* No opacity hiding on structural elements - UI is fully visible from start */
         
-        /* DRAG CURSOR STATES - positions relative to the 3-column area */
-        .anim-cursor {
+        /* Only animated elements start hidden */
+        .tutor-preview-container.paused .anim-cursor,
+        .tutor-preview-container.paused .anim-drag-ghost {
           opacity: 0;
-          /* Start position: right side library area */
-          right: 20px;
-          top: 75px;
         }
         
-        .anim-cursor.appearing {
-          opacity: 1;
-          right: 20px;
-          top: 75px;
-          animation: cursor-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .anim-cursor.moving {
-          opacity: 1;
-          /* End position: center of editor area (roughly 50% from left, offset for sidebar) */
-          left: calc(50% - 40px);
-          top: 110px;
-          right: auto;
-        }
-        
-        .anim-cursor.dropped {
+        .tutor-preview-container.paused .anim-drop-zone {
           opacity: 0;
-          left: calc(50% - 40px);
-          top: 110px;
-          right: auto;
         }
         
-        @keyframes cursor-pop {
-          from { opacity: 0; transform: scale(0.6); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        
-        /* DRAG GHOST STATES */
-        .anim-drag-ghost {
-          opacity: 0;
-          right: 15px;
-          top: 70px;
-        }
-        
-        .anim-drag-ghost.appearing {
-          opacity: 0.95;
-          right: 15px;
-          top: 70px;
-          animation: ghost-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .anim-drag-ghost.moving {
-          opacity: 0.95;
-          left: calc(50% - 60px);
-          top: 105px;
-          right: auto;
-        }
-        
-        .anim-drag-ghost.dropped {
-          opacity: 0;
-          left: calc(50% - 60px);
-          top: 105px;
-          right: auto;
-          transform: scale(0.9);
-        }
-        
-        @keyframes ghost-pop {
-          from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
-          to { opacity: 0.95; transform: scale(1) rotate(0deg); }
-        }
-        
-        /* DROP ZONE */
-        .anim-drop-zone {
-          border: 2px dashed transparent;
-          background: transparent;
-          transition: all 0.3s ease;
-        }
-        
-        .anim-drop-zone.active {
-          border: 3px dashed hsl(var(--primary));
-          background: hsl(var(--primary) / 0.08);
-          box-shadow: 0 0 20px hsl(var(--primary) / 0.15);
-        }
-        
-        .anim-drop-zone.success {
-          border: 3px solid hsl(var(--success));
-          background: hsl(var(--success) / 0.1);
-          box-shadow: 0 0 30px hsl(var(--success) / 0.2);
-          animation: drop-success 0.4s ease-out forwards;
-        }
-        
-        @keyframes drop-success {
-          0% { border: 3px solid hsl(var(--success)); background: hsl(var(--success) / 0.15); }
-          100% { border: 2px dashed transparent; background: transparent; box-shadow: none; }
-        }
-        
-        /* CLICK CURSOR FOR SELECTIONS */
-        .anim-click-cursor {
-          opacity: 0;
-          /* Start hidden */
-          left: calc(50% - 80px);
-          top: 140px;
-        }
-        
-        .anim-click-cursor.moving1 {
-          opacity: 1;
-          left: 170px;
-          top: 140px;
-        }
-        
-        .anim-click-cursor.click1 {
-          opacity: 1;
-          left: 170px;
-          top: 140px;
-        }
-        
-        .anim-click-cursor.click1 .click-ripple {
-          animation: click-ring 0.4s ease-out;
-        }
-        
-        .anim-click-cursor.moving2 {
-          opacity: 1;
-          left: 170px;
-          top: 200px;
-        }
-        
-        .anim-click-cursor.click2 {
-          opacity: 1;
-          left: 170px;
-          top: 200px;
-        }
-        
-        .anim-click-cursor.click2 .click-ripple {
-          animation: click-ring 0.4s ease-out;
-        }
-        
-        .anim-click-cursor.done {
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-        
-        @keyframes click-ring {
-          0% { 
-            box-shadow: 0 0 0 0 hsl(var(--success) / 0.6);
-            transform: scale(1);
-          }
-          50% { 
-            box-shadow: 0 0 0 12px hsl(var(--success) / 0);
-            transform: scale(0.95);
-          }
-          100% { 
-            box-shadow: 0 0 0 0 hsl(var(--success) / 0);
-            transform: scale(1);
-          }
-        }
-        
-        /* New question expands after drop */
-        .anim-new-question {
+        .tutor-preview-container.paused .anim-new-question {
           opacity: 0;
           max-height: 0;
           padding-top: 0;
           padding-bottom: 0;
           margin: 0;
           overflow: hidden;
-          transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
+        /* Drag hint pulses to draw attention */
+        .tutor-preview-container.animate .anim-drag-hint {
+          animation: tutor-hint-pulse 0.6s ease-in-out 0.3s;
+        }
+        
+        /* Cursor appears and moves to center editor */
+        .tutor-preview-container.animate .anim-cursor {
+          opacity: 0;
+          right: 12px;
+          top: 90px;
+          animation: 
+            tutor-cursor-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards,
+            tutor-cursor-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
+        }
+        
+        /* Ghost appears when drag starts - same size as source */
+        .tutor-preview-container.animate .anim-drag-ghost {
+          opacity: 0;
+          right: 12px;
+          top: 85px;
+          animation: 
+            tutor-ghost-appear 0.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards,
+            tutor-ghost-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
+        }
+        
+        /* Drop zone highlight during drag - in center editor */
+        .tutor-preview-container.animate .anim-drop-zone {
+          animation: tutor-drop-zone 1.4s ease-in-out 1.0s forwards;
+        }
+        
+        /* Source item dims during drag */
+        .tutor-preview-container.animate .anim-drag-source {
+          animation: tutor-source-dim 0.2s ease-out 0.9s forwards;
+        }
+        
+        /* New question expands after drop */
         .tutor-preview-container.animate .anim-new-question {
-          opacity: 1;
-          max-height: 36px;
-          padding-top: 6px;
-          padding-bottom: 6px;
-          margin-top: 4px;
+          animation: tutor-new-question 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2.4s forwards;
         }
         
         /* Count badges pulse when updating */
         .anim-count.updated {
-          animation: count-pulse 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: tutor-count-pulse 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        @keyframes count-pulse {
+        @keyframes tutor-hint-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; color: hsl(var(--primary)); }
+        }
+        
+        @keyframes tutor-cursor-appear {
+          from { opacity: 0; transform: scale(0.6); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes tutor-cursor-move {
+          0% { right: 12px; top: 90px; }
+          25% { right: 12px; top: 90px; }
+          100% { left: 200px; top: 140px; right: auto; }
+        }
+        
+        @keyframes tutor-ghost-appear {
+          from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
+          to { opacity: 0.95; transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes tutor-ghost-move {
+          0% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1); }
+          25% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1); }
+          85% { left: 195px; top: 135px; right: auto; opacity: 0.95; transform: scale(1); }
+          95% { left: 195px; top: 135px; right: auto; opacity: 0.5; transform: scale(0.95); }
+          100% { left: 195px; top: 135px; right: auto; opacity: 0; transform: scale(0.9); }
+        }
+        
+        @keyframes tutor-drop-zone {
+          0% { 
+            opacity: 0; 
+            border: 2px dashed transparent; 
+            background: transparent; 
+          }
+          15% { 
+            opacity: 1; 
+            border: 3px dashed hsl(var(--primary)); 
+            background: hsl(var(--primary) / 0.1);
+            box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+          }
+          75% { 
+            opacity: 1; 
+            border: 3px dashed hsl(var(--primary)); 
+            background: hsl(var(--primary) / 0.1);
+            box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+          }
+          85% {
+            opacity: 1;
+            border: 3px solid hsl(var(--success));
+            background: hsl(var(--success) / 0.15);
+            box-shadow: 0 0 30px hsl(var(--success) / 0.3);
+          }
+          100% { 
+            opacity: 0; 
+            border: 2px dashed transparent; 
+            background: transparent; 
+          }
+        }
+        
+        @keyframes tutor-source-dim {
+          from { opacity: 1; }
+          to { opacity: 0.3; }
+        }
+        
+        @keyframes tutor-new-question {
+          from { 
+            opacity: 0; 
+            max-height: 0; 
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+          }
+          to { 
+            opacity: 1; 
+            max-height: 36px; 
+            padding-top: 6px;
+            padding-bottom: 6px;
+            margin-top: 4px;
+          }
+        }
+        
+        @keyframes tutor-count-pulse {
           0% { transform: scale(1); }
           50% { transform: scale(1.15); color: hsl(var(--success)); }
           100% { transform: scale(1); }
@@ -583,7 +440,7 @@ export function TutorAssessmentPreview() {
         .anim-editor-item {
           opacity: 0;
           transform: translateY(8px);
-          transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+          transition: opacity 0.3s ease-out, transform 0.3s ease-out;
         }
         
         .anim-editor-item.visible {
@@ -591,49 +448,60 @@ export function TutorAssessmentPreview() {
           transform: translateY(0);
         }
         
-        /* Typing caret */
-        .anim-caret {
+        /* Typing animation for question text - fixed width */
+        .anim-editor-item.visible .anim-typing {
+          display: inline;
+          background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+          background-size: 200% 100%;
+          background-position: 100% 0;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: tutor-typing-reveal 0.8s steps(30, end) forwards;
+        }
+        
+        .anim-editor-item.visible .anim-typing::after {
+          content: '|';
           color: hsl(var(--primary));
-          animation: blink-caret 0.5s step-end infinite;
+          animation: tutor-blink-caret 0.4s step-end 4, tutor-caret-fade 0.1s 1.6s forwards;
           margin-left: 1px;
         }
         
-        @keyframes blink-caret {
+        @keyframes tutor-typing-reveal {
+          from { background-position: 100% 0; }
+          to { background-position: 0% 0; }
+        }
+        
+        @keyframes tutor-blink-caret {
           from, to { opacity: 1; }
           50% { opacity: 0; }
         }
         
-        /* Add option button special animation */
-        .anim-add-option.visible {
-          animation: add-option-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        @keyframes tutor-caret-fade {
+          to { opacity: 0; }
         }
         
-        @keyframes add-option-pop {
+        /* Add option button special animation */
+        .anim-add-option.visible {
+          animation: tutor-add-option-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes tutor-add-option-pop {
           0% { opacity: 0; transform: translateY(8px) scale(0.9); }
           100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         
         /* Option selection animation */
         .anim-option.selected {
-          animation: option-select 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation: tutor-option-select 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
           background: hsl(var(--success) / 0.05);
           border-color: hsl(var(--success) / 0.3);
         }
         
-        @keyframes option-select {
+        @keyframes tutor-option-select {
           0% { transform: scale(1); }
           50% { transform: scale(1.02); box-shadow: 0 0 0 3px hsl(var(--success) / 0.2); }
           100% { transform: scale(1); box-shadow: none; }
-        }
-        
-        /* Drag hint pulse */
-        .tutor-preview-container.animate .anim-drag-hint {
-          animation: hint-pulse 0.6s ease-in-out 0.3s;
-        }
-        
-        @keyframes hint-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; color: hsl(var(--primary)); }
         }
       `}</style>
     </div>
