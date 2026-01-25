@@ -37,18 +37,15 @@ export function TutorAssessmentPreview() {
         // Update editor to show new question type with progressive reveal
         setTimeout(() => {
           setShowNewEditor(true);
-          // Progressive editor build-out - slower pacing
-          setTimeout(() => setEditorStage(1), 0);      // Header
-          setTimeout(() => setEditorStage(2), 300);    // Question text (with typing)
-          setTimeout(() => setEditorStage(3), 1400);   // Option 1 (after typing - unchecked)
-          setTimeout(() => setEditorStage(4), 1700);   // Option 2 (unchecked)
-          setTimeout(() => setEditorStage(5), 2000);   // Option 3 (unchecked)
-          setTimeout(() => setEditorStage(6), 2300);   // Option 4 (unchecked)
-          setTimeout(() => setEditorStage(7), 2700);   // Points input
-          setTimeout(() => setEditorStage(8), 3100);   // Add option button
-          // Now animate selecting correct answers
-          setTimeout(() => setEditorStage(9), 3600);   // Select option 1 as correct (2)
-          setTimeout(() => setEditorStage(10), 4100);  // Select option 3 as correct (7)
+          // Progressive editor build-out
+          setTimeout(() => setEditorStage(1), 0);     // Header
+          setTimeout(() => setEditorStage(2), 250);   // Question text (with typing)
+          setTimeout(() => setEditorStage(3), 900);   // Option 1 (after typing done)
+          setTimeout(() => setEditorStage(4), 1100);  // Option 2
+          setTimeout(() => setEditorStage(5), 1300);  // Option 3
+          setTimeout(() => setEditorStage(6), 1500);  // Option 4
+          setTimeout(() => setEditorStage(7), 1800);  // Points input
+          setTimeout(() => setEditorStage(8), 2100);  // Add option button
         }, 2600);
       }
     };
@@ -158,32 +155,20 @@ export function TutorAssessmentPreview() {
                   </div>
                   
                   <div className="space-y-1.5 mb-3">
-                    {/* Option 1: "2" - initially unchecked, becomes correct at stage 9 */}
-                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 3 ? 'visible' : ''} ${editorStage >= 9 ? 'selected' : ''}`}>
-                      {editorStage >= 9 ? (
-                        <SquareCheck className="h-3.5 w-3.5 text-success" />
-                      ) : (
-                        <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
-                      )}
+                    <div className={`flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30 anim-editor-item ${editorStage >= 3 ? 'visible' : ''}`}>
+                      <SquareCheck className="h-3.5 w-3.5 text-success" />
                       <span className="text-[10px]">2</span>
-                      {editorStage >= 9 && <span className="ml-auto text-[8px] text-success">Correct</span>}
+                      <span className="ml-auto text-[8px] text-success">Correct</span>
                     </div>
-                    {/* Option 2: "4" - always unchecked */}
                     <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item ${editorStage >= 4 ? 'visible' : ''}`}>
                       <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
                       <span className="text-[10px]">4</span>
                     </div>
-                    {/* Option 3: "7" - initially unchecked, becomes correct at stage 10 */}
-                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item anim-option ${editorStage >= 5 ? 'visible' : ''} ${editorStage >= 10 ? 'selected' : ''}`}>
-                      {editorStage >= 10 ? (
-                        <SquareCheck className="h-3.5 w-3.5 text-success" />
-                      ) : (
-                        <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
-                      )}
+                    <div className={`flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30 anim-editor-item ${editorStage >= 5 ? 'visible' : ''}`}>
+                      <SquareCheck className="h-3.5 w-3.5 text-success" />
                       <span className="text-[10px]">7</span>
-                      {editorStage >= 10 && <span className="ml-auto text-[8px] text-success">Correct</span>}
+                      <span className="ml-auto text-[8px] text-success">Correct</span>
                     </div>
-                    {/* Option 4: "9" - always unchecked */}
                     <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item ${editorStage >= 6 ? 'visible' : ''}`}>
                       <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
                       <span className="text-[10px]">9</span>
@@ -266,13 +251,13 @@ export function TutorAssessmentPreview() {
             </div>
             
             {/* Dragging Ghost Element - Same size as source */}
-            <div className="anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg pointer-events-none z-50">
+            <div className="anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg pointer-events-none">
               <SquareCheck className="h-2.5 w-2.5 text-primary" />
               <span className="font-medium">Multi-select</span>
             </div>
             
-            {/* Cursor - High z-index to stay on top */}
-            <div className="anim-cursor absolute w-8 h-8 pointer-events-none z-50">
+            {/* Cursor - Larger for visibility */}
+            <div className="anim-cursor absolute w-8 h-8 pointer-events-none">
               <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-lg">
                 <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="white" stroke="black" strokeWidth="1.5"/>
               </svg>
@@ -448,37 +433,26 @@ export function TutorAssessmentPreview() {
           transform: translateY(0);
         }
         
-        /* Typing animation for question text - fixed width */
+        /* Typing animation for question text */
         .anim-editor-item.visible .anim-typing {
-          display: inline;
-          background: linear-gradient(90deg, currentColor 50%, transparent 50%);
-          background-size: 200% 100%;
-          background-position: 100% 0;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          animation: tutor-typing-reveal 0.8s steps(30, end) forwards;
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          border-right: 2px solid hsl(var(--primary));
+          animation: 
+            tutor-typing 0.5s steps(30, end) forwards,
+            tutor-blink-caret 0.5s step-end 3;
+          width: 0;
         }
         
-        .anim-editor-item.visible .anim-typing::after {
-          content: '|';
-          color: hsl(var(--primary));
-          animation: tutor-blink-caret 0.4s step-end 4, tutor-caret-fade 0.1s 1.6s forwards;
-          margin-left: 1px;
-        }
-        
-        @keyframes tutor-typing-reveal {
-          from { background-position: 100% 0; }
-          to { background-position: 0% 0; }
+        @keyframes tutor-typing {
+          from { width: 0; }
+          to { width: 100%; border-right-color: transparent; }
         }
         
         @keyframes tutor-blink-caret {
-          from, to { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        
-        @keyframes tutor-caret-fade {
-          to { opacity: 0; }
+          from, to { border-color: transparent; }
+          50% { border-color: hsl(var(--primary)); }
         }
         
         /* Add option button special animation */
@@ -489,19 +463,6 @@ export function TutorAssessmentPreview() {
         @keyframes tutor-add-option-pop {
           0% { opacity: 0; transform: translateY(8px) scale(0.9); }
           100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        
-        /* Option selection animation */
-        .anim-option.selected {
-          animation: tutor-option-select 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-          background: hsl(var(--success) / 0.05);
-          border-color: hsl(var(--success) / 0.3);
-        }
-        
-        @keyframes tutor-option-select {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.02); box-shadow: 0 0 0 3px hsl(var(--success) / 0.2); }
-          100% { transform: scale(1); box-shadow: none; }
         }
       `}</style>
     </div>
