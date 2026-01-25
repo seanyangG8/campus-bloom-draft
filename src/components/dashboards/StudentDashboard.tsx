@@ -94,18 +94,18 @@ export function StudentDashboard() {
           </div>
           <div className="divide-y divide-border/50">
             <button 
-              className="w-full flex items-center justify-between p-3 border-l-2 border-l-success/40 hover:bg-muted/30 transition-colors text-left"
+              className="w-full flex items-center justify-between p-3 border-l-2 border-l-accent hover:bg-muted/30 transition-colors text-left"
               onClick={() => navigate('/app/courses/course-1')}
             >
               <span className="text-sm">Complete "Quadratic Formula" page</span>
-              <span className="text-xs text-success font-medium">In Progress</span>
+              <span className="text-xs text-accent font-medium">In Progress</span>
             </button>
             <button 
-              className="w-full flex items-center justify-between p-3 border-l-2 border-l-muted-foreground/30 hover:bg-muted/30 transition-colors text-left"
+              className="w-full flex items-center justify-between p-3 border-l-2 border-l-warning/60 hover:bg-muted/30 transition-colors text-left"
               onClick={() => navigate('/app/courses/course-1')}
             >
               <span className="text-sm">Submit whiteboard activity</span>
-              <span className="text-xs text-muted-foreground">Due Tomorrow</span>
+              <span className="text-xs text-warning font-medium">Due Tomorrow</span>
             </button>
           </div>
         </div>

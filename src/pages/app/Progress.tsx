@@ -119,7 +119,7 @@ export function ProgressPage() {
                     className="shrink-0"
                   />
                 </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-accent/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full transition-all duration-500"
                     style={{ width: `${course.progress}%` }}

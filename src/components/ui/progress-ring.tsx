@@ -22,7 +22,7 @@ export function ProgressRing({
   const offset = circumference - (progress / 100) * circumference;
 
   const strokeColor = {
-    default: 'stroke-foreground',
+    default: 'stroke-accent',
     success: 'stroke-success',
     warning: 'stroke-warning',
   }[variant];
