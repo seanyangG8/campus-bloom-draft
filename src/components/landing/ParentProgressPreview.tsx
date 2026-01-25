@@ -34,10 +34,12 @@ export function ParentProgressPreview() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasAnimated]);
 
+  const animationClass = isAnimating ? "animate" : "paused";
+
   return (
     <div 
       ref={containerRef}
-      className={`parent-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
+      className={`parent-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${animationClass}`}
     >
       {/* Browser Chrome - Always visible */}
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
@@ -68,9 +70,9 @@ export function ParentProgressPreview() {
             </div>
           </div>
 
-          {/* Stats Row - Individual cards animate */}
+          {/* Stats Row - Individual cards animate with inline delays */}
           <div className="grid grid-cols-4 gap-2 mb-3">
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.2s" } as React.CSSProperties}>
               <div className="flex items-center gap-1 mb-1">
                 <TrendingUp className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Overall</span>
@@ -80,14 +82,14 @@ export function ParentProgressPreview() {
                 <span className="text-[8px] text-success">+5%</span>
               </div>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.3s" } as React.CSSProperties}>
               <div className="flex items-center gap-1 mb-1">
                 <BookOpen className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Courses</span>
               </div>
               <span className="text-base font-semibold">2</span>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.4s" } as React.CSSProperties}>
               <div className="flex items-center gap-1 mb-1">
                 <Clock className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Hours</span>
@@ -97,7 +99,7 @@ export function ParentProgressPreview() {
                 <span className="text-[8px] text-success">+8</span>
               </div>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.5s" } as React.CSSProperties}>
               <div className="flex items-center gap-1 mb-1">
                 <Flame className="h-3 w-3 text-warning" />
                 <span className="text-[9px] text-muted-foreground">Streak</span>
@@ -111,7 +113,7 @@ export function ParentProgressPreview() {
 
           {/* Course Progress Cards - Cards animate, then progress fills */}
           <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="anim-course-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.7s" } as React.CSSProperties}>
               <div className="flex items-center justify-between mb-1.5">
                 <div>
                   <p className="text-[10px] font-medium">Sec 3 Mathematics</p>
@@ -124,17 +126,18 @@ export function ParentProgressPreview() {
                       cx="16" cy="16" r="12" fill="none" 
                       stroke="hsl(var(--primary))" strokeWidth="2.5"
                       strokeDasharray="75.4" 
-                      className="anim-ring-1"
+                      className="anim-ring"
+                      style={{ "--delay": "1.1s", "--target-offset": "16.6" } as React.CSSProperties}
                     />
                   </svg>
                   <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold">78%</span>
                 </div>
               </div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="anim-progress-1 h-full bg-primary rounded-full" />
+                <div className="anim-progress h-full bg-primary rounded-full" style={{ "--delay": "1.1s", "--width": "78%" } as React.CSSProperties} />
               </div>
             </div>
-            <div className="anim-course-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.8s" } as React.CSSProperties}>
               <div className="flex items-center justify-between mb-1.5">
                 <div>
                   <p className="text-[10px] font-medium">Pri 6 Science</p>
@@ -147,14 +150,15 @@ export function ParentProgressPreview() {
                       cx="16" cy="16" r="12" fill="none" 
                       stroke="hsl(var(--success))" strokeWidth="2.5"
                       strokeDasharray="75.4" 
-                      className="anim-ring-2"
+                      className="anim-ring"
+                      style={{ "--delay": "1.2s", "--target-offset": "41.5" } as React.CSSProperties}
                     />
                   </svg>
                   <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold">45%</span>
                 </div>
               </div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="anim-progress-2 h-full bg-success rounded-full" />
+                <div className="anim-progress h-full bg-success rounded-full" style={{ "--delay": "1.2s", "--width": "45%" } as React.CSSProperties} />
               </div>
             </div>
           </div>
@@ -162,25 +166,25 @@ export function ParentProgressPreview() {
           {/* Bottom Grid */}
           <div className="grid grid-cols-2 gap-2">
             {/* Achievements - Badges pop in */}
-            <div className="anim-bottom-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.4s" } as React.CSSProperties}>
               <p className="text-[10px] font-medium mb-2">Achievements</p>
               <div className="grid grid-cols-2 gap-1.5">
-                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-success/10">
+                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-success/10" style={{ "--delay": "1.8s" } as React.CSSProperties}>
                   <Zap className="h-3 w-3 text-success" />
                   <span className="text-[8px]">Quick Learner</span>
                   <CheckCircle2 className="h-2.5 w-2.5 text-success ml-auto" />
                 </div>
-                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-primary/10">
+                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-primary/10" style={{ "--delay": "1.9s" } as React.CSSProperties}>
                   <Target className="h-3 w-3 text-primary" />
                   <span className="text-[8px]">Perfect Quiz</span>
                   <CheckCircle2 className="h-2.5 w-2.5 text-primary ml-auto" />
                 </div>
-                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-warning/10">
+                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-warning/10" style={{ "--delay": "2.0s" } as React.CSSProperties}>
                   <Flame className="h-3 w-3 text-warning" />
                   <span className="text-[8px]">7-Day Streak</span>
                   <CheckCircle2 className="h-2.5 w-2.5 text-warning ml-auto" />
                 </div>
-                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-muted">
+                <div className="anim-badge flex items-center gap-1 p-1.5 rounded bg-muted" style={{ "--delay": "2.1s" } as React.CSSProperties}>
                   <Star className="h-3 w-3 text-muted-foreground" />
                   <span className="text-[8px] text-muted-foreground">Chapter Master</span>
                 </div>
@@ -188,10 +192,10 @@ export function ParentProgressPreview() {
             </div>
 
             {/* Recent Activity - Items slide in */}
-            <div className="anim-bottom-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.5s" } as React.CSSProperties}>
               <p className="text-[10px] font-medium mb-2">Recent Activity</p>
               <div className="space-y-1.5">
-                <div className="anim-activity flex items-start gap-2">
+                <div className="anim-activity flex items-start gap-2" style={{ "--delay": "1.9s" } as React.CSSProperties}>
                   <div className="w-4 h-4 rounded bg-success/10 flex items-center justify-center mt-0.5">
                     <CheckCircle2 className="h-2.5 w-2.5 text-success" />
                   </div>
@@ -200,7 +204,7 @@ export function ParentProgressPreview() {
                     <p className="text-[8px] text-muted-foreground">2 hours ago • Score: 92%</p>
                   </div>
                 </div>
-                <div className="anim-activity flex items-start gap-2">
+                <div className="anim-activity flex items-start gap-2" style={{ "--delay": "2.0s" } as React.CSSProperties}>
                   <div className="w-4 h-4 rounded bg-primary/10 flex items-center justify-center mt-0.5">
                     <BookOpen className="h-2.5 w-2.5 text-primary" />
                   </div>
@@ -209,7 +213,7 @@ export function ParentProgressPreview() {
                     <p className="text-[8px] text-muted-foreground">Yesterday • 15 min</p>
                   </div>
                 </div>
-                <div className="anim-activity flex items-start gap-2">
+                <div className="anim-activity flex items-start gap-2" style={{ "--delay": "2.1s" } as React.CSSProperties}>
                   <div className="w-4 h-4 rounded bg-info/10 flex items-center justify-center mt-0.5">
                     <Target className="h-2.5 w-2.5 text-info" />
                   </div>
@@ -225,112 +229,53 @@ export function ParentProgressPreview() {
       </div>
 
       <style>{`
-        /* Initial states - individual elements animate, not sections */
-        .parent-preview-container.paused .anim-stat-card {
+        /* Initial states - elements start invisible */
+        .parent-preview-container.paused .anim-slide-up,
+        .parent-preview-container.paused .anim-badge,
+        .parent-preview-container.paused .anim-activity {
+          opacity: 0;
+        }
+        
+        .parent-preview-container.paused .anim-progress {
+          width: 0;
+        }
+        
+        .parent-preview-container.paused .anim-ring {
+          stroke-dashoffset: 75.4;
+        }
+        
+        /* Animations read from --delay variable */
+        .parent-preview-container.animate .anim-slide-up {
+          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
           opacity: 0;
           transform: translateY(12px);
         }
         
-        .parent-preview-container.paused .anim-course-card {
-          opacity: 0;
-          transform: translateY(12px);
+        .parent-preview-container.animate .anim-progress {
+          animation: parent-progress-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
+          width: 0;
         }
         
-        .parent-preview-container.paused .anim-bottom-card {
-          opacity: 0;
-          transform: translateY(12px);
+        .parent-preview-container.animate .anim-ring {
+          animation: parent-ring-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
+          stroke-dashoffset: 75.4;
         }
         
-        .parent-preview-container.paused .anim-badge {
+        .parent-preview-container.animate .anim-badge {
+          animation: parent-badge-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
           opacity: 0;
           transform: scale(0.8);
         }
         
-        .parent-preview-container.paused .anim-activity {
+        .parent-preview-container.animate .anim-activity {
+          animation: parent-activity-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
           opacity: 0;
           transform: translateX(-8px);
-        }
-        
-        /* Progress bars and rings start empty */
-        .parent-preview-container.paused .anim-progress-1,
-        .parent-preview-container.paused .anim-progress-2 {
-          width: 0%;
-        }
-        
-        .parent-preview-container.paused .anim-ring-1,
-        .parent-preview-container.paused .anim-ring-2 {
-          stroke-dashoffset: 75.4;
-        }
-        
-        /* Stat cards slide up with stagger */
-        .parent-preview-container.animate .anim-stat-card:nth-child(1) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-card:nth-child(2) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-card:nth-child(3) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-card:nth-child(4) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-        }
-        
-        /* Course cards slide up */
-        .parent-preview-container.animate .anim-course-card:nth-child(1) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-        }
-        .parent-preview-container.animate .anim-course-card:nth-child(2) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
-        }
-        
-        /* Hero moment: Progress bars fill */
-        .parent-preview-container.animate .anim-progress-1 {
-          animation: parent-progress-78 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
-        }
-        .parent-preview-container.animate .anim-progress-2 {
-          animation: parent-progress-45 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
-        }
-        
-        /* Hero moment: Progress rings draw */
-        .parent-preview-container.animate .anim-ring-1 {
-          animation: parent-ring-78 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
-        }
-        .parent-preview-container.animate .anim-ring-2 {
-          animation: parent-ring-45 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
-        }
-        
-        /* Bottom cards slide up */
-        .parent-preview-container.animate .anim-bottom-card:nth-child(1) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
-        }
-        .parent-preview-container.animate .anim-bottom-card:nth-child(2) {
-          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
-        }
-        
-        /* Badges pop in with stagger */
-        .parent-preview-container.animate .anim-badge:nth-child(1) {
-          animation: parent-badge-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.9s forwards;
-        }
-        .parent-preview-container.animate .anim-badge:nth-child(2) {
-          animation: parent-badge-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards;
-        }
-        .parent-preview-container.animate .anim-badge:nth-child(3) {
-          animation: parent-badge-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.1s forwards;
-        }
-        .parent-preview-container.animate .anim-badge:nth-child(4) {
-          animation: parent-badge-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.2s forwards;
-        }
-        
-        /* Activity items slide in */
-        .parent-preview-container.animate .anim-activity:nth-child(1) {
-          animation: parent-activity-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards;
-        }
-        .parent-preview-container.animate .anim-activity:nth-child(2) {
-          animation: parent-activity-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.1s forwards;
-        }
-        .parent-preview-container.animate .anim-activity:nth-child(3) {
-          animation: parent-activity-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.2s forwards;
         }
         
         @keyframes parent-slide-up {
@@ -344,24 +289,14 @@ export function ParentProgressPreview() {
           }
         }
         
-        @keyframes parent-progress-78 {
-          from { width: 0%; }
-          to { width: 78%; }
+        @keyframes parent-progress-fill {
+          from { width: 0; }
+          to { width: var(--width, 50%); }
         }
         
-        @keyframes parent-progress-45 {
-          from { width: 0%; }
-          to { width: 45%; }
-        }
-        
-        @keyframes parent-ring-78 {
+        @keyframes parent-ring-fill {
           from { stroke-dashoffset: 75.4; }
-          to { stroke-dashoffset: 16.6; }
-        }
-        
-        @keyframes parent-ring-45 {
-          from { stroke-dashoffset: 75.4; }
-          to { stroke-dashoffset: 41.5; }
+          to { stroke-dashoffset: var(--target-offset, 37.7); }
         }
         
         @keyframes parent-badge-pop {
