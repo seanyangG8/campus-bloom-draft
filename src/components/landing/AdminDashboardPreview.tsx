@@ -34,10 +34,12 @@ export function AdminDashboardPreview() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasAnimated]);
 
+  const animationClass = isAnimating ? "animate" : "paused";
+
   return (
     <div 
       ref={containerRef}
-      className={`admin-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
+      className={`admin-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${animationClass}`}
     >
       {/* Browser Chrome - Always visible */}
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
@@ -64,15 +66,15 @@ export function AdminDashboardPreview() {
               <p className="text-[10px] text-muted-foreground">Welcome back, Admin</p>
             </div>
             <div className="flex gap-1.5">
-              <div className="anim-button px-2 py-1 bg-primary text-primary-foreground rounded text-[9px] font-medium">
+              <div className="anim-button px-2 py-1 bg-primary text-primary-foreground rounded text-[9px] font-medium" style={{ "--delay": "2.3s" } as React.CSSProperties}>
                 Generate Invoices
               </div>
             </div>
           </div>
 
-          {/* Stats Grid - Individual cards animate */}
+          {/* Stats Grid - Individual cards animate with inline delays */}
           <div className="grid grid-cols-4 gap-2 mb-3">
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.2s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-1">
                 <Users className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Students</span>
@@ -82,21 +84,21 @@ export function AdminDashboardPreview() {
                 <span className="text-[8px] text-success">+12%</span>
               </div>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.3s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingUp className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Completion</span>
               </div>
               <span className="text-base font-semibold">67%</span>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.4s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-1">
                 <Calendar className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Sessions</span>
               </div>
               <span className="text-base font-semibold">6</span>
             </div>
-            <div className="anim-stat-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.5s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-1">
                 <DollarSign className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Revenue</span>
@@ -108,10 +110,10 @@ export function AdminDashboardPreview() {
             </div>
           </div>
 
-          {/* Middle Row - Individual cards animate */}
+          {/* Middle Row - Individual cards animate with inline delays */}
           <div className="grid grid-cols-3 gap-2 mb-3">
             {/* At-Risk Students */}
-            <div className="anim-middle-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.7s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-2">
                 <AlertTriangle className="h-3 w-3 text-warning" />
                 <span className="text-[10px] font-medium">At-Risk</span>
@@ -142,7 +144,7 @@ export function AdminDashboardPreview() {
             </div>
 
             {/* Upcoming Sessions */}
-            <div className="anim-middle-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.8s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-2">
                 <Video className="h-3 w-3 text-primary" />
                 <span className="text-[10px] font-medium">Sessions</span>
@@ -167,7 +169,7 @@ export function AdminDashboardPreview() {
             </div>
 
             {/* Invoices */}
-            <div className="anim-middle-card bg-card rounded-md border p-2">
+            <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "0.9s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 mb-2">
                 <FileText className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[10px] font-medium">Invoices</span>
@@ -190,13 +192,13 @@ export function AdminDashboardPreview() {
           </div>
 
           {/* Courses Overview - Cards animate, then progress bars fill */}
-          <div className="anim-courses-section">
-            <div className="flex items-center justify-between mb-2">
+          <div>
+            <div className="flex items-center justify-between mb-2 anim-fade" style={{ "--delay": "1.0s" } as React.CSSProperties}>
               <span className="text-[10px] font-medium">Courses Overview</span>
               <span className="text-[8px] text-primary">View All</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
-              <div className="anim-course-card bg-card rounded-md border p-2">
+              <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.1s" } as React.CSSProperties}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-primary" />
@@ -207,10 +209,10 @@ export function AdminDashboardPreview() {
                   </div>
                 </div>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
-                  <div className="anim-progress-bar h-full bg-primary rounded-full" data-width="78" />
+                  <div className="anim-progress h-full bg-primary rounded-full" style={{ "--delay": "1.7s", "--width": "78%" } as React.CSSProperties} />
                 </div>
               </div>
-              <div className="anim-course-card bg-card rounded-md border p-2">
+              <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.2s" } as React.CSSProperties}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-success/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-success" />
@@ -221,10 +223,10 @@ export function AdminDashboardPreview() {
                   </div>
                 </div>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
-                  <div className="anim-progress-bar h-full bg-success rounded-full" data-width="45" />
+                  <div className="anim-progress h-full bg-success rounded-full" style={{ "--delay": "1.8s", "--width": "45%" } as React.CSSProperties} />
                 </div>
               </div>
-              <div className="anim-course-card bg-card rounded-md border p-2">
+              <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.3s" } as React.CSSProperties}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-warning/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-warning" />
@@ -235,10 +237,10 @@ export function AdminDashboardPreview() {
                   </div>
                 </div>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
-                  <div className="anim-progress-bar h-full bg-warning rounded-full" data-width="62" />
+                  <div className="anim-progress h-full bg-warning rounded-full" style={{ "--delay": "1.9s", "--width": "62%" } as React.CSSProperties} />
                 </div>
               </div>
-              <div className="anim-course-card bg-card rounded-md border p-2">
+              <div className="anim-slide-up bg-card rounded-md border p-2" style={{ "--delay": "1.4s" } as React.CSSProperties}>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-info/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-info" />
@@ -249,7 +251,7 @@ export function AdminDashboardPreview() {
                   </div>
                 </div>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
-                  <div className="anim-progress-bar h-full bg-info rounded-full" data-width="33" />
+                  <div className="anim-progress h-full bg-info rounded-full" style={{ "--delay": "2.0s", "--width": "33%" } as React.CSSProperties} />
                 </div>
               </div>
             </div>
@@ -258,86 +260,39 @@ export function AdminDashboardPreview() {
       </div>
 
       <style>{`
-        /* Initial states - only animate individual elements, not entire sections */
-        .admin-preview-container.paused .anim-stat-card {
+        /* Initial states - elements start invisible */
+        .admin-preview-container.paused .anim-slide-up,
+        .admin-preview-container.paused .anim-fade {
+          opacity: 0;
+        }
+        
+        .admin-preview-container.paused .anim-progress {
+          width: 0;
+        }
+        
+        /* Animations read from --delay variable */
+        .admin-preview-container.animate .anim-slide-up {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
           opacity: 0;
           transform: translateY(12px);
         }
         
-        .admin-preview-container.paused .anim-middle-card {
+        .admin-preview-container.animate .anim-fade {
+          animation: admin-fade-in 0.4s ease-out forwards;
+          animation-delay: var(--delay, 0s);
           opacity: 0;
-          transform: translateY(12px);
         }
         
-        .admin-preview-container.paused .anim-course-card {
-          opacity: 0;
-          transform: translateY(12px);
+        .admin-preview-container.animate .anim-progress {
+          animation: admin-progress-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: var(--delay, 0s);
+          width: 0;
         }
         
-        .admin-preview-container.paused .anim-progress-bar {
-          width: 0% !important;
-        }
-        
-        .admin-preview-container.paused .anim-button {
-          transform: scale(1);
-        }
-        
-        /* Stat cards slide up with stagger */
-        .admin-preview-container.animate .anim-stat-card:nth-child(1) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-        }
-        .admin-preview-container.animate .anim-stat-card:nth-child(2) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-        .admin-preview-container.animate .anim-stat-card:nth-child(3) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
-        }
-        .admin-preview-container.animate .anim-stat-card:nth-child(4) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
-        }
-        
-        /* Middle cards slide up with stagger */
-        .admin-preview-container.animate .anim-middle-card:nth-child(1) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-        }
-        .admin-preview-container.animate .anim-middle-card:nth-child(2) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
-        }
-        .admin-preview-container.animate .anim-middle-card:nth-child(3) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
-        }
-        
-        /* Course cards slide up with stagger */
-        .admin-preview-container.animate .anim-course-card:nth-child(1) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(2) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(3) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(4) {
-          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
-        }
-        
-        /* Hero moment: Progress bars fill after cards appear */
-        .admin-preview-container.animate .anim-course-card:nth-child(1) .anim-progress-bar {
-          animation: admin-progress-78 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(2) .anim-progress-bar {
-          animation: admin-progress-45 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(3) .anim-progress-bar {
-          animation: admin-progress-62 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.9s forwards;
-        }
-        .admin-preview-container.animate .anim-course-card:nth-child(4) .anim-progress-bar {
-          animation: admin-progress-33 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards;
-        }
-        
-        /* Button pulse at the end */
         .admin-preview-container.animate .anim-button {
-          animation: admin-button-pulse 0.6s cubic-bezier(0.16, 1, 0.3, 1) 2.3s;
+          animation: admin-button-pulse 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          animation-delay: var(--delay, 0s);
         }
         
         @keyframes admin-slide-up {
@@ -351,24 +306,14 @@ export function AdminDashboardPreview() {
           }
         }
         
-        @keyframes admin-progress-78 {
-          from { width: 0%; }
-          to { width: 78%; }
+        @keyframes admin-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         
-        @keyframes admin-progress-45 {
-          from { width: 0%; }
-          to { width: 45%; }
-        }
-        
-        @keyframes admin-progress-62 {
-          from { width: 0%; }
-          to { width: 62%; }
-        }
-        
-        @keyframes admin-progress-33 {
-          from { width: 0%; }
-          to { width: 33%; }
+        @keyframes admin-progress-fill {
+          from { width: 0; }
+          to { width: var(--width, 50%); }
         }
         
         @keyframes admin-button-pulse {
