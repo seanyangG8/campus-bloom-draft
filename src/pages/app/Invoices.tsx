@@ -134,14 +134,12 @@ export function InvoicesPage() {
           value={`$${totalPaid.toLocaleString()}`}
           subtitle="This month"
           icon={CreditCard}
-          variant="accent"
         />
         <StatCard
           title="Paid"
           value={paidInvoices.length}
           subtitle={`$${totalPaid} total`}
           icon={CheckCircle2}
-          variant="success"
         />
         <StatCard
           title="Pending"
@@ -154,7 +152,6 @@ export function InvoicesPage() {
           value={overdueInvoices.length}
           subtitle={`$${totalOverdue} overdue`}
           icon={AlertCircle}
-          variant="warning"
         />
       </motion.div>
 

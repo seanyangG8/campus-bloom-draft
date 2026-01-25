@@ -17,8 +17,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       <AppHeader />
       <main
         className={cn(
-          "pt-16 min-h-screen transition-all duration-300",
-          sidebarCollapsed ? "pl-16" : "pl-64"
+          "pt-14 min-h-screen transition-all duration-200",
+          sidebarCollapsed ? "pl-16" : "pl-60"
         )}
       >
         <div className="p-6">

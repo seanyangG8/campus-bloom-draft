@@ -90,7 +90,6 @@ export function ProgressPage() {
           title="Day Streak"
           value={studentProgress.streakDays}
           icon={TrendingUp}
-          variant="accent"
         />
       </motion.div>
 

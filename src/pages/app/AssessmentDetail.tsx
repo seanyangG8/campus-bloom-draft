@@ -169,7 +169,6 @@ function AssessmentBuilder() {
             {assessment?.status === 'draft' && (
               <Button
                 size="sm"
-                variant="premium"
                 onClick={handlePublish}
               >
                 Publish
