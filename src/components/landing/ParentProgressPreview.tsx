@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Trophy,
   Calendar,
-  MessageSquare,
 } from "lucide-react";
 
 export function ParentProgressPreview() {
@@ -62,7 +61,7 @@ export function ParentProgressPreview() {
 
         {/* Content - Scrollable container */}
         <div className="flex-1 overflow-hidden">
-          <div className="anim-content-scroll p-4 space-y-4" style={{ "--scroll-target": "-120px" } as React.CSSProperties}>
+          <div className="p-4 space-y-4">
             
             {/* Profile Header with Animated Ring */}
             <div className="anim-slide-up flex items-center gap-4 p-3 bg-card rounded-lg border" style={{ "--delay": "0.2s" } as React.CSSProperties}>
@@ -298,55 +297,6 @@ export function ParentProgressPreview() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Weekly Summary - Revealed by scroll */}
-            <div className="anim-slide-up bg-gradient-to-r from-primary/5 to-success/5 rounded-lg border p-3" style={{ "--delay": "1.6s" } as React.CSSProperties}>
-              <div className="flex items-center gap-2 mb-3">
-                <Trophy className="h-4 w-4 text-warning" />
-                <p className="text-[11px] font-medium">This Week's Summary</p>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="anim-summary-item flex items-center gap-2" style={{ "--delay": "2.6s" } as React.CSSProperties}>
-                  <div className="w-5 h-5 rounded-full bg-success/20 flex items-center justify-center anim-check-pop">
-                    <CheckCircle2 className="h-3 w-3 text-success" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-semibold">5 lessons</span>
-                    <p className="text-[8px] text-muted-foreground">completed</p>
-                  </div>
-                </div>
-                <div className="anim-summary-item flex items-center gap-2" style={{ "--delay": "2.8s" } as React.CSSProperties}>
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center anim-check-pop">
-                    <Target className="h-3 w-3 text-primary" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-semibold">2 quizzes</span>
-                    <p className="text-[8px] text-muted-foreground">passed</p>
-                  </div>
-                </div>
-                <div className="anim-summary-item flex items-center gap-2" style={{ "--delay": "3.0s" } as React.CSSProperties}>
-                  <div className="w-5 h-5 rounded-full bg-warning/20 flex items-center justify-center anim-check-pop">
-                    <Star className="h-3 w-3 text-warning" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-semibold">New badge!</span>
-                    <p className="text-[8px] text-muted-foreground">earned</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tutor's Note - Revealed by scroll */}
-            <div className="anim-slide-up bg-card rounded-lg border p-3" style={{ "--delay": "1.8s" } as React.CSSProperties}>
-              <div className="flex items-center gap-2 mb-2">
-                <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-                <p className="text-[11px] font-medium">Note from Tutor</p>
-              </div>
-              <div className="anim-note bg-muted/50 rounded-lg p-2.5" style={{ "--delay": "2.8s" } as React.CSSProperties}>
-                <p className="text-[9px] italic text-muted-foreground">"Sarah has shown excellent improvement in algebraic expressions. Keep encouraging her practice with word problems!"</p>
-                <p className="text-[8px] text-muted-foreground mt-1.5">— Mr. Tan, 2 days ago</p>
               </div>
             </div>
           </div>
