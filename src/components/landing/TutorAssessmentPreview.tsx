@@ -13,6 +13,7 @@ export function TutorAssessmentPreview() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showNewQuestion, setShowNewQuestion] = useState(false);
+  const [showNewEditor, setShowNewEditor] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,7 +30,12 @@ export function TutorAssessmentPreview() {
         // Show new question after drag animation completes
         setTimeout(() => {
           setShowNewQuestion(true);
-        }, 2800);
+        }, 2400);
+        
+        // Update editor to show new question type
+        setTimeout(() => {
+          setShowNewEditor(true);
+        }, 2600);
       }
     };
 
@@ -44,8 +50,8 @@ export function TutorAssessmentPreview() {
       ref={containerRef}
       className={`tutor-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
     >
-      {/* Browser Chrome */}
-      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col anim-chrome">
+      {/* Browser Chrome - Always visible, entire UI static from start */}
+      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
         {/* Status Bar */}
         <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-2">
           <div className="flex gap-1.5">
@@ -61,15 +67,15 @@ export function TutorAssessmentPreview() {
         </div>
 
         {/* Assessment Builder Header */}
-        <div className="px-3 py-2 border-b flex items-center justify-between anim-section-header">
+        <div className="px-3 py-2 border-b flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold">Chapter 5 Quiz</h2>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[9px] text-muted-foreground anim-question-count">
+              <span className={`text-[9px] text-muted-foreground anim-count ${showNewQuestion ? 'updated' : ''}`}>
                 {showNewQuestion ? '6' : '5'} questions
               </span>
               <span className="text-[9px] text-muted-foreground">•</span>
-              <span className="text-[9px] text-muted-foreground anim-points-count">
+              <span className={`text-[9px] text-muted-foreground anim-count ${showNewQuestion ? 'updated' : ''}`}>
                 {showNewQuestion ? '50' : '40'} pts
               </span>
             </div>
@@ -80,11 +86,15 @@ export function TutorAssessmentPreview() {
           </div>
         </div>
 
-        {/* 3-Column Layout */}
-        <div className="flex-1 flex overflow-hidden anim-section-content">
+        {/* 3-Column Layout - Entirely visible from start */}
+        <div className="flex-1 flex overflow-hidden">
           {/* Left: Question List */}
-          <div className="w-[140px] border-r p-2 bg-muted/20">
+          <div className="w-[140px] border-r p-2 bg-muted/20 relative">
             <p className="text-[9px] font-medium text-muted-foreground mb-2">Questions</p>
+            
+            {/* Drop Zone Highlight - animates during drag */}
+            <div className="anim-drop-zone absolute left-2 right-2 top-[68px] h-[105px] rounded-lg pointer-events-none z-10" />
+            
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 p-1.5 rounded bg-background border text-[9px]">
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
@@ -92,7 +102,7 @@ export function TutorAssessmentPreview() {
                 <span className="flex-1 truncate">Multiple choice</span>
                 <span className="text-[8px] text-muted-foreground">5</span>
               </div>
-              <div className="flex items-center gap-1.5 p-1.5 rounded bg-primary/10 border-primary/30 border text-[9px]">
+              <div className={`flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${!showNewEditor ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
                 <ToggleLeft className="h-2.5 w-2.5 text-primary" />
                 <span className="flex-1 truncate">True / False</span>
@@ -117,8 +127,8 @@ export function TutorAssessmentPreview() {
                 <span className="text-[8px] text-muted-foreground">10</span>
               </div>
               
-              {/* New Question - appears after drag */}
-              <div className={`anim-new-question flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${showNewQuestion ? 'bg-success/10 border-success/30' : ''}`}>
+              {/* New Question - expands after drag completes */}
+              <div className={`anim-new-question flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${showNewQuestion ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
                 <SquareCheck className="h-2.5 w-2.5 text-success" />
                 <span className="flex-1 truncate">Multi-select</span>
@@ -127,45 +137,86 @@ export function TutorAssessmentPreview() {
             </div>
           </div>
 
-          {/* Center: Question Editor */}
+          {/* Center: Question Editor - Updates to show new question type */}
           <div className="flex-1 p-3">
-            <div className="bg-card rounded-lg border p-3">
-              <div className="flex items-center gap-2 mb-3">
-                <ToggleLeft className="h-4 w-4 text-primary" />
-                <span className="text-[10px] font-medium">True / False</span>
-                <span className="ml-auto text-[9px] text-muted-foreground">5 points</span>
-              </div>
-              
-              <div className="mb-3">
-                <p className="text-[11px] font-medium mb-2">All quadrilaterals have exactly 4 sides.</p>
-              </div>
-              
-              <div className="space-y-1.5 mb-3">
-                <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                  <span className="text-[10px]">True</span>
-                  <span className="ml-auto text-[8px] text-success">Correct</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 rounded border">
-                  <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[10px]">False</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 pt-2 border-t">
-                <span className="text-[9px] text-muted-foreground">Points:</span>
-                <div className="w-12 h-6 rounded border bg-background flex items-center justify-center text-[10px]">5</div>
-              </div>
+            <div className={`anim-editor bg-card rounded-lg border p-3 transition-all duration-300 ${showNewEditor ? 'ring-2 ring-primary/20' : ''}`}>
+              {showNewEditor ? (
+                // New Multi-select question editor
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <SquareCheck className="h-4 w-4 text-success" />
+                    <span className="text-[10px] font-medium">Multi-select</span>
+                    <span className="ml-auto text-[9px] text-muted-foreground">10 points</span>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium mb-2">Select all the prime numbers:</p>
+                  </div>
+                  
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
+                      <SquareCheck className="h-3.5 w-3.5 text-success" />
+                      <span className="text-[10px]">2</span>
+                      <span className="ml-auto text-[8px] text-success">Correct</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded border">
+                      <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
+                      <span className="text-[10px]">4</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
+                      <SquareCheck className="h-3.5 w-3.5 text-success" />
+                      <span className="text-[10px]">7</span>
+                      <span className="ml-auto text-[8px] text-success">Correct</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded border">
+                      <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
+                      <span className="text-[10px]">9</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 pt-2 border-t">
+                    <span className="text-[9px] text-muted-foreground">Points:</span>
+                    <div className="w-12 h-6 rounded border bg-background flex items-center justify-center text-[10px]">10</div>
+                  </div>
+                </>
+              ) : (
+                // Original True/False question editor
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <ToggleLeft className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] font-medium">True / False</span>
+                    <span className="ml-auto text-[9px] text-muted-foreground">5 points</span>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium mb-2">All quadrilaterals have exactly 4 sides.</p>
+                  </div>
+                  
+                  <div className="space-y-1.5 mb-3">
+                    <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                      <span className="text-[10px]">True</span>
+                      <span className="ml-auto text-[8px] text-success">Correct</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded border">
+                      <Circle className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-[10px]">False</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 pt-2 border-t">
+                    <span className="text-[9px] text-muted-foreground">Points:</span>
+                    <div className="w-12 h-6 rounded border bg-background flex items-center justify-center text-[10px]">5</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           {/* Right: Question Library */}
           <div className="w-[130px] border-l p-2 bg-muted/20 relative">
             <p className="text-[9px] font-medium text-muted-foreground mb-1.5">Question Types</p>
-            <p className="text-[8px] text-muted-foreground mb-2">Drag to add</p>
-            
-            {/* Drop Zone Highlight */}
-            <div className="anim-drop-zone absolute -left-[144px] top-[70px] w-[136px] h-[100px] rounded-lg pointer-events-none" />
+            <p className="text-[8px] text-muted-foreground mb-2 anim-drag-hint">Drag to add</p>
             
             <div className="space-y-1">
               <div className="text-[8px] text-muted-foreground mb-1">Auto-Graded</div>
@@ -190,15 +241,15 @@ export function TutorAssessmentPreview() {
               </div>
             </div>
             
-            {/* Dragging Ghost Element */}
-            <div className="anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg pointer-events-none">
-              <SquareCheck className="h-2.5 w-2.5 text-primary" />
+            {/* Dragging Ghost Element - Larger and more prominent */}
+            <div className="anim-drag-ghost absolute flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-primary bg-primary/10 text-[10px] shadow-xl pointer-events-none">
+              <SquareCheck className="h-3 w-3 text-primary" />
               <span className="font-medium">Multi-select</span>
             </div>
             
-            {/* Cursor */}
-            <div className="anim-cursor absolute w-4 h-4 pointer-events-none">
-              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-md">
+            {/* Cursor - Larger for visibility */}
+            <div className="anim-cursor absolute w-8 h-8 pointer-events-none">
+              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full drop-shadow-lg">
                 <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.48 0 .72-.58.38-.92L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="white" stroke="black" strokeWidth="1.5"/>
               </svg>
             </div>
@@ -207,15 +258,11 @@ export function TutorAssessmentPreview() {
       </div>
 
       <style>{`
-        .tutor-preview-container.paused .anim-chrome,
-        .tutor-preview-container.paused .anim-section-header,
-        .tutor-preview-container.paused .anim-section-content {
-          opacity: 0;
-        }
+        /* No opacity hiding on structural elements - UI is fully visible from start */
         
+        /* Only animated elements start hidden */
         .tutor-preview-container.paused .anim-cursor,
-        .tutor-preview-container.paused .anim-drag-ghost,
-        .tutor-preview-container.paused .anim-new-question {
+        .tutor-preview-container.paused .anim-drag-ghost {
           opacity: 0;
         }
         
@@ -223,112 +270,146 @@ export function TutorAssessmentPreview() {
           opacity: 0;
         }
         
-        /* Chrome and content fade in together */
-        .tutor-preview-container.animate .anim-chrome {
-          animation: tutor-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .tutor-preview-container.paused .anim-new-question {
+          opacity: 0;
+          max-height: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          margin: 0;
+          overflow: hidden;
         }
         
-        .tutor-preview-container.animate .anim-section-header {
-          animation: tutor-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        /* Drag hint pulses to draw attention */
+        .tutor-preview-container.animate .anim-drag-hint {
+          animation: tutor-hint-pulse 0.6s ease-in-out 0.3s;
         }
         
-        .tutor-preview-container.animate .anim-section-content {
-          animation: tutor-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-        
-        /* Cursor appears and moves to multi-select */
+        /* Cursor appears and moves - larger and more visible */
         .tutor-preview-container.animate .anim-cursor {
           opacity: 0;
-          right: 8px;
-          top: 95px;
-          animation: 
-            tutor-cursor-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1) 1s forwards,
-            tutor-cursor-move 1.2s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
-        }
-        
-        /* Ghost appears when drag starts */
-        .tutor-preview-container.animate .anim-drag-ghost {
-          opacity: 0;
-          right: 8px;
+          right: 12px;
           top: 90px;
           animation: 
-            tutor-ghost-appear 0.2s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards,
-            tutor-ghost-move 1.2s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards;
+            tutor-cursor-appear 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards,
+            tutor-cursor-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
         }
         
-        /* Drop zone highlight during drag */
+        /* Ghost appears when drag starts - larger and more prominent */
+        .tutor-preview-container.animate .anim-drag-ghost {
+          opacity: 0;
+          right: 12px;
+          top: 85px;
+          animation: 
+            tutor-ghost-appear 0.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards,
+            tutor-ghost-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
+        }
+        
+        /* Drop zone highlight during drag - brighter and more visible */
         .tutor-preview-container.animate .anim-drop-zone {
-          animation: tutor-drop-zone 1.2s ease-in-out 1.6s forwards;
+          animation: tutor-drop-zone 1.4s ease-in-out 1.0s forwards;
         }
         
         /* Source item dims during drag */
         .tutor-preview-container.animate .anim-drag-source {
-          animation: tutor-source-dim 0.2s ease-out 1.5s forwards;
+          animation: tutor-source-dim 0.2s ease-out 0.9s forwards;
         }
         
-        /* New question appears after drop */
+        /* New question expands after drop */
         .tutor-preview-container.animate .anim-new-question {
-          opacity: 0;
-          max-height: 0;
-          padding: 0;
-          margin: 0;
-          overflow: hidden;
-          animation: tutor-new-question 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.8s forwards;
+          animation: tutor-new-question 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2.4s forwards;
         }
         
-        @keyframes tutor-fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        /* Count badges pulse when updating */
+        .anim-count.updated {
+          animation: tutor-count-pulse 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes tutor-hint-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; color: hsl(var(--primary)); }
         }
         
         @keyframes tutor-cursor-appear {
-          from { opacity: 0; transform: scale(0.8); }
+          from { opacity: 0; transform: scale(0.6); }
           to { opacity: 1; transform: scale(1); }
         }
         
         @keyframes tutor-cursor-move {
-          0% { right: 8px; top: 95px; }
-          30% { right: 8px; top: 95px; }
-          100% { right: 160px; top: 170px; }
+          0% { right: 12px; top: 90px; }
+          25% { right: 12px; top: 90px; }
+          100% { right: 200px; top: 165px; }
         }
         
         @keyframes tutor-ghost-appear {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 0.9; transform: scale(1.02); }
+          from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
+          to { opacity: 0.95; transform: scale(1.05) rotate(0deg); }
         }
         
         @keyframes tutor-ghost-move {
-          0% { right: 8px; top: 90px; opacity: 0.9; }
-          30% { right: 8px; top: 90px; opacity: 0.9; }
-          90% { right: 160px; top: 165px; opacity: 0.9; }
-          100% { right: 160px; top: 165px; opacity: 0; }
+          0% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1.05); }
+          25% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1.05); }
+          85% { right: 200px; top: 160px; opacity: 0.95; transform: scale(1.02); }
+          95% { right: 200px; top: 160px; opacity: 0.5; transform: scale(0.95); }
+          100% { right: 200px; top: 160px; opacity: 0; transform: scale(0.9); }
         }
         
         @keyframes tutor-drop-zone {
-          0% { opacity: 0; border: 2px dashed transparent; background: transparent; }
-          20% { opacity: 1; border: 2px dashed hsl(var(--primary)); background: hsl(var(--primary) / 0.05); }
-          80% { opacity: 1; border: 2px dashed hsl(var(--primary)); background: hsl(var(--primary) / 0.05); }
-          100% { opacity: 0; border: 2px dashed transparent; background: transparent; }
+          0% { 
+            opacity: 0; 
+            border: 2px dashed transparent; 
+            background: transparent; 
+          }
+          15% { 
+            opacity: 1; 
+            border: 3px dashed hsl(var(--primary)); 
+            background: hsl(var(--primary) / 0.1);
+            box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+          }
+          75% { 
+            opacity: 1; 
+            border: 3px dashed hsl(var(--primary)); 
+            background: hsl(var(--primary) / 0.1);
+            box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+          }
+          85% {
+            opacity: 1;
+            border: 3px solid hsl(var(--success));
+            background: hsl(var(--success) / 0.15);
+            box-shadow: 0 0 30px hsl(var(--success) / 0.3);
+          }
+          100% { 
+            opacity: 0; 
+            border: 2px dashed transparent; 
+            background: transparent; 
+          }
         }
         
         @keyframes tutor-source-dim {
           from { opacity: 1; }
-          to { opacity: 0.4; }
+          to { opacity: 0.3; }
         }
         
         @keyframes tutor-new-question {
           from { 
             opacity: 0; 
             max-height: 0; 
-            padding: 0 6px; 
+            padding-top: 0;
+            padding-bottom: 0;
             margin: 0;
           }
           to { 
             opacity: 1; 
-            max-height: 32px; 
-            padding: 6px; 
+            max-height: 36px; 
+            padding-top: 6px;
+            padding-bottom: 6px;
             margin-top: 4px;
           }
+        }
+        
+        @keyframes tutor-count-pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.15); color: hsl(var(--success)); }
+          100% { transform: scale(1); }
         }
       `}</style>
     </div>

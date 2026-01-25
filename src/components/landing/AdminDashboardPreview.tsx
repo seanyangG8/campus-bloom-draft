@@ -39,8 +39,8 @@ export function AdminDashboardPreview() {
       ref={containerRef}
       className={`admin-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
     >
-      {/* Browser Chrome */}
-      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col anim-chrome">
+      {/* Browser Chrome - Always visible */}
+      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
         {/* Status Bar */}
         <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-2">
           <div className="flex gap-1.5">
@@ -57,22 +57,22 @@ export function AdminDashboardPreview() {
 
         {/* Dashboard Content */}
         <div className="flex-1 p-3 overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3 anim-section-header">
+          {/* Header - Always visible */}
+          <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-sm font-semibold text-foreground">Dashboard</h2>
               <p className="text-[10px] text-muted-foreground">Welcome back, Admin</p>
             </div>
             <div className="flex gap-1.5">
-              <div className="px-2 py-1 bg-primary text-primary-foreground rounded text-[9px] font-medium">
+              <div className="anim-button px-2 py-1 bg-primary text-primary-foreground rounded text-[9px] font-medium">
                 Generate Invoices
               </div>
             </div>
           </div>
 
-          {/* Stats Grid - All 4 cards animate together */}
-          <div className="grid grid-cols-4 gap-2 mb-3 anim-section-stats">
-            <div className="bg-card rounded-md border p-2">
+          {/* Stats Grid - Individual cards animate */}
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="anim-stat-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Users className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Students</span>
@@ -82,21 +82,21 @@ export function AdminDashboardPreview() {
                 <span className="text-[8px] text-success">+12%</span>
               </div>
             </div>
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-stat-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <TrendingUp className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Completion</span>
               </div>
               <span className="text-base font-semibold">67%</span>
             </div>
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-stat-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Calendar className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Sessions</span>
               </div>
               <span className="text-base font-semibold">6</span>
             </div>
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-stat-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <DollarSign className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Revenue</span>
@@ -108,10 +108,10 @@ export function AdminDashboardPreview() {
             </div>
           </div>
 
-          {/* Middle Row - Animate together */}
-          <div className="grid grid-cols-3 gap-2 mb-3 anim-section-middle">
+          {/* Middle Row - Individual cards animate */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
             {/* At-Risk Students */}
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-middle-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-2">
                 <AlertTriangle className="h-3 w-3 text-warning" />
                 <span className="text-[10px] font-medium">At-Risk</span>
@@ -142,7 +142,7 @@ export function AdminDashboardPreview() {
             </div>
 
             {/* Upcoming Sessions */}
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-middle-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-2">
                 <Video className="h-3 w-3 text-primary" />
                 <span className="text-[10px] font-medium">Sessions</span>
@@ -167,7 +167,7 @@ export function AdminDashboardPreview() {
             </div>
 
             {/* Invoices */}
-            <div className="bg-card rounded-md border p-2">
+            <div className="anim-middle-card bg-card rounded-md border p-2">
               <div className="flex items-center gap-1.5 mb-2">
                 <FileText className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[10px] font-medium">Invoices</span>
@@ -189,14 +189,14 @@ export function AdminDashboardPreview() {
             </div>
           </div>
 
-          {/* Courses Overview - Animate together */}
-          <div className="anim-section-courses">
+          {/* Courses Overview - Cards animate, then progress bars fill */}
+          <div className="anim-courses-section">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium">Courses Overview</span>
               <span className="text-[8px] text-primary">View All</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-card rounded-md border p-2">
+              <div className="anim-course-card bg-card rounded-md border p-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-primary" />
@@ -206,11 +206,11 @@ export function AdminDashboardPreview() {
                     <p className="text-[7px] text-muted-foreground">12 students</p>
                   </div>
                 </div>
-                <div className="h-1 bg-muted rounded-full">
-                  <div className="h-full bg-primary rounded-full" style={{ width: '78%' }} />
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div className="anim-progress-bar h-full bg-primary rounded-full" data-width="78" />
                 </div>
               </div>
-              <div className="bg-card rounded-md border p-2">
+              <div className="anim-course-card bg-card rounded-md border p-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-success/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-success" />
@@ -220,11 +220,11 @@ export function AdminDashboardPreview() {
                     <p className="text-[7px] text-muted-foreground">8 students</p>
                   </div>
                 </div>
-                <div className="h-1 bg-muted rounded-full">
-                  <div className="h-full bg-success rounded-full" style={{ width: '45%' }} />
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div className="anim-progress-bar h-full bg-success rounded-full" data-width="45" />
                 </div>
               </div>
-              <div className="bg-card rounded-md border p-2">
+              <div className="anim-course-card bg-card rounded-md border p-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-warning/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-warning" />
@@ -234,11 +234,11 @@ export function AdminDashboardPreview() {
                     <p className="text-[7px] text-muted-foreground">15 students</p>
                   </div>
                 </div>
-                <div className="h-1 bg-muted rounded-full">
-                  <div className="h-full bg-warning rounded-full" style={{ width: '62%' }} />
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div className="anim-progress-bar h-full bg-warning rounded-full" data-width="62" />
                 </div>
               </div>
-              <div className="bg-card rounded-md border p-2">
+              <div className="anim-course-card bg-card rounded-md border p-2">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-5 h-5 rounded bg-info/10 flex items-center justify-center">
                     <BookOpen className="h-2.5 w-2.5 text-info" />
@@ -248,8 +248,8 @@ export function AdminDashboardPreview() {
                     <p className="text-[7px] text-muted-foreground">10 students</p>
                   </div>
                 </div>
-                <div className="h-1 bg-muted rounded-full">
-                  <div className="h-full bg-info rounded-full" style={{ width: '33%' }} />
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div className="anim-progress-bar h-full bg-info rounded-full" data-width="33" />
                 </div>
               </div>
             </div>
@@ -258,47 +258,122 @@ export function AdminDashboardPreview() {
       </div>
 
       <style>{`
-        .admin-preview-container.paused .anim-chrome,
-        .admin-preview-container.paused .anim-section-header,
-        .admin-preview-container.paused .anim-section-stats,
-        .admin-preview-container.paused .anim-section-middle,
-        .admin-preview-container.paused .anim-section-courses {
+        /* Initial states - only animate individual elements, not entire sections */
+        .admin-preview-container.paused .anim-stat-card {
           opacity: 0;
+          transform: translateY(12px);
         }
         
-        .admin-preview-container.animate .anim-chrome {
-          animation: admin-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .admin-preview-container.paused .anim-middle-card {
+          opacity: 0;
+          transform: translateY(12px);
         }
         
-        .admin-preview-container.animate .anim-section-header {
-          animation: admin-slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        .admin-preview-container.paused .anim-course-card {
+          opacity: 0;
+          transform: translateY(12px);
         }
         
-        .admin-preview-container.animate .anim-section-stats {
+        .admin-preview-container.paused .anim-progress-bar {
+          width: 0% !important;
+        }
+        
+        .admin-preview-container.paused .anim-button {
+          transform: scale(1);
+        }
+        
+        /* Stat cards slide up with stagger */
+        .admin-preview-container.animate .anim-stat-card:nth-child(1) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        }
+        .admin-preview-container.animate .anim-stat-card:nth-child(2) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+        .admin-preview-container.animate .anim-stat-card:nth-child(3) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+        }
+        .admin-preview-container.animate .anim-stat-card:nth-child(4) {
           animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
         }
         
-        .admin-preview-container.animate .anim-section-middle {
+        /* Middle cards slide up with stagger */
+        .admin-preview-container.animate .anim-middle-card:nth-child(1) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+        }
+        .admin-preview-container.animate .anim-middle-card:nth-child(2) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+        }
+        .admin-preview-container.animate .anim-middle-card:nth-child(3) {
           animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
         }
         
-        .admin-preview-container.animate .anim-section-courses {
+        /* Course cards slide up with stagger */
+        .admin-preview-container.animate .anim-course-card:nth-child(1) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
+        }
+        .admin-preview-container.animate .anim-course-card:nth-child(2) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+        }
+        .admin-preview-container.animate .anim-course-card:nth-child(3) {
           animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
         }
-        
-        @keyframes admin-fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .admin-preview-container.animate .anim-course-card:nth-child(4) {
+          animation: admin-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
         }
         
-        @keyframes admin-slide-down {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+        /* Hero moment: Progress bars fill after cards appear */
+        .admin-preview-container.animate .anim-course-card:nth-child(1) .anim-progress-bar {
+          animation: admin-progress-78 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
+        }
+        .admin-preview-container.animate .anim-course-card:nth-child(2) .anim-progress-bar {
+          animation: admin-progress-45 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
+        }
+        .admin-preview-container.animate .anim-course-card:nth-child(3) .anim-progress-bar {
+          animation: admin-progress-62 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.9s forwards;
+        }
+        .admin-preview-container.animate .anim-course-card:nth-child(4) .anim-progress-bar {
+          animation: admin-progress-33 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards;
+        }
+        
+        /* Button pulse at the end */
+        .admin-preview-container.animate .anim-button {
+          animation: admin-button-pulse 0.6s cubic-bezier(0.16, 1, 0.3, 1) 2.3s;
         }
         
         @keyframes admin-slide-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { 
+            opacity: 0; 
+            transform: translateY(12px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes admin-progress-78 {
+          from { width: 0%; }
+          to { width: 78%; }
+        }
+        
+        @keyframes admin-progress-45 {
+          from { width: 0%; }
+          to { width: 45%; }
+        }
+        
+        @keyframes admin-progress-62 {
+          from { width: 0%; }
+          to { width: 62%; }
+        }
+        
+        @keyframes admin-progress-33 {
+          from { width: 0%; }
+          to { width: 33%; }
+        }
+        
+        @keyframes admin-button-pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+          50% { transform: scale(1.05); box-shadow: 0 0 0 4px hsl(var(--primary) / 0); }
         }
       `}</style>
     </div>
