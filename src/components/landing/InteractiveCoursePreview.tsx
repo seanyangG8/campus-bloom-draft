@@ -11,9 +11,7 @@ import {
   MessageSquare,
   Lightbulb,
   Video,
-  Download,
-  Pencil,
-  User
+  Download
 } from "lucide-react";
 
 export function InteractiveCoursePreview() {
@@ -137,9 +135,9 @@ export function InteractiveCoursePreview() {
             </div>
           </div>
 
-          {/* Main Content - Realistic course page */}
+          {/* Main Content - Realistic course page with scroll animation */}
           <div className="flex-1 p-4 overflow-hidden relative">
-            <div className="space-y-3">
+            <div className="space-y-3 content-scroll-container anim-content-scroll" style={{ "--scroll-delay": "3.8s" } as React.CSSProperties}>
               {/* Page Header */}
               <div className="mb-3 anim-fade" style={{ "--delay": "0.8s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-1">
@@ -160,7 +158,7 @@ export function InteractiveCoursePreview() {
                   <span className="text-[10px] font-medium">Video: Understanding Algebraic Expressions</span>
                   <span className="text-[9px] text-muted-foreground ml-auto">8:24</span>
                 </div>
-                <div className="aspect-[16/7] bg-slate-900 rounded relative overflow-hidden">
+                <div className="aspect-[16/6] bg-slate-900 rounded relative overflow-hidden">
                   {/* Whiteboard-style video thumbnail */}
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 p-3">
                     {/* Tutor avatar */}
@@ -254,7 +252,7 @@ export function InteractiveCoursePreview() {
                     <Lightbulb className="h-2.5 w-2.5 text-success" />
                   </div>
                   <span className="text-[10px] font-medium">Quick Check</span>
-                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-success/10 text-success ml-auto anim-fade" style={{ "--delay": "4.8s" } as React.CSSProperties}>+5 pts</span>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-success/10 text-success ml-auto anim-fade" style={{ "--delay": "6.2s" } as React.CSSProperties}>+5 pts</span>
                 </div>
                 <p className="text-[10px] text-foreground mb-2">
                   In the expression <span className="font-mono font-semibold">5y − 2</span>, what is the coefficient of <span className="font-mono">y</span>?
@@ -264,10 +262,10 @@ export function InteractiveCoursePreview() {
                     <Circle className="h-2.5 w-2.5" />
                     <span className="font-mono">y</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[9px] px-2 py-1 rounded border anim-answer-select" style={{ "--delay": "4.2s" } as React.CSSProperties}>
-                    <CheckCircle2 className="h-2.5 w-2.5 anim-check" style={{ "--delay": "4.4s" } as React.CSSProperties} />
+                  <div className="flex items-center gap-2 text-[9px] px-2 py-1 rounded border anim-answer-select" style={{ "--delay": "5.5s" } as React.CSSProperties}>
+                    <CheckCircle2 className="h-2.5 w-2.5 anim-check" style={{ "--delay": "5.7s" } as React.CSSProperties} />
                     <span className="font-mono font-medium text-foreground">5</span>
-                    <span className="ml-auto text-success text-[8px] anim-fade" style={{ "--delay": "4.6s" } as React.CSSProperties}>
+                    <span className="ml-auto text-success text-[8px] anim-fade" style={{ "--delay": "5.9s" } as React.CSSProperties}>
                       ✓ Correct!
                     </span>
                   </div>
@@ -281,7 +279,7 @@ export function InteractiveCoursePreview() {
                   </div>
                 </div>
                 {/* Feedback */}
-                <div className="mt-2 p-2 bg-success/5 rounded border border-success/20 anim-fade" style={{ "--delay": "4.8s" } as React.CSSProperties}>
+                <div className="mt-2 p-2 bg-success/5 rounded border border-success/20 anim-fade" style={{ "--delay": "6.2s" } as React.CSSProperties}>
                   <p className="text-[9px] text-success">The coefficient is the number multiplied by the variable. In 5y, the coefficient is 5.</p>
                 </div>
               </div>
@@ -299,60 +297,32 @@ export function InteractiveCoursePreview() {
                   Arrange these steps to simplify: <span className="font-mono text-foreground">2a + 3b − a + 4b</span>
                 </p>
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5s", "--move": "0px" } as React.CSSProperties}>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "6.8s", "--move": "0px" } as React.CSSProperties}>
                     <GripVertical className="h-3 w-3 text-muted-foreground/50" />
                     <span className="text-[9px]">1. Identify like terms: (2a, −a) and (3b, 4b)</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5.2s", "--move": "0px" } as React.CSSProperties}>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "7s", "--move": "0px" } as React.CSSProperties}>
                     <GripVertical className="h-3 w-3 text-muted-foreground/50" />
                     <span className="text-[9px]">2. Combine: 2a − a = a</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item anim-dragging" style={{ "--delay": "5.4s", "--move": "28px" } as React.CSSProperties}>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item anim-dragging" style={{ "--delay": "7.2s", "--move": "28px" } as React.CSSProperties}>
                     <GripVertical className="h-3 w-3 text-muted-foreground/50" />
                     <span className="text-[9px]">3. Combine: 3b + 4b = 7b</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5.6s", "--move": "-28px" } as React.CSSProperties}>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "7.4s", "--move": "-28px" } as React.CSSProperties}>
                     <GripVertical className="h-3 w-3 text-muted-foreground/50" />
                     <span className="text-[9px]">4. Final answer: <span className="font-mono font-medium">a + 7b</span></span>
                   </div>
                 </div>
                 {/* Success indicator */}
-                <div className="flex items-center gap-1.5 mt-2 anim-fade" style={{ "--delay": "6.2s" } as React.CSSProperties}>
+                <div className="flex items-center gap-1.5 mt-2 anim-fade" style={{ "--delay": "8s" } as React.CSSProperties}>
                   <CheckCircle2 className="h-3 w-3 text-success" />
                   <span className="text-[9px] text-success">Correct order!</span>
                 </div>
               </div>
 
-              {/* Block 5: Whiteboard Submission */}
+              {/* Block 5: Reflection Prompt */}
               <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.4s" } as React.CSSProperties}>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 rounded bg-purple-500/10 flex items-center justify-center">
-                    <Pencil className="h-2.5 w-2.5 text-purple-600" />
-                  </div>
-                  <span className="text-[10px] font-medium">Your Turn: Show Your Working</span>
-                </div>
-                <p className="text-[9px] text-muted-foreground mb-2">
-                  Simplify this expression on the whiteboard: <span className="font-mono text-foreground">6m − 2n + 3m + 5n</span>
-                </p>
-                <div className="aspect-[16/5] bg-white rounded border-2 border-dashed border-muted-foreground/20 flex items-center justify-center">
-                  <div className="text-center text-[9px] text-muted-foreground anim-fade" style={{ "--delay": "6.4s" } as React.CSSProperties}>
-                    <Pencil className="h-4 w-4 mx-auto mb-1 opacity-40" />
-                    Draw or write your working
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-[8px] text-muted-foreground anim-fade" style={{ "--delay": "6.5s" } as React.CSSProperties}>
-                    <span className="anim-submission-count">1/1 submitted</span>
-                  </span>
-                  <div className="flex items-center gap-1 anim-fade" style={{ "--delay": "6.6s" } as React.CSSProperties}>
-                    <CheckCircle2 className="h-2.5 w-2.5 text-success" />
-                    <span className="text-[8px] text-success">Submitted</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Block 6: Reflection Prompt */}
-              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.7s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-warning/10 flex items-center justify-center">
                     <MessageSquare className="h-2.5 w-2.5 text-warning" />
@@ -363,25 +333,13 @@ export function InteractiveCoursePreview() {
                 <p className="text-[9px] text-muted-foreground mb-2">
                   Why is it important to identify like terms before simplifying an algebraic expression?
                 </p>
-                <div className="bg-background/50 rounded p-2 border text-[9px] text-foreground min-h-[50px] relative">
-                  <span className="anim-typing" style={{ "--delay": "6.8s" } as React.CSSProperties}>
-                    Like terms have the same variable and power, so we can only combine numbers with matching variables. For example, 3x and 5x can be added because they're both...
-                  </span>
-                  <span className="anim-cursor" style={{ "--delay": "6.8s" } as React.CSSProperties}>|</span>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center gap-2 anim-fade" style={{ "--delay": "7.5s" } as React.CSSProperties}>
-                    <span className="text-[8px] text-muted-foreground">Share with class</span>
-                    <div className="w-6 h-3 rounded-full bg-primary relative">
-                      <div className="absolute right-0.5 top-0.5 w-2 h-2 rounded-full bg-white" />
-                    </div>
-                  </div>
-                  <span className="text-[8px] text-muted-foreground anim-fade" style={{ "--delay": "7.3s" } as React.CSSProperties}>38/50 words</span>
+                <div className="bg-background/50 rounded p-2 border text-[9px] text-foreground min-h-[36px]">
+                  <span className="text-muted-foreground">Type your response...</span>
                 </div>
               </div>
 
-              {/* Block 7: Resource Download */}
-              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "3s" } as React.CSSProperties}>
+              {/* Block 6: Resource Download */}
+              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.7s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-blue-500/10 flex items-center justify-center">
                     <Download className="h-2.5 w-2.5 text-blue-600" />
@@ -435,12 +393,22 @@ export function InteractiveCoursePreview() {
         .preview-container.paused .anim-reorder-item,
         .preview-container.paused .anim-math-reveal,
         .preview-container.paused .anim-counter,
+        .preview-container.paused .anim-content-scroll,
         .preview-container.paused .sidebar-content {
           opacity: 0;
         }
 
+        .preview-container.paused .anim-content-scroll {
+          opacity: 1;
+        }
+
         .preview-container.animate .sidebar-content {
           animation: slide-in-left 0.6s ease-out forwards;
+        }
+
+        .preview-container.animate .anim-content-scroll {
+          animation: content-scroll 4s ease-in-out forwards;
+          animation-delay: var(--scroll-delay, 3.5s);
         }
 
         .preview-container.animate .anim-fade {
@@ -709,6 +677,24 @@ export function InteractiveCoursePreview() {
           to {
             opacity: 1;
             transform: scale(1);
+          }
+        }
+
+        @keyframes content-scroll {
+          0% {
+            transform: translateY(0);
+          }
+          20% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-180px);
+          }
+          80% {
+            transform: translateY(-180px);
+          }
+          100% {
+            transform: translateY(-180px);
           }
         }
       `}</style>
