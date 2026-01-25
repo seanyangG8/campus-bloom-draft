@@ -1,81 +1,69 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GraduationCap } from "lucide-react";
 
 export function SignInPage() {
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl gradient-learning flex items-center justify-center">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold">LearnCampus</span>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+            <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
+          <span className="text-xl font-semibold">LearnCampus</span>
+        </div>
 
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Welcome back</h1>
-          <p className="text-muted-foreground mb-8">Sign in to your learning campus</p>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">Welcome back</h1>
+          <p className="text-muted-foreground text-sm">Sign in to your learning campus</p>
+        </div>
 
-          <form className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Email</label>
-              <input 
-                type="email"
-                placeholder="you@tuitioncentre.edu"
-                className="w-full px-4 py-3 rounded-lg border bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Password</label>
-              <input 
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-lg border bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="rounded border-border" />
+        {/* Form */}
+        <form className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input 
+              id="email"
+              type="email"
+              placeholder="you@tuitioncentre.edu"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input 
+              id="password"
+              type="password"
+              placeholder="••••••••"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox id="remember" />
+              <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
                 Remember me
-              </label>
-              <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+              </Label>
             </div>
-            <Link to="/app">
-              <Button className="w-full py-6">
-                Sign In
-              </Button>
-            </Link>
-          </form>
-
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{" "}
-            <a href="#" className="text-primary hover:underline">Contact your centre admin</a>
-          </p>
-        </div>
-      </div>
-
-      {/* Right - Visual */}
-      <div className="hidden lg:flex flex-1 gradient-hero items-center justify-center p-12">
-        <div className="max-w-lg text-white">
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">
-            Your Learning Journey Awaits
-          </h2>
-          <p className="text-white/80 text-lg mb-8">
-            Access your courses, track progress, and connect with tutors - all in one place.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <p className="text-3xl font-bold">500+</p>
-              <p className="text-white/70 text-sm">Active Students</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <p className="text-3xl font-bold">95%</p>
-              <p className="text-white/70 text-sm">Satisfaction Rate</p>
-            </div>
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Forgot password?
+            </a>
           </div>
-        </div>
+          <Link to="/app" className="block">
+            <Button className="w-full" size="lg">
+              Sign In
+            </Button>
+          </Link>
+        </form>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Don't have an account?{" "}
+          <a href="#" className="text-foreground hover:underline">Contact your centre admin</a>
+        </p>
       </div>
     </div>
   );
