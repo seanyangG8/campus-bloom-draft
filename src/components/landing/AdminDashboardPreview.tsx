@@ -5,7 +5,10 @@ import {
   BookOpen, 
   Calendar,
   AlertTriangle,
+  TrendingUp,
   Clock,
+  FileText,
+  Bell,
   ChevronRight,
 } from "lucide-react";
 
@@ -58,7 +61,7 @@ export function AdminDashboardPreview() {
 
         {/* Dashboard Content - Scrollable container */}
         <div className="flex-1 overflow-hidden">
-          <div className="p-4 space-y-4">
+          <div className="anim-content-scroll p-4 space-y-4" style={{ "--scroll-target": "-140px" } as React.CSSProperties}>
             {/* Stats Row */}
             <div className="grid grid-cols-4 gap-3">
               {/* Revenue Stat with Mini Chart */}
@@ -281,6 +284,61 @@ export function AdminDashboardPreview() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Announcements - Revealed by scroll */}
+            <div className="anim-slide-up" style={{ "--delay": "1.6s" } as React.CSSProperties}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Bell className="h-3.5 w-3.5 text-muted-foreground" />
+                  <p className="text-[11px] font-medium">Recent Announcements</p>
+                </div>
+                <span className="text-[8px] text-primary cursor-pointer">+ New</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { title: "Holiday Schedule Update", time: "2 hours ago", urgent: true },
+                  { title: "New Assessment Templates Available", time: "Yesterday", urgent: false },
+                ].map((item, i) => (
+                  <div key={i} className="anim-announcement flex items-center gap-2 p-2 rounded-lg bg-card border" style={{ "--delay": `${2.2 + i * 0.15}s` } as React.CSSProperties}>
+                    {item.urgent && <div className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] font-medium truncate">{item.title}</p>
+                      <p className="text-[7px] text-muted-foreground">{item.time}</p>
+                    </div>
+                    <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pending Invoices - Revealed by scroll */}
+            <div className="anim-slide-up" style={{ "--delay": "1.8s" } as React.CSSProperties}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                  <p className="text-[11px] font-medium">Pending Invoices</p>
+                </div>
+                <div className="anim-button-highlight px-2 py-1 rounded bg-primary text-primary-foreground text-[8px] font-medium" style={{ "--delay": "2.8s" } as React.CSSProperties}>
+                  Generate Invoices
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="anim-invoice-card p-2 rounded-lg bg-card border" style={{ "--delay": "2.4s" } as React.CSSProperties}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px] font-medium">Overdue</span>
+                    <span className="text-[8px] text-destructive font-medium">$3,240</span>
+                  </div>
+                  <p className="text-[7px] text-muted-foreground">8 invoices</p>
+                </div>
+                <div className="anim-invoice-card p-2 rounded-lg bg-card border" style={{ "--delay": "2.5s" } as React.CSSProperties}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px] font-medium">This Week</span>
+                    <span className="text-[8px] text-warning font-medium">$5,680</span>
+                  </div>
+                  <p className="text-[7px] text-muted-foreground">12 invoices</p>
+                </div>
               </div>
             </div>
           </div>
