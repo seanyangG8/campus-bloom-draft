@@ -14,6 +14,7 @@ export function TutorAssessmentPreview() {
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showNewQuestion, setShowNewQuestion] = useState(false);
   const [showNewEditor, setShowNewEditor] = useState(false);
+  const [editorStage, setEditorStage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,9 +33,17 @@ export function TutorAssessmentPreview() {
           setShowNewQuestion(true);
         }, 2400);
         
-        // Update editor to show new question type
+        // Update editor to show new question type with progressive reveal
         setTimeout(() => {
           setShowNewEditor(true);
+          // Progressive editor build-out
+          setTimeout(() => setEditorStage(1), 0);     // Header
+          setTimeout(() => setEditorStage(2), 250);   // Question text
+          setTimeout(() => setEditorStage(3), 500);   // Option 1
+          setTimeout(() => setEditorStage(4), 700);   // Option 2
+          setTimeout(() => setEditorStage(5), 900);   // Option 3
+          setTimeout(() => setEditorStage(6), 1100);  // Option 4
+          setTimeout(() => setEditorStage(7), 1400);  // Points input
         }, 2600);
       }
     };
@@ -72,11 +81,11 @@ export function TutorAssessmentPreview() {
             <h2 className="text-sm font-semibold">Chapter 5 Quiz</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className={`text-[9px] text-muted-foreground anim-count ${showNewQuestion ? 'updated' : ''}`}>
-                {showNewQuestion ? '6' : '5'} questions
+                {showNewQuestion ? '4' : '3'} questions
               </span>
               <span className="text-[9px] text-muted-foreground">•</span>
               <span className={`text-[9px] text-muted-foreground anim-count ${showNewQuestion ? 'updated' : ''}`}>
-                {showNewQuestion ? '50' : '40'} pts
+                {showNewQuestion ? '35' : '25'} pts
               </span>
             </div>
           </div>
@@ -96,12 +105,6 @@ export function TutorAssessmentPreview() {
             <div className="anim-drop-zone absolute left-2 right-2 top-[68px] h-[105px] rounded-lg pointer-events-none z-10" />
             
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5 p-1.5 rounded bg-background border text-[9px]">
-                <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
-                <Circle className="h-2.5 w-2.5 text-primary" />
-                <span className="flex-1 truncate">Multiple choice</span>
-                <span className="text-[8px] text-muted-foreground">5</span>
-              </div>
               <div className={`flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${!showNewEditor ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
                 <ToggleLeft className="h-2.5 w-2.5 text-primary" />
@@ -120,12 +123,6 @@ export function TutorAssessmentPreview() {
                 <span className="flex-1 truncate">Ordering</span>
                 <span className="text-[8px] text-muted-foreground">10</span>
               </div>
-              <div className="flex items-center gap-1.5 p-1.5 rounded bg-background border text-[9px]">
-                <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
-                <Circle className="h-2.5 w-2.5 text-primary" />
-                <span className="flex-1 truncate">Multiple choice</span>
-                <span className="text-[8px] text-muted-foreground">10</span>
-              </div>
               
               {/* New Question - expands after drag completes */}
               <div className={`anim-new-question flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${showNewQuestion ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
@@ -141,40 +138,40 @@ export function TutorAssessmentPreview() {
           <div className="flex-1 p-3">
             <div className={`anim-editor bg-card rounded-lg border p-3 transition-all duration-300 ${showNewEditor ? 'ring-2 ring-primary/20' : ''}`}>
               {showNewEditor ? (
-                // New Multi-select question editor
+                // New Multi-select question editor with progressive reveal
                 <>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className={`flex items-center gap-2 mb-3 anim-editor-item ${editorStage >= 1 ? 'visible' : ''}`}>
                     <SquareCheck className="h-4 w-4 text-success" />
                     <span className="text-[10px] font-medium">Multi-select</span>
                     <span className="ml-auto text-[9px] text-muted-foreground">10 points</span>
                   </div>
                   
-                  <div className="mb-3">
+                  <div className={`mb-3 anim-editor-item ${editorStage >= 2 ? 'visible' : ''}`}>
                     <p className="text-[11px] font-medium mb-2">Select all the prime numbers:</p>
                   </div>
                   
                   <div className="space-y-1.5 mb-3">
-                    <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
+                    <div className={`flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30 anim-editor-item ${editorStage >= 3 ? 'visible' : ''}`}>
                       <SquareCheck className="h-3.5 w-3.5 text-success" />
                       <span className="text-[10px]">2</span>
                       <span className="ml-auto text-[8px] text-success">Correct</span>
                     </div>
-                    <div className="flex items-center gap-2 p-2 rounded border">
+                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item ${editorStage >= 4 ? 'visible' : ''}`}>
                       <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
                       <span className="text-[10px]">4</span>
                     </div>
-                    <div className="flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30">
+                    <div className={`flex items-center gap-2 p-2 rounded border bg-success/5 border-success/30 anim-editor-item ${editorStage >= 5 ? 'visible' : ''}`}>
                       <SquareCheck className="h-3.5 w-3.5 text-success" />
                       <span className="text-[10px]">7</span>
                       <span className="ml-auto text-[8px] text-success">Correct</span>
                     </div>
-                    <div className="flex items-center gap-2 p-2 rounded border">
+                    <div className={`flex items-center gap-2 p-2 rounded border anim-editor-item ${editorStage >= 6 ? 'visible' : ''}`}>
                       <div className="h-3.5 w-3.5 rounded border border-muted-foreground" />
                       <span className="text-[10px]">9</span>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 pt-2 border-t">
+                  <div className={`flex items-center gap-2 pt-2 border-t anim-editor-item ${editorStage >= 7 ? 'visible' : ''}`}>
                     <span className="text-[9px] text-muted-foreground">Points:</span>
                     <div className="w-12 h-6 rounded border bg-background flex items-center justify-center text-[10px]">10</div>
                   </div>
@@ -410,6 +407,18 @@ export function TutorAssessmentPreview() {
           0% { transform: scale(1); }
           50% { transform: scale(1.15); color: hsl(var(--success)); }
           100% { transform: scale(1); }
+        }
+        
+        /* Progressive editor item reveal */
+        .anim-editor-item {
+          opacity: 0;
+          transform: translateY(8px);
+          transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        
+        .anim-editor-item.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
       `}</style>
     </div>
