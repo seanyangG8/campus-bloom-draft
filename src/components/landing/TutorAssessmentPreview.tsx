@@ -7,6 +7,7 @@ import {
   ToggleLeft,
   Type,
   ListOrdered,
+  Plus,
 } from "lucide-react";
 
 export function TutorAssessmentPreview() {
@@ -38,12 +39,13 @@ export function TutorAssessmentPreview() {
           setShowNewEditor(true);
           // Progressive editor build-out
           setTimeout(() => setEditorStage(1), 0);     // Header
-          setTimeout(() => setEditorStage(2), 250);   // Question text
-          setTimeout(() => setEditorStage(3), 500);   // Option 1
-          setTimeout(() => setEditorStage(4), 700);   // Option 2
-          setTimeout(() => setEditorStage(5), 900);   // Option 3
-          setTimeout(() => setEditorStage(6), 1100);  // Option 4
-          setTimeout(() => setEditorStage(7), 1400);  // Points input
+          setTimeout(() => setEditorStage(2), 250);   // Question text (with typing)
+          setTimeout(() => setEditorStage(3), 900);   // Option 1 (after typing done)
+          setTimeout(() => setEditorStage(4), 1100);  // Option 2
+          setTimeout(() => setEditorStage(5), 1300);  // Option 3
+          setTimeout(() => setEditorStage(6), 1500);  // Option 4
+          setTimeout(() => setEditorStage(7), 1800);  // Points input
+          setTimeout(() => setEditorStage(8), 2100);  // Add option button
         }, 2600);
       }
     };
@@ -101,9 +103,6 @@ export function TutorAssessmentPreview() {
           <div className="w-[140px] border-r p-2 bg-muted/20 relative">
             <p className="text-[9px] font-medium text-muted-foreground mb-2">Questions</p>
             
-            {/* Drop Zone Highlight - animates during drag */}
-            <div className="anim-drop-zone absolute left-2 right-2 top-[68px] h-[105px] rounded-lg pointer-events-none z-10" />
-            
             <div className="space-y-1">
               <div className={`flex items-center gap-1.5 p-1.5 rounded border text-[9px] ${!showNewEditor ? 'bg-primary/10 border-primary/30' : 'bg-background'}`}>
                 <GripVertical className="h-2.5 w-2.5 text-muted-foreground" />
@@ -135,7 +134,10 @@ export function TutorAssessmentPreview() {
           </div>
 
           {/* Center: Question Editor - Updates to show new question type */}
-          <div className="flex-1 p-3">
+          <div className="flex-1 p-3 relative">
+            {/* Drop Zone Highlight - animates during drag in center */}
+            <div className="anim-drop-zone absolute inset-3 rounded-lg pointer-events-none z-10" />
+            
             <div className={`anim-editor bg-card rounded-lg border p-3 transition-all duration-300 ${showNewEditor ? 'ring-2 ring-primary/20' : ''}`}>
               {showNewEditor ? (
                 // New Multi-select question editor with progressive reveal
@@ -147,7 +149,9 @@ export function TutorAssessmentPreview() {
                   </div>
                   
                   <div className={`mb-3 anim-editor-item ${editorStage >= 2 ? 'visible' : ''}`}>
-                    <p className="text-[11px] font-medium mb-2">Select all the prime numbers:</p>
+                    <p className="text-[11px] font-medium mb-2">
+                      <span className="anim-typing">Select all the prime numbers:</span>
+                    </p>
                   </div>
                   
                   <div className="space-y-1.5 mb-3">
@@ -174,6 +178,14 @@ export function TutorAssessmentPreview() {
                   <div className={`flex items-center gap-2 pt-2 border-t anim-editor-item ${editorStage >= 7 ? 'visible' : ''}`}>
                     <span className="text-[9px] text-muted-foreground">Points:</span>
                     <div className="w-12 h-6 rounded border bg-background flex items-center justify-center text-[10px]">10</div>
+                  </div>
+                  
+                  {/* Add Option Button */}
+                  <div className={`flex items-center gap-1.5 mt-3 anim-editor-item anim-add-option ${editorStage >= 8 ? 'visible' : ''}`}>
+                    <button className="flex items-center gap-1 px-2 py-1 rounded border border-dashed border-muted-foreground/50 text-[9px] text-muted-foreground hover:border-primary hover:text-primary transition-colors">
+                      <Plus className="h-3 w-3" />
+                      Add option
+                    </button>
                   </div>
                 </>
               ) : (
@@ -238,9 +250,9 @@ export function TutorAssessmentPreview() {
               </div>
             </div>
             
-            {/* Dragging Ghost Element - Larger and more prominent */}
-            <div className="anim-drag-ghost absolute flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-primary bg-primary/10 text-[10px] shadow-xl pointer-events-none">
-              <SquareCheck className="h-3 w-3 text-primary" />
+            {/* Dragging Ghost Element - Same size as source */}
+            <div className="anim-drag-ghost absolute flex items-center gap-1.5 p-1.5 rounded border-2 border-primary bg-primary/10 text-[9px] shadow-lg pointer-events-none">
+              <SquareCheck className="h-2.5 w-2.5 text-primary" />
               <span className="font-medium">Multi-select</span>
             </div>
             
@@ -281,7 +293,7 @@ export function TutorAssessmentPreview() {
           animation: tutor-hint-pulse 0.6s ease-in-out 0.3s;
         }
         
-        /* Cursor appears and moves - larger and more visible */
+        /* Cursor appears and moves to center editor */
         .tutor-preview-container.animate .anim-cursor {
           opacity: 0;
           right: 12px;
@@ -291,7 +303,7 @@ export function TutorAssessmentPreview() {
             tutor-cursor-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
         }
         
-        /* Ghost appears when drag starts - larger and more prominent */
+        /* Ghost appears when drag starts - same size as source */
         .tutor-preview-container.animate .anim-drag-ghost {
           opacity: 0;
           right: 12px;
@@ -301,7 +313,7 @@ export function TutorAssessmentPreview() {
             tutor-ghost-move 1.4s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards;
         }
         
-        /* Drop zone highlight during drag - brighter and more visible */
+        /* Drop zone highlight during drag - in center editor */
         .tutor-preview-container.animate .anim-drop-zone {
           animation: tutor-drop-zone 1.4s ease-in-out 1.0s forwards;
         }
@@ -334,20 +346,20 @@ export function TutorAssessmentPreview() {
         @keyframes tutor-cursor-move {
           0% { right: 12px; top: 90px; }
           25% { right: 12px; top: 90px; }
-          100% { right: 200px; top: 165px; }
+          100% { left: 200px; top: 140px; right: auto; }
         }
         
         @keyframes tutor-ghost-appear {
           from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
-          to { opacity: 0.95; transform: scale(1.05) rotate(0deg); }
+          to { opacity: 0.95; transform: scale(1) rotate(0deg); }
         }
         
         @keyframes tutor-ghost-move {
-          0% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1.05); }
-          25% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1.05); }
-          85% { right: 200px; top: 160px; opacity: 0.95; transform: scale(1.02); }
-          95% { right: 200px; top: 160px; opacity: 0.5; transform: scale(0.95); }
-          100% { right: 200px; top: 160px; opacity: 0; transform: scale(0.9); }
+          0% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1); }
+          25% { right: 12px; top: 85px; opacity: 0.95; transform: scale(1); }
+          85% { left: 195px; top: 135px; right: auto; opacity: 0.95; transform: scale(1); }
+          95% { left: 195px; top: 135px; right: auto; opacity: 0.5; transform: scale(0.95); }
+          100% { left: 195px; top: 135px; right: auto; opacity: 0; transform: scale(0.9); }
         }
         
         @keyframes tutor-drop-zone {
@@ -419,6 +431,38 @@ export function TutorAssessmentPreview() {
         .anim-editor-item.visible {
           opacity: 1;
           transform: translateY(0);
+        }
+        
+        /* Typing animation for question text */
+        .anim-editor-item.visible .anim-typing {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          border-right: 2px solid hsl(var(--primary));
+          animation: 
+            tutor-typing 0.5s steps(30, end) forwards,
+            tutor-blink-caret 0.5s step-end 3;
+          width: 0;
+        }
+        
+        @keyframes tutor-typing {
+          from { width: 0; }
+          to { width: 100%; border-right-color: transparent; }
+        }
+        
+        @keyframes tutor-blink-caret {
+          from, to { border-color: transparent; }
+          50% { border-color: hsl(var(--primary)); }
+        }
+        
+        /* Add option button special animation */
+        .anim-add-option.visible {
+          animation: tutor-add-option-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes tutor-add-option-pop {
+          0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
     </div>
