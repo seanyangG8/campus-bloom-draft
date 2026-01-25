@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { 
   Plus, 
   Search, 
-  HelpCircle,
+  ClipboardList,
   MoreHorizontal,
   Edit,
   Trash2,
@@ -12,7 +12,9 @@ import {
   Eye,
   Users,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,64 +43,69 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { demoQuizzes } from "@/lib/quiz-types";
+import { demoAssessments } from "@/lib/assessment-types";
 import { demoCourses } from "@/lib/demo-data";
 import { useToast } from "@/hooks/use-toast";
 
-export function QuizzesPage() {
+export function AssessmentsPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<typeof demoQuizzes[0] | null>(null);
+  const [selectedAssessment, setSelectedAssessment] = useState<typeof demoAssessments[0] | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
 
-  const filteredQuizzes = demoQuizzes.filter((quiz) =>
-    quiz.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredAssessments = demoAssessments.filter((assessment) =>
+    assessment.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getCourse = (courseId: string) => {
     return demoCourses.find((c) => c.id === courseId);
   };
 
-  const handleCreateQuiz = () => {
+  const handleCreateAssessment = () => {
     toast({
-      title: "Quiz Created",
-      description: "New quiz has been created as a draft.",
+      title: "Assessment Created",
+      description: "New assessment has been created as a draft.",
     });
     setCreateDialogOpen(false);
-    // Navigate to the new quiz builder
-    setTimeout(() => navigate('/app/quizzes/new-quiz'), 300);
+    setTimeout(() => navigate('/app/assessments/new-assessment'), 300);
   };
 
-  const handleEditQuiz = (quiz: typeof demoQuizzes[0]) => {
-    navigate(`/app/quizzes/${quiz.id}`);
+  const handleEditAssessment = (assessment: typeof demoAssessments[0]) => {
+    navigate(`/app/assessments/${assessment.id}`);
   };
 
-  const handlePublishQuiz = (quiz: typeof demoQuizzes[0]) => {
+  const handlePublishAssessment = (assessment: typeof demoAssessments[0]) => {
     toast({
-      title: "Quiz Published",
-      description: `${quiz.title} is now available to students.`,
+      title: "Assessment Published",
+      description: `${assessment.title} is now available to students.`,
     });
   };
 
-  const handleDuplicateQuiz = (quiz: typeof demoQuizzes[0]) => {
+  const handleDuplicateAssessment = (assessment: typeof demoAssessments[0]) => {
     toast({
-      title: "Quiz Duplicated",
-      description: `Copy of ${quiz.title} created.`,
+      title: "Assessment Duplicated",
+      description: `Copy of ${assessment.title} created.`,
     });
   };
 
-  const handleDeleteQuiz = (quiz: typeof demoQuizzes[0]) => {
+  const handleDeleteAssessment = (assessment: typeof demoAssessments[0]) => {
     toast({
-      title: "Quiz Deleted",
-      description: `${quiz.title} has been removed.`,
+      title: "Assessment Deleted",
+      description: `${assessment.title} has been removed.`,
     });
   };
 
-  const handlePreview = (quiz: typeof demoQuizzes[0]) => {
-    setSelectedQuiz(quiz);
+  const handlePreview = (assessment: typeof demoAssessments[0]) => {
+    setSelectedAssessment(assessment);
     setPreviewDialogOpen(true);
+  };
+
+  // Check if assessment has file upload questions
+  const hasFileUploads = (assessmentId: string) => {
+    // For demo purposes, check if it's the project submission assessment
+    return assessmentId === 'assessment-4';
   };
 
   return (
@@ -109,12 +116,12 @@ export function QuizzesPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="font-display text-2xl font-bold text-foreground">Quizzes</h1>
-          <p className="text-muted-foreground">Create and manage assessments</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Assessments</h1>
+          <p className="text-muted-foreground">Create quizzes, essays, and file submissions</p>
         </motion.div>
         <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" />
-          Create Quiz
+          Create Assessment
         </Button>
       </div>
 
@@ -128,7 +135,7 @@ export function QuizzesPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search quizzes..."
+            placeholder="Search assessments..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -146,18 +153,19 @@ export function QuizzesPage() {
         </Select>
       </motion.div>
 
-      {/* Quizzes Grid */}
+      {/* Assessments Grid */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        {filteredQuizzes.map((quiz, index) => {
-          const course = getCourse(quiz.courseId);
+        {filteredAssessments.map((assessment, index) => {
+          const course = getCourse(assessment.courseId);
+          const hasFiles = hasFileUploads(assessment.id);
           return (
             <motion.div
-              key={quiz.id}
+              key={assessment.id}
               className="bg-card rounded-xl border shadow-card p-5 hover:shadow-lg transition-shadow"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -166,14 +174,18 @@ export function QuizzesPage() {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <HelpCircle className="h-4 w-4 text-primary" />
+                    {hasFiles ? (
+                      <Upload className="h-4 w-4 text-amber-600" />
+                    ) : (
+                      <ClipboardList className="h-4 w-4 text-primary" />
+                    )}
                   </div>
                   <StatusBadge
                     status={
-                      quiz.status === 'published' ? 'success' :
-                      quiz.status === 'draft' ? 'warning' : 'neutral'
+                      assessment.status === 'published' ? 'success' :
+                      assessment.status === 'draft' ? 'warning' : 'neutral'
                     }
-                    label={quiz.status}
+                    label={assessment.status}
                   />
                 </div>
                 <DropdownMenu>
@@ -183,20 +195,20 @@ export function QuizzesPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-popover">
-                    <DropdownMenuItem onClick={() => handlePreview(quiz)}>
+                    <DropdownMenuItem onClick={() => handlePreview(assessment)}>
                       <Eye className="h-4 w-4 mr-2" />
                       Preview
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleEditQuiz(quiz)}>
+                    <DropdownMenuItem onClick={() => handleEditAssessment(assessment)}>
                       <Edit className="h-4 w-4 mr-2" />
-                      Edit Quiz
+                      Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDuplicateQuiz(quiz)}>
+                    <DropdownMenuItem onClick={() => handleDuplicateAssessment(assessment)}>
                       <Copy className="h-4 w-4 mr-2" />
                       Duplicate
                     </DropdownMenuItem>
-                    {quiz.status === 'draft' && (
-                      <DropdownMenuItem onClick={() => handlePublishQuiz(quiz)}>
+                    {assessment.status === 'draft' && (
+                      <DropdownMenuItem onClick={() => handlePublishAssessment(assessment)}>
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         Publish
                       </DropdownMenuItem>
@@ -204,7 +216,7 @@ export function QuizzesPage() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       className="text-destructive"
-                      onClick={() => handleDeleteQuiz(quiz)}
+                      onClick={() => handleDeleteAssessment(assessment)}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete
@@ -214,29 +226,39 @@ export function QuizzesPage() {
               </div>
 
               <div className="mb-3">
-                <h3 className="font-semibold truncate mb-1">{quiz.title}</h3>
+                <h3 className="font-semibold truncate mb-1">{assessment.title}</h3>
                 <p className="text-sm text-muted-foreground truncate">
                   {course?.title || "Unknown Course"}
                 </p>
               </div>
 
+              {/* Type indicator */}
+              {hasFiles && (
+                <div className="flex items-center gap-1.5 text-xs text-amber-600 mb-3 bg-amber-50 rounded-md px-2 py-1 w-fit">
+                  <Upload className="h-3 w-3" />
+                  <span>File Submissions</span>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <HelpCircle className="h-3.5 w-3.5" />
-                  <span>{quiz.questionsCount} questions</span>
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  <span>{assessment.questionsCount} questions</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{quiz.duration} mins</span>
-                </div>
+                {assessment.duration > 0 && (
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{assessment.duration} mins</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Users className="h-3.5 w-3.5" />
-                  <span>{quiz.attempts} attempts</span>
+                  <span>{assessment.attempts} attempts</span>
                 </div>
-                {quiz.avgScore > 0 && (
+                {assessment.avgScore > 0 && (
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>{quiz.avgScore}% avg</span>
+                    <span>{assessment.avgScore}% avg</span>
                   </div>
                 )}
               </div>
@@ -245,37 +267,37 @@ export function QuizzesPage() {
                 variant="outline" 
                 size="sm" 
                 className="w-full"
-                onClick={() => handlePreview(quiz)}
+                onClick={() => handleEditAssessment(assessment)}
               >
-                <Eye className="h-4 w-4 mr-2" />
-                Preview Quiz
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Assessment
               </Button>
             </motion.div>
           );
         })}
       </motion.div>
 
-      {filteredQuizzes.length === 0 && (
+      {filteredAssessments.length === 0 && (
         <div className="text-center py-12">
-          <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="font-semibold text-lg">No quizzes found</h3>
-          <p className="text-muted-foreground">Create your first quiz to get started.</p>
+          <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="font-semibold text-lg">No assessments found</h3>
+          <p className="text-muted-foreground">Create your first assessment to get started.</p>
         </div>
       )}
 
-      {/* Create Quiz Dialog */}
+      {/* Create Assessment Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Create New Quiz</DialogTitle>
+            <DialogTitle>Create New Assessment</DialogTitle>
             <DialogDescription>
-              Set up a new assessment for your students.
+              Set up a new quiz, essay, or file submission for your students.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Quiz Title</Label>
-              <Input placeholder="e.g., Chapter 3 Assessment" />
+              <Label>Assessment Title</Label>
+              <Input placeholder="e.g., Chapter 3 Test" />
             </div>
             <div className="space-y-2">
               <Label>Course</Label>
@@ -296,6 +318,7 @@ export function QuizzesPage() {
               <div className="space-y-2">
                 <Label>Duration (minutes)</Label>
                 <Input type="number" placeholder="30" />
+                <p className="text-xs text-muted-foreground">0 = no limit</p>
               </div>
               <div className="space-y-2">
                 <Label>Pass Mark (%)</Label>
@@ -303,7 +326,7 @@ export function QuizzesPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Instructions (Optional)</Label>
+              <Label>Description (Optional)</Label>
               <Textarea placeholder="Add any instructions for students..." />
             </div>
           </div>
@@ -311,7 +334,7 @@ export function QuizzesPage() {
             <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateQuiz}>Create Quiz</Button>
+            <Button onClick={handleCreateAssessment}>Create Assessment</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -320,44 +343,45 @@ export function QuizzesPage() {
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{selectedQuiz?.title}</DialogTitle>
-            <DialogDescription>Quiz preview and statistics</DialogDescription>
+            <DialogTitle>{selectedAssessment?.title}</DialogTitle>
+            <DialogDescription>Assessment preview and statistics</DialogDescription>
           </DialogHeader>
-          {selectedQuiz && (
+          {selectedAssessment && (
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Questions</p>
-                  <p className="font-medium">{selectedQuiz.questionsCount}</p>
+                  <p className="font-medium">{selectedAssessment.questionsCount}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
-                  <p className="font-medium">{selectedQuiz.duration} minutes</p>
+                  <p className="font-medium">
+                    {selectedAssessment.duration > 0 ? `${selectedAssessment.duration} minutes` : 'No limit'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Attempts</p>
-                  <p className="font-medium">{selectedQuiz.attempts}</p>
+                  <p className="font-medium">{selectedAssessment.attempts}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Average Score</p>
-                  <p className="font-medium">{selectedQuiz.avgScore || 'N/A'}%</p>
+                  <p className="font-medium">{selectedAssessment.avgScore || 'N/A'}%</p>
                 </div>
               </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <p className="text-sm text-muted-foreground mb-2">Quiz Editor Coming Soon</p>
-                <p className="text-xs text-muted-foreground">
-                  Add multiple choice, true/false, and open-ended questions.
-                </p>
-              </div>
+              {selectedAssessment.description && (
+                <div className="p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">{selectedAssessment.description}</p>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
               Close
             </Button>
-            <Button>
+            <Button onClick={() => selectedAssessment && handleEditAssessment(selectedAssessment)}>
               <Edit className="h-4 w-4 mr-2" />
-              Edit Questions
+              Edit Assessment
             </Button>
           </DialogFooter>
         </DialogContent>

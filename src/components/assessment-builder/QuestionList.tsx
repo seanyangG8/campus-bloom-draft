@@ -9,6 +9,9 @@ import {
   Type,
   TextCursorInput,
   ArrowRightLeft,
+  FileText,
+  AlignLeft,
+  Upload,
   Trash2,
   Copy,
   ChevronDown,
@@ -19,11 +22,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useQuizBuilder } from '@/contexts/QuizBuilderContext';
-import { QuestionType, questionTypes } from '@/lib/quiz-types';
+import { useAssessmentBuilder } from '@/contexts/AssessmentBuilderContext';
+import { QuestionType, questionTypes } from '@/lib/assessment-types';
 
 const iconMap: Record<string, any> = {
   CircleDot,
@@ -32,6 +36,9 @@ const iconMap: Record<string, any> = {
   Type,
   TextCursorInput,
   ArrowRightLeft,
+  FileText,
+  AlignLeft,
+  Upload,
 };
 
 export function QuestionList() {
@@ -43,10 +50,13 @@ export function QuestionList() {
     deleteQuestion,
     duplicateQuestion,
     getTotalPoints,
-  } = useQuizBuilder();
+  } = useAssessmentBuilder();
 
   const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
   const totalPoints = getTotalPoints();
+
+  const autoGradedTypes = questionTypes.filter((qt) => qt.category === 'auto-graded');
+  const submissionTypes = questionTypes.filter((qt) => qt.category === 'submission');
 
   const getIcon = (type: QuestionType) => {
     const questionType = questionTypes.find((qt) => qt.type === type);
@@ -81,6 +91,7 @@ export function QuestionList() {
           {sortedQuestions.map((question, index) => {
             const Icon = getIcon(question.type);
             const isSelected = selectedQuestionId === question.id;
+            const isSubmission = ['essay', 'long-answer', 'file-upload'].includes(question.type);
 
             return (
               <motion.div
@@ -113,7 +124,10 @@ export function QuestionList() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="text-[10px] text-muted-foreground truncate">
+                    <span className={cn(
+                      "text-[10px] truncate",
+                      isSubmission ? "text-amber-600" : "text-muted-foreground"
+                    )}>
                       {getTypeLabel(question.type)}
                     </span>
                   </div>
@@ -170,8 +184,11 @@ export function QuestionList() {
               <ChevronDown className="h-3 w-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56 bg-popover">
-            {questionTypes.map((qt) => {
+          <DropdownMenuContent align="start" className="w-64 bg-popover">
+            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+              Auto-Graded
+            </div>
+            {autoGradedTypes.map((qt) => {
               const Icon = iconMap[qt.icon];
               return (
                 <DropdownMenuItem
@@ -180,6 +197,26 @@ export function QuestionList() {
                   className="gap-3"
                 >
                   <Icon className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">{qt.label}</p>
+                    <p className="text-xs text-muted-foreground">{qt.description}</p>
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5 text-xs font-semibold text-amber-600">
+              Submissions (Manual Grading)
+            </div>
+            {submissionTypes.map((qt) => {
+              const Icon = iconMap[qt.icon];
+              return (
+                <DropdownMenuItem
+                  key={qt.type}
+                  onClick={() => addQuestion(qt.type)}
+                  className="gap-3"
+                >
+                  <Icon className="h-4 w-4 text-amber-600" />
                   <div>
                     <p className="font-medium text-sm">{qt.label}</p>
                     <p className="text-xs text-muted-foreground">{qt.description}</p>

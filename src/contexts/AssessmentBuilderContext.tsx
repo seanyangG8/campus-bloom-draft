@@ -1,26 +1,26 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import {
-  Quiz,
+  Assessment,
   Question,
   QuestionType,
-  demoQuizzes,
+  demoAssessments,
   demoQuestions,
   generateId,
   getDefaultQuestionContent,
-} from '@/lib/quiz-types';
+} from '@/lib/assessment-types';
 import { toast } from 'sonner';
 
-interface QuizBuilderContextType {
+interface AssessmentBuilderContextType {
   // Data
-  quiz: Quiz | null;
+  assessment: Assessment | null;
   questions: Question[];
   selectedQuestionId: string | null;
 
   // Selection
   setSelectedQuestionId: (id: string | null) => void;
 
-  // Quiz settings
-  updateQuiz: (updates: Partial<Quiz>) => void;
+  // Assessment settings
+  updateAssessment: (updates: Partial<Assessment>) => void;
 
   // Question CRUD
   addQuestion: (type: QuestionType, insertAtIndex?: number) => string;
@@ -30,31 +30,31 @@ interface QuizBuilderContextType {
   reorderQuestions: (orderedIds: string[]) => void;
 
   // Helpers
-  getQuestionsByQuiz: (quizId: string) => Question[];
+  getQuestionsByAssessment: (assessmentId: string) => Question[];
   getTotalPoints: () => number;
 }
 
-const QuizBuilderContext = createContext<QuizBuilderContextType | undefined>(undefined);
+const AssessmentBuilderContext = createContext<AssessmentBuilderContextType | undefined>(undefined);
 
-interface QuizBuilderProviderProps {
+interface AssessmentBuilderProviderProps {
   children: ReactNode;
-  quizId: string;
+  assessmentId: string;
 }
 
-export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderProps) {
-  const [quiz, setQuiz] = useState<Quiz | null>(
-    demoQuizzes.find((q) => q.id === quizId) || null
+export function AssessmentBuilderProvider({ children, assessmentId }: AssessmentBuilderProviderProps) {
+  const [assessment, setAssessment] = useState<Assessment | null>(
+    demoAssessments.find((a) => a.id === assessmentId) || null
   );
   const [questions, setQuestions] = useState<Question[]>(
-    demoQuestions.filter((q) => q.quizId === quizId)
+    demoQuestions.filter((q) => q.assessmentId === assessmentId)
   );
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     questions.length > 0 ? questions[0].id : null
   );
 
-  // Update quiz settings
-  const updateQuiz = useCallback((updates: Partial<Quiz>) => {
-    setQuiz((prev) => (prev ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : null));
+  // Update assessment settings
+  const updateAssessment = useCallback((updates: Partial<Assessment>) => {
+    setAssessment((prev) => (prev ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : null));
   }, []);
 
   // Add a new question
@@ -66,7 +66,10 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
         'true-false': 'True/False',
         'short-answer': 'Short Answer',
         'fill-blank': 'Fill in the Blank',
-        matching: 'Matching',
+        'matching': 'Matching',
+        'essay': 'Essay',
+        'long-answer': 'Long Answer',
+        'file-upload': 'File Upload',
       };
 
       const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
@@ -74,10 +77,10 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
 
       const newQuestion: Question = {
         id: generateId('q'),
-        quizId,
+        assessmentId,
         type,
         text: `New ${questionLabels[type]} Question`,
-        points: 1,
+        points: type === 'essay' ? 20 : type === 'file-upload' ? 30 : 1,
         required: true,
         content: getDefaultQuestionContent(type),
         order: newOrder,
@@ -96,8 +99,8 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
         setQuestions((prev) => [...prev, newQuestion]);
       }
 
-      // Update quiz question count
-      setQuiz((prev) =>
+      // Update assessment question count
+      setAssessment((prev) =>
         prev ? { ...prev, questionsCount: prev.questionsCount + 1 } : null
       );
 
@@ -106,7 +109,7 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
 
       return newQuestion.id;
     },
-    [questions, quizId]
+    [questions, assessmentId]
   );
 
   // Update a question
@@ -121,8 +124,8 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
     (id: string) => {
       setQuestions((prev) => prev.filter((q) => q.id !== id));
 
-      // Update quiz question count
-      setQuiz((prev) =>
+      // Update assessment question count
+      setAssessment((prev) =>
         prev ? { ...prev, questionsCount: Math.max(0, prev.questionsCount - 1) } : null
       );
 
@@ -152,8 +155,8 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
 
       setQuestions((prev) => [...prev, newQuestion]);
 
-      // Update quiz question count
-      setQuiz((prev) =>
+      // Update assessment question count
+      setAssessment((prev) =>
         prev ? { ...prev, questionsCount: prev.questionsCount + 1 } : null
       );
 
@@ -176,11 +179,11 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
     });
   }, []);
 
-  // Get questions by quiz
-  const getQuestionsByQuiz = useCallback(
-    (qId: string) => {
+  // Get questions by assessment
+  const getQuestionsByAssessment = useCallback(
+    (aId: string) => {
       return questions
-        .filter((q) => q.quizId === qId)
+        .filter((q) => q.assessmentId === aId)
         .sort((a, b) => a.order - b.order);
     },
     [questions]
@@ -192,31 +195,31 @@ export function QuizBuilderProvider({ children, quizId }: QuizBuilderProviderPro
   }, [questions]);
 
   return (
-    <QuizBuilderContext.Provider
+    <AssessmentBuilderContext.Provider
       value={{
-        quiz,
+        assessment,
         questions,
         selectedQuestionId,
         setSelectedQuestionId,
-        updateQuiz,
+        updateAssessment,
         addQuestion,
         updateQuestion,
         deleteQuestion,
         duplicateQuestion,
         reorderQuestions,
-        getQuestionsByQuiz,
+        getQuestionsByAssessment,
         getTotalPoints,
       }}
     >
       {children}
-    </QuizBuilderContext.Provider>
+    </AssessmentBuilderContext.Provider>
   );
 }
 
-export function useQuizBuilder() {
-  const context = useContext(QuizBuilderContext);
+export function useAssessmentBuilder() {
+  const context = useContext(AssessmentBuilderContext);
   if (!context) {
-    throw new Error('useQuizBuilder must be used within QuizBuilderProvider');
+    throw new Error('useAssessmentBuilder must be used within AssessmentBuilderProvider');
   }
   return context;
 }

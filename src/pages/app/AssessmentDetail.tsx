@@ -7,9 +7,8 @@ import {
   Save,
   Settings,
   Clock,
-  HelpCircle,
+  ClipboardList,
   Target,
-  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,32 +23,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { QuizBuilderProvider, useQuizBuilder } from '@/contexts/QuizBuilderContext';
-import { QuestionList } from '@/components/quiz-builder/QuestionList';
-import { QuestionEditor } from '@/components/quiz-builder/QuestionEditor';
-import { QuestionLibrary } from '@/components/quiz-builder/QuestionLibrary';
-import { QuizPreviewDialog } from '@/components/quiz-builder/QuizPreviewDialog';
-import { demoQuizzes } from '@/lib/quiz-types';
+import { AssessmentBuilderProvider, useAssessmentBuilder } from '@/contexts/AssessmentBuilderContext';
+import { QuestionList } from '@/components/assessment-builder/QuestionList';
+import { QuestionEditor } from '@/components/assessment-builder/QuestionEditor';
+import { QuestionLibrary } from '@/components/assessment-builder/QuestionLibrary';
+import { AssessmentPreviewDialog } from '@/components/assessment-builder/AssessmentPreviewDialog';
+import { demoAssessments } from '@/lib/assessment-types';
 import { demoCourses } from '@/lib/demo-data';
 import { useApp } from '@/contexts/AppContext';
 import { toast } from 'sonner';
 
-export function QuizDetailPage() {
-  const { quizId } = useParams();
+export function AssessmentDetailPage() {
+  const { assessmentId } = useParams();
   const navigate = useNavigate();
 
-  // Handle new quiz creation
-  const isNewQuiz = quizId === 'new-quiz';
-  const quiz = isNewQuiz ? null : demoQuizzes.find((q) => q.id === quizId);
+  // Handle new assessment creation
+  const isNewAssessment = assessmentId === 'new-assessment';
+  const assessment = isNewAssessment ? null : demoAssessments.find((a) => a.id === assessmentId);
 
-  if (!quiz && !isNewQuiz) {
+  if (!assessment && !isNewAssessment) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-center">
-          <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Quiz not found</h2>
-          <Button variant="outline" onClick={() => navigate('/app/quizzes')}>
-            Back to Quizzes
+          <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Assessment not found</h2>
+          <Button variant="outline" onClick={() => navigate('/app/assessments')}>
+            Back to Assessments
           </Button>
         </div>
       </div>
@@ -57,36 +56,36 @@ export function QuizDetailPage() {
   }
 
   return (
-    <QuizBuilderProvider quizId={quizId || 'new-quiz'}>
-      <QuizBuilder />
-    </QuizBuilderProvider>
+    <AssessmentBuilderProvider assessmentId={assessmentId || 'new-assessment'}>
+      <AssessmentBuilder />
+    </AssessmentBuilderProvider>
   );
 }
 
-function QuizBuilder() {
+function AssessmentBuilder() {
   const navigate = useNavigate();
   const { currentRole } = useApp();
-  const { quiz, questions, updateQuiz, getTotalPoints } = useQuizBuilder();
+  const { assessment, questions, updateAssessment, getTotalPoints } = useAssessmentBuilder();
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const course = quiz?.courseId
-    ? demoCourses.find((c) => c.id === quiz.courseId)
+  const course = assessment?.courseId
+    ? demoCourses.find((c) => c.id === assessment.courseId)
     : null;
 
   const isAdmin = currentRole === 'admin' || currentRole === 'tutor';
   const totalPoints = getTotalPoints();
 
   const handlePublish = () => {
-    if (quiz) {
-      updateQuiz({ status: 'published' });
-      toast.success('Quiz published successfully');
+    if (assessment) {
+      updateAssessment({ status: 'published' });
+      toast.success('Assessment published successfully');
     }
   };
 
   const handleSave = () => {
-    toast.success('Quiz saved');
+    toast.success('Assessment saved');
   };
 
   return (
@@ -101,42 +100,42 @@ function QuizBuilder() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/app/quizzes')}
+            onClick={() => navigate('/app/assessments')}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h1 className="font-display text-xl font-bold">
-                {quiz?.title || 'New Quiz'}
+                {assessment?.title || 'New Assessment'}
               </h1>
-              {quiz && (
+              {assessment && (
                 <StatusBadge
                   status={
-                    quiz.status === 'published'
+                    assessment.status === 'published'
                       ? 'success'
-                      : quiz.status === 'draft'
+                      : assessment.status === 'draft'
                       ? 'warning'
                       : 'neutral'
                   }
-                  label={quiz.status}
+                  label={assessment.status}
                 />
               )}
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               {course && <span>{course.title}</span>}
               <span className="flex items-center gap-1">
-                <HelpCircle className="h-3.5 w-3.5" />
+                <ClipboardList className="h-3.5 w-3.5" />
                 {questions.length} {questions.length === 1 ? 'question' : 'questions'}
               </span>
               <span className="flex items-center gap-1">
                 <Target className="h-3.5 w-3.5" />
                 {totalPoints} {totalPoints === 1 ? 'point' : 'points'}
               </span>
-              {quiz && (
+              {assessment && assessment.duration > 0 && (
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {quiz.duration} mins
+                  {assessment.duration} mins
                 </span>
               )}
             </div>
@@ -167,7 +166,7 @@ function QuizBuilder() {
               <Save className="h-4 w-4" />
               Save
             </Button>
-            {quiz?.status === 'draft' && (
+            {assessment?.status === 'draft' && (
               <Button
                 size="sm"
                 variant="premium"
@@ -216,15 +215,15 @@ function QuizBuilder() {
       </div>
 
       {/* Preview Dialog */}
-      <QuizPreviewDialog
-        quiz={quiz}
+      <AssessmentPreviewDialog
+        assessment={assessment}
         questions={questions}
         open={previewOpen}
         onOpenChange={setPreviewOpen}
       />
 
       {/* Settings Dialog */}
-      <QuizSettingsDialog
+      <AssessmentSettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
       />
@@ -232,24 +231,24 @@ function QuizBuilder() {
   );
 }
 
-function QuizSettingsDialog({
+function AssessmentSettingsDialog({
   open,
   onOpenChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { quiz, updateQuiz } = useQuizBuilder();
+  const { assessment, updateAssessment } = useAssessmentBuilder();
 
-  if (!quiz) return null;
+  if (!assessment) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Quiz Settings</DialogTitle>
+          <DialogTitle>Assessment Settings</DialogTitle>
           <DialogDescription>
-            Configure quiz options and restrictions
+            Configure assessment options and restrictions
           </DialogDescription>
         </DialogHeader>
 
@@ -257,10 +256,10 @@ function QuizSettingsDialog({
           {/* Basic Settings */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Quiz Title</Label>
+              <Label>Assessment Title</Label>
               <Input
-                value={quiz.title}
-                onChange={(e) => updateQuiz({ title: e.target.value })}
+                value={assessment.title}
+                onChange={(e) => updateAssessment({ title: e.target.value })}
               />
             </div>
 
@@ -269,12 +268,13 @@ function QuizSettingsDialog({
                 <Label>Duration (minutes)</Label>
                 <Input
                   type="number"
-                  min="1"
-                  value={quiz.duration}
+                  min="0"
+                  value={assessment.duration}
                   onChange={(e) =>
-                    updateQuiz({ duration: parseInt(e.target.value) || 1 })
+                    updateAssessment({ duration: parseInt(e.target.value) || 0 })
                   }
                 />
+                <p className="text-xs text-muted-foreground">0 = no time limit</p>
               </div>
               <div className="space-y-2">
                 <Label>Pass Mark (%)</Label>
@@ -282,9 +282,9 @@ function QuizSettingsDialog({
                   type="number"
                   min="0"
                   max="100"
-                  value={quiz.passMark}
+                  value={assessment.passMark}
                   onChange={(e) =>
-                    updateQuiz({ passMark: parseInt(e.target.value) || 0 })
+                    updateAssessment({ passMark: parseInt(e.target.value) || 0 })
                   }
                 />
               </div>
@@ -303,9 +303,9 @@ function QuizSettingsDialog({
                 </p>
               </div>
               <Switch
-                checked={quiz.shuffleQuestions}
+                checked={assessment.shuffleQuestions}
                 onCheckedChange={(checked) =>
-                  updateQuiz({ shuffleQuestions: checked })
+                  updateAssessment({ shuffleQuestions: checked })
                 }
               />
             </div>
@@ -318,9 +318,9 @@ function QuizSettingsDialog({
                 </p>
               </div>
               <Switch
-                checked={quiz.showResults}
+                checked={assessment.showResults}
                 onCheckedChange={(checked) =>
-                  updateQuiz({ showResults: checked })
+                  updateAssessment({ showResults: checked })
                 }
               />
             </div>
@@ -329,26 +329,26 @@ function QuizSettingsDialog({
               <div>
                 <Label>Allow Retakes</Label>
                 <p className="text-xs text-muted-foreground">
-                  Students can attempt the quiz multiple times
+                  Students can attempt multiple times
                 </p>
               </div>
               <Switch
-                checked={quiz.allowRetakes}
+                checked={assessment.allowRetakes}
                 onCheckedChange={(checked) =>
-                  updateQuiz({ allowRetakes: checked })
+                  updateAssessment({ allowRetakes: checked })
                 }
               />
             </div>
 
-            {quiz.allowRetakes && (
+            {assessment.allowRetakes && (
               <div className="space-y-2 pl-4 border-l-2 border-muted">
                 <Label>Maximum Attempts</Label>
                 <Input
                   type="number"
                   min="1"
-                  value={quiz.maxAttempts}
+                  value={assessment.maxAttempts}
                   onChange={(e) =>
-                    updateQuiz({ maxAttempts: parseInt(e.target.value) || 1 })
+                    updateAssessment({ maxAttempts: parseInt(e.target.value) || 1 })
                   }
                   className="w-24"
                 />

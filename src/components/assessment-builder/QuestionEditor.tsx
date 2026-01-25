@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -12,6 +12,9 @@ import {
   Type,
   TextCursorInput,
   ArrowRightLeft,
+  FileText,
+  AlignLeft,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,8 +23,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { useQuizBuilder } from '@/contexts/QuizBuilderContext';
+import { useAssessmentBuilder } from '@/contexts/AssessmentBuilderContext';
 import {
   Question,
   QuestionType,
@@ -31,9 +35,12 @@ import {
   ShortAnswerContent,
   FillBlankContent,
   MatchingContent,
+  EssayContent,
+  FileUploadContent,
+  LongAnswerContent,
   generateId,
   questionTypes,
-} from '@/lib/quiz-types';
+} from '@/lib/assessment-types';
 
 const iconMap: Record<string, any> = {
   CircleDot,
@@ -42,10 +49,13 @@ const iconMap: Record<string, any> = {
   Type,
   TextCursorInput,
   ArrowRightLeft,
+  FileText,
+  AlignLeft,
+  Upload,
 };
 
 export function QuestionEditor() {
-  const { questions, selectedQuestionId, updateQuestion } = useQuizBuilder();
+  const { questions, selectedQuestionId, updateQuestion } = useAssessmentBuilder();
 
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
@@ -138,15 +148,22 @@ export function QuestionEditor() {
 function QuestionHeader({ question }: { question: Question }) {
   const questionType = questionTypes.find((qt) => qt.type === question.type);
   const Icon = iconMap[questionType?.icon || 'CircleDot'];
+  const isSubmission = questionType?.category === 'submission';
 
   return (
     <div className="flex items-center gap-3 pb-4 border-b">
-      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-        <Icon className="h-5 w-5 text-primary" />
+      <div className={cn(
+        "w-10 h-10 rounded-lg flex items-center justify-center",
+        isSubmission ? "bg-amber-100" : "bg-primary/10"
+      )}>
+        <Icon className={cn("h-5 w-5", isSubmission ? "text-amber-600" : "text-primary")} />
       </div>
       <div>
         <h3 className="font-semibold">{questionType?.label || 'Question'}</h3>
-        <p className="text-sm text-muted-foreground">{questionType?.description}</p>
+        <p className="text-sm text-muted-foreground">
+          {questionType?.description}
+          {isSubmission && <span className="ml-2 text-amber-600">(Manual grading)</span>}
+        </p>
       </div>
     </div>
   );
@@ -166,13 +183,19 @@ function TypeSpecificEditor({ question }: { question: Question }) {
       return <FillBlankEditor question={question} />;
     case 'matching':
       return <MatchingEditor question={question} />;
+    case 'essay':
+      return <EssayEditor question={question} />;
+    case 'long-answer':
+      return <LongAnswerEditor question={question} />;
+    case 'file-upload':
+      return <FileUploadEditor question={question} />;
     default:
       return null;
   }
 }
 
 function MultipleChoiceEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as MultipleChoiceContent;
 
   const handleOptionChange = (optionId: string, text: string) => {
@@ -207,7 +230,6 @@ function MultipleChoiceEditor({ question }: { question: Question }) {
   const removeOption = (optionId: string) => {
     if (content.options.length <= 2) return;
     const newOptions = content.options.filter((opt) => opt.id !== optionId);
-    // If we removed the correct answer, make the first one correct
     if (!newOptions.some((opt) => opt.isCorrect)) {
       newOptions[0].isCorrect = true;
     }
@@ -261,7 +283,7 @@ function MultipleChoiceEditor({ question }: { question: Question }) {
 }
 
 function MultipleSelectEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as MultipleSelectContent;
 
   const handleOptionChange = (optionId: string, text: string) => {
@@ -345,7 +367,7 @@ function MultipleSelectEditor({ question }: { question: Question }) {
 }
 
 function TrueFalseEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as TrueFalseContent;
 
   return (
@@ -384,7 +406,7 @@ function TrueFalseEditor({ question }: { question: Question }) {
 }
 
 function ShortAnswerEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as ShortAnswerContent;
 
   const handleAnswerChange = (index: number, value: string) => {
@@ -455,7 +477,7 @@ function ShortAnswerEditor({ question }: { question: Question }) {
 }
 
 function FillBlankEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as FillBlankContent;
 
   const handleBlankAnswerChange = (blankId: string, answers: string[]) => {
@@ -511,7 +533,7 @@ function FillBlankEditor({ question }: { question: Question }) {
 }
 
 function MatchingEditor({ question }: { question: Question }) {
-  const { updateQuestion } = useQuizBuilder();
+  const { updateQuestion } = useAssessmentBuilder();
   const content = question.content as MatchingContent;
 
   const handlePairChange = (pairId: string, field: 'left' | 'right', value: string) => {
@@ -576,6 +598,198 @@ function MatchingEditor({ question }: { question: Question }) {
         <Plus className="h-4 w-4" />
         Add Pair
       </Button>
+    </div>
+  );
+}
+
+// New submission-type editors
+
+function EssayEditor({ question }: { question: Question }) {
+  const { updateQuestion } = useAssessmentBuilder();
+  const content = question.content as EssayContent;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Minimum Words</Label>
+          <Input
+            type="number"
+            min="0"
+            value={content.minWords || ''}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, minWords: parseInt(e.target.value) || undefined },
+              })
+            }
+            placeholder="e.g., 200"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Maximum Words</Label>
+          <Input
+            type="number"
+            min="0"
+            value={content.maxWords || ''}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, maxWords: parseInt(e.target.value) || undefined },
+              })
+            }
+            placeholder="e.g., 1000"
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label>Grading Rubric (Optional)</Label>
+        <Textarea
+          value={content.rubric || ''}
+          onChange={(e) =>
+            updateQuestion(question.id, {
+              content: { ...content, rubric: e.target.value },
+            })
+          }
+          placeholder="Describe the grading criteria..."
+          className="min-h-[100px] resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+function LongAnswerEditor({ question }: { question: Question }) {
+  const { updateQuestion } = useAssessmentBuilder();
+  const content = question.content as LongAnswerContent;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Minimum Words</Label>
+          <Input
+            type="number"
+            min="0"
+            value={content.minWords || ''}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, minWords: parseInt(e.target.value) || undefined },
+              })
+            }
+            placeholder="e.g., 50"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Maximum Words</Label>
+          <Input
+            type="number"
+            min="0"
+            value={content.maxWords || ''}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, maxWords: parseInt(e.target.value) || undefined },
+              })
+            }
+            placeholder="e.g., 500"
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label>Placeholder Text (Optional)</Label>
+        <Input
+          value={content.placeholder || ''}
+          onChange={(e) =>
+            updateQuestion(question.id, {
+              content: { ...content, placeholder: e.target.value },
+            })
+          }
+          placeholder="Enter your answer here..."
+        />
+      </div>
+    </div>
+  );
+}
+
+function FileUploadEditor({ question }: { question: Question }) {
+  const { updateQuestion } = useAssessmentBuilder();
+  const content = question.content as FileUploadContent;
+
+  const fileTypes: { value: FileUploadContent['allowedTypes'][0]; label: string }[] = [
+    { value: 'image', label: 'Images (JPG, PNG, etc.)' },
+    { value: 'video', label: 'Videos (MP4, MOV, etc.)' },
+    { value: 'audio', label: 'Audio (MP3, WAV, etc.)' },
+    { value: 'document', label: 'Documents (PDF, DOC, etc.)' },
+    { value: 'presentation', label: 'Presentations (PPT, PPTX, etc.)' },
+  ];
+
+  const toggleFileType = (type: FileUploadContent['allowedTypes'][0]) => {
+    const newTypes = content.allowedTypes.includes(type)
+      ? content.allowedTypes.filter((t) => t !== type)
+      : [...content.allowedTypes, type];
+    updateQuestion(question.id, {
+      content: { ...content, allowedTypes: newTypes },
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Allowed File Types</Label>
+        <div className="space-y-2">
+          {fileTypes.map((type) => (
+            <div key={type.value} className="flex items-center gap-2">
+              <Checkbox
+                checked={content.allowedTypes.includes(type.value)}
+                onCheckedChange={() => toggleFileType(type.value)}
+              />
+              <Label className="text-sm font-normal">{type.label}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Max File Size (MB)</Label>
+          <Input
+            type="number"
+            min="1"
+            value={content.maxFileSize}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, maxFileSize: parseInt(e.target.value) || 10 },
+              })
+            }
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Max Files</Label>
+          <Input
+            type="number"
+            min="1"
+            max="10"
+            value={content.maxFiles}
+            onChange={(e) =>
+              updateQuestion(question.id, {
+                content: { ...content, maxFiles: parseInt(e.target.value) || 1 },
+              })
+            }
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Upload Instructions (Optional)</Label>
+        <Textarea
+          value={content.instructions || ''}
+          onChange={(e) =>
+            updateQuestion(question.id, {
+              content: { ...content, instructions: e.target.value },
+            })
+          }
+          placeholder="Provide instructions for what students should upload..."
+          className="min-h-[80px] resize-none"
+        />
+      </div>
     </div>
   );
 }
