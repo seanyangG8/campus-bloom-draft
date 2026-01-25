@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface StatCardProps {
   title: string;
@@ -16,8 +17,8 @@ interface StatCardProps {
 }
 
 const variantStyles = {
-  default: 'bg-card',
-  accent: 'gradient-accent text-accent-foreground',
+  default: 'bg-card border-border/50',
+  accent: 'gradient-accent text-accent-foreground border-0',
   success: 'bg-success/5 border-success/20',
   warning: 'bg-warning/5 border-warning/20',
 };
@@ -31,17 +32,21 @@ const iconVariantStyles = {
 
 export function StatCard({ title, value, subtitle, icon: Icon, trend, className, variant = 'default' }: StatCardProps) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -2 }}
       className={cn(
-        "rounded-xl border p-5 shadow-card transition-all duration-200 hover:shadow-card-hover",
+        "rounded-xl border p-5 shadow-card transition-shadow duration-200 hover:shadow-card-hover",
         variantStyles[variant],
         className
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <p className={cn(
-            "text-sm font-medium",
+            "text-sm font-medium tracking-wide",
             variant === 'accent' ? 'text-white/80' : 'text-muted-foreground'
           )}>
             {title}
@@ -54,17 +59,19 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend, className,
           </p>
           {subtitle && (
             <p className={cn(
-              "text-xs",
+              "text-xs leading-relaxed",
               variant === 'accent' ? 'text-white/70' : 'text-muted-foreground'
             )}>
               {subtitle}
             </p>
           )}
           {trend && (
-            <div className="flex items-center gap-1 mt-2">
+            <div className="flex items-center gap-1.5 mt-2">
               <span className={cn(
-                "text-xs font-medium",
-                trend.positive ? 'text-success' : 'text-destructive'
+                "text-xs font-semibold px-1.5 py-0.5 rounded",
+                trend.positive 
+                  ? 'text-success bg-success/10' 
+                  : 'text-destructive bg-destructive/10'
               )}>
                 {trend.positive ? '+' : ''}{trend.value}%
               </span>
@@ -79,13 +86,13 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend, className,
         </div>
         {Icon && (
           <div className={cn(
-            "p-2.5 rounded-lg",
+            "p-3 rounded-xl transition-transform duration-200",
             iconVariantStyles[variant]
           )}>
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5" strokeWidth={2} />
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
