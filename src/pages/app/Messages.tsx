@@ -79,7 +79,7 @@ export function MessagesPage() {
         </div>
         <Button 
           size="sm"
-          className="gradient-hero text-primary-foreground gap-2 w-full sm:w-auto"
+          className="gap-2 w-full sm:w-auto"
           onClick={() => setAnnouncementOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -100,11 +100,7 @@ export function MessagesPage() {
         <TabsContent value="threads" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[400px] lg:h-[calc(100vh-16rem)]">
             {/* Thread List */}
-            <motion.div
-              className="lg:col-span-4 bg-card rounded-xl border shadow-card overflow-hidden"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
+            <div className="lg:col-span-4 bg-card rounded-lg border overflow-hidden">
               <div className="p-4 border-b">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -141,14 +137,10 @@ export function MessagesPage() {
                   </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Message Thread */}
-            <motion.div
-              className="lg:col-span-8 bg-card rounded-xl border shadow-card overflow-hidden flex flex-col min-h-[300px]"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
+            <div className="lg:col-span-8 bg-card rounded-lg border overflow-hidden flex flex-col min-h-[300px]">
               {selectedThread ? (
                 <>
                   <div className="p-3 sm:p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -225,17 +217,13 @@ export function MessagesPage() {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
         </TabsContent>
 
         {/* WhatsApp Templates Tab */}
         <TabsContent value="templates" className="mt-6">
-          <motion.div
-            className="bg-card rounded-xl border shadow-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <div className="bg-card rounded-lg border">
             <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h2 className="font-semibold">WhatsApp Templates</h2>
@@ -287,29 +275,25 @@ export function MessagesPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </TabsContent>
 
         {/* Announcements Tab */}
         <TabsContent value="announcements" className="mt-6">
-          <motion.div
-            className="bg-card rounded-xl border shadow-card p-8 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <div className="bg-card rounded-lg border p-8 text-center">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
             <h3 className="font-semibold mb-2">No announcements yet</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Send announcements to all parents or specific cohorts
             </p>
             <Button 
-              className="gradient-hero text-primary-foreground gap-2"
+              className="gap-2"
               onClick={() => setAnnouncementOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Create Announcement
             </Button>
-          </motion.div>
+          </div>
         </TabsContent>
       </Tabs>
 

@@ -118,21 +118,13 @@ export function CohortsPage() {
       </motion.div>
 
       {/* Cohorts Grid */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        {filteredCohorts.map((cohort, index) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredCohorts.map((cohort) => {
           const course = getCourse(cohort.courseId);
           return (
-            <motion.div
+            <div
               key={cohort.id}
-              className="bg-card rounded-xl border shadow-card p-5 hover:shadow-lg transition-shadow"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index }}
+              className="bg-card rounded-lg border border-border/50 p-5 hover:shadow-sm transition-all"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="min-w-0 flex-1">
@@ -197,10 +189,10 @@ export function CohortsPage() {
                   View Schedule
                 </Button>
               </div>
-            </motion.div>
+            </div>
           );
         })}
-      </motion.div>
+      </div>
 
       {filteredCohorts.length === 0 && (
         <div className="text-center py-12">

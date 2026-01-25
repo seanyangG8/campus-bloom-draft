@@ -113,7 +113,7 @@ export function InvoicesPage() {
           </Button>
           <Button 
             size="sm"
-            className="gradient-hero text-primary-foreground gap-2"
+            className="gap-2"
             onClick={() => setGenerateInvoicesOpen(true)}
           >
             <Plus className="h-4 w-4" />
@@ -123,12 +123,7 @@ export function InvoicesPage() {
       </div>
 
       {/* Stats */}
-      <motion.div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Total Collected"
           value={`$${totalPaid.toLocaleString()}`}
@@ -153,7 +148,7 @@ export function InvoicesPage() {
           subtitle={`$${totalOverdue} overdue`}
           icon={AlertCircle}
         />
-      </motion.div>
+      </div>
 
       {/* Filters */}
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -168,12 +163,7 @@ export function InvoicesPage() {
       </div>
 
       {/* Invoices Table */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
+      <div className="bg-card rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/30">
@@ -196,7 +186,7 @@ export function InvoicesPage() {
             ))}
           </TableBody>
         </Table>
-      </motion.div>
+      </div>
 
       {/* Dialogs */}
       <GenerateInvoicesDialog 

@@ -153,23 +153,16 @@ export function AnnouncementsPage() {
       </div>
 
       {/* Announcements List */}
-      <motion.div
-        className="space-y-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-      >
-        {announcements.map((announcement, index) => (
-          <motion.div
+      <div className="divide-y divide-border/50 bg-card rounded-lg border overflow-hidden">
+        {announcements.map((announcement) => (
+          <div
             key={announcement.id}
-            className={`bg-card rounded-xl border shadow-card p-4 cursor-pointer transition-all hover:shadow-lg ${
-              !announcement.read ? 'border-primary/30 bg-primary/5' : ''
+            className={`p-4 cursor-pointer transition-all hover:bg-muted/30 border-l-2 ${
+              !announcement.read 
+                ? 'border-l-primary/60 bg-primary/5' 
+                : 'border-l-transparent'
             }`}
             onClick={() => handleOpenAnnouncement(announcement)}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * index }}
-            whileHover={{ scale: 1.01 }}
           >
             <div className="flex items-start gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
@@ -213,9 +206,9 @@ export function AnnouncementsPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
 
       {announcements.length === 0 && (
         <div className="text-center py-12">

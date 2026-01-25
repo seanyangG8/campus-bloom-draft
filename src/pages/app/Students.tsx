@@ -150,7 +150,7 @@ export function StudentsPage() {
             <Upload className="h-4 w-4" />
             <span className="hidden sm:inline">Import CSV</span>
           </Button>
-          <Button size="sm" className="gradient-hero text-primary-foreground gap-2" onClick={() => setAddStudentOpen(true)}>
+          <Button size="sm" className="gap-2" onClick={() => setAddStudentOpen(true)}>
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Add Student</span>
           </Button>
@@ -183,11 +183,7 @@ export function StudentsPage() {
 
       {/* Bulk Actions */}
       {selectedStudents.length > 0 && (
-        <motion.div 
-          className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-center justify-between"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div className="bg-muted/50 border border-border/50 rounded-lg p-3 flex items-center justify-between">
           <span className="text-sm font-medium">
             {selectedStudents.length} student{selectedStudents.length > 1 ? 's' : ''} selected
           </span>
@@ -202,16 +198,11 @@ export function StudentsPage() {
               Clear
             </Button>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Students Table */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="bg-card rounded-lg border">
         <div className="overflow-x-auto">
           <Table className="min-w-[920px]">
             <TableHeader>
@@ -244,7 +235,7 @@ export function StudentsPage() {
             </TableBody>
           </Table>
         </div>
-      </motion.div>
+      </div>
 
       {/* Dialogs */}
       <AddStudentDialog open={addStudentOpen} onOpenChange={setAddStudentOpen} />

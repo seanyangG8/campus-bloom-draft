@@ -63,12 +63,7 @@ export function ProgressPage() {
       </motion.div>
 
       {/* Stats Overview */}
-      <motion.div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Overall Progress"
           value={`${studentProgress.overallCompletion}%`}
@@ -91,16 +86,11 @@ export function ProgressPage() {
           value={studentProgress.streakDays}
           icon={TrendingUp}
         />
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Course Progress */}
-        <motion.div
-          className="lg:col-span-2 bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="lg:col-span-2 bg-card rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Course Progress</h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/app/courses')}>
@@ -108,11 +98,11 @@ export function ProgressPage() {
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
-          <div className="space-y-4">
+          <div className="divide-y divide-border/50">
             {studentProgress.courseProgress.map((course) => (
               <div
                 key={course.courseId}
-                className="p-4 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                className="py-4 first:pt-0 last:pb-0 hover:bg-muted/30 transition-colors cursor-pointer -mx-2 px-2 rounded-lg"
                 onClick={() => navigate(`/app/courses/${course.courseId}`)}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -130,25 +120,18 @@ export function ProgressPage() {
                   />
                 </div>
                 <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-accent rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${course.progress}%` }}
-                    transition={{ duration: 0.8, delay: 0.3 }}
+                  <div
+                    className="h-full bg-accent rounded-full transition-all duration-500"
+                    style={{ width: `${course.progress}%` }}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Badges */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="bg-card rounded-lg border p-6">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-accent" />
             <h2 className="font-semibold">Achievements</h2>
@@ -171,22 +154,17 @@ export function ProgressPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Recent Activity */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card p-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
+      <div className="bg-card rounded-lg border p-6">
         <h2 className="font-semibold mb-4">Recent Activity</h2>
-        <div className="space-y-3">
+        <div className="divide-y divide-border/50">
           {studentProgress.recentActivity.map((activity) => (
             <div
               key={activity.id}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+              className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 hover:bg-muted/30 transition-colors -mx-2 px-2 rounded-lg"
             >
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 {activity.type === 'quiz' && <Target className="h-4 w-4 text-primary" />}
@@ -207,7 +185,7 @@ export function ProgressPage() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
