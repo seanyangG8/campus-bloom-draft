@@ -40,7 +40,7 @@ export function ParentProgressPreview() {
       className={`parent-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
     >
       {/* Browser Chrome */}
-      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col anim-fade-in">
+      <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col anim-chrome">
         {/* Status Bar */}
         <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-2">
           <div className="flex gap-1.5">
@@ -56,11 +56,11 @@ export function ParentProgressPreview() {
         </div>
 
         {/* Progress Content */}
-        <div className="flex-1 p-4 overflow-hidden">
+        <div className="flex-1 p-3 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center gap-3 mb-4 anim-header">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-sm font-semibold text-primary">SC</span>
+          <div className="flex items-center gap-3 mb-3 anim-section-header">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-xs font-semibold text-primary">SC</span>
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground">Sarah's Progress</h2>
@@ -68,95 +68,121 @@ export function ParentProgressPreview() {
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            <div className="bg-card rounded-md border p-2 anim-stat-1">
+          {/* Stats Row - All animate together */}
+          <div className="grid grid-cols-4 gap-2 mb-3 anim-section-stats">
+            <div className="bg-card rounded-md border p-2">
               <div className="flex items-center gap-1 mb-1">
                 <TrendingUp className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Overall</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-semibold anim-value">72%</span>
-                <span className="text-[8px] text-success anim-badge-pop">+5%</span>
+                <span className="text-base font-semibold">72%</span>
+                <span className="text-[8px] text-success">+5%</span>
               </div>
             </div>
-            <div className="bg-card rounded-md border p-2 anim-stat-2">
+            <div className="bg-card rounded-md border p-2">
               <div className="flex items-center gap-1 mb-1">
                 <BookOpen className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Courses</span>
               </div>
-              <span className="text-lg font-semibold anim-value">2</span>
+              <span className="text-base font-semibold">2</span>
             </div>
-            <div className="bg-card rounded-md border p-2 anim-stat-3">
+            <div className="bg-card rounded-md border p-2">
               <div className="flex items-center gap-1 mb-1">
                 <Clock className="h-3 w-3 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">Hours</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-semibold anim-value">48</span>
-                <span className="text-[8px] text-success anim-badge-pop">+8</span>
+                <span className="text-base font-semibold">48</span>
+                <span className="text-[8px] text-success">+8</span>
               </div>
             </div>
-            <div className="bg-card rounded-md border p-2 anim-stat-4">
+            <div className="bg-card rounded-md border p-2">
               <div className="flex items-center gap-1 mb-1">
                 <Flame className="h-3 w-3 text-warning" />
                 <span className="text-[9px] text-muted-foreground">Streak</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-semibold anim-value">12</span>
+                <span className="text-base font-semibold">12</span>
                 <span className="text-[8px]">🔥</span>
               </div>
             </div>
           </div>
 
-          {/* Course Progress Card */}
-          <div className="bg-card rounded-md border p-3 mb-4 anim-course-card">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-[10px] font-medium">Secondary 3 Mathematics</p>
-                <p className="text-[8px] text-muted-foreground">6 of 8 chapters completed</p>
+          {/* Course Progress Cards - Both animate together */}
+          <div className="grid grid-cols-2 gap-2 mb-3 anim-section-courses">
+            <div className="bg-card rounded-md border p-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <div>
+                  <p className="text-[10px] font-medium">Sec 3 Mathematics</p>
+                  <p className="text-[8px] text-muted-foreground">6 of 8 chapters</p>
+                </div>
+                <div className="w-8 h-8 relative">
+                  <svg className="w-full h-full -rotate-90">
+                    <circle cx="16" cy="16" r="12" fill="none" stroke="hsl(var(--muted))" strokeWidth="2.5" />
+                    <circle 
+                      cx="16" cy="16" r="12" fill="none" 
+                      stroke="hsl(var(--primary))" strokeWidth="2.5"
+                      strokeDasharray="75.4" 
+                      strokeDashoffset="16.6"
+                      className="anim-ring-fill"
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold">78%</span>
+                </div>
               </div>
-              <div className="w-10 h-10 relative anim-ring">
-                <svg className="w-full h-full -rotate-90">
-                  <circle cx="20" cy="20" r="16" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-                  <circle 
-                    cx="20" cy="20" r="16" fill="none" 
-                    stroke="hsl(var(--primary))" strokeWidth="3"
-                    strokeDasharray="100" 
-                    strokeDashoffset="22"
-                    className="anim-ring-fill"
-                  />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold">78%</span>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full anim-progress-1" />
               </div>
             </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full anim-progress-bar" style={{ width: '0%' }} />
+            <div className="bg-card rounded-md border p-2">
+              <div className="flex items-center justify-between mb-1.5">
+                <div>
+                  <p className="text-[10px] font-medium">Pri 6 Science</p>
+                  <p className="text-[8px] text-muted-foreground">4 of 10 chapters</p>
+                </div>
+                <div className="w-8 h-8 relative">
+                  <svg className="w-full h-full -rotate-90">
+                    <circle cx="16" cy="16" r="12" fill="none" stroke="hsl(var(--muted))" strokeWidth="2.5" />
+                    <circle 
+                      cx="16" cy="16" r="12" fill="none" 
+                      stroke="hsl(var(--success))" strokeWidth="2.5"
+                      strokeDasharray="75.4" 
+                      strokeDashoffset="41.5"
+                      className="anim-ring-fill-2"
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-[8px] font-semibold">45%</span>
+                </div>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-success rounded-full anim-progress-2" />
+              </div>
             </div>
           </div>
 
-          {/* Bottom Grid */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* Bottom Grid - Animate together */}
+          <div className="grid grid-cols-2 gap-2 anim-section-bottom">
             {/* Achievements */}
-            <div className="bg-card rounded-md border p-2 anim-achievements">
+            <div className="bg-card rounded-md border p-2">
               <p className="text-[10px] font-medium mb-2">Achievements</p>
               <div className="grid grid-cols-2 gap-1.5">
-                <div className="flex items-center gap-1 p-1.5 rounded bg-success/10 anim-badge-1">
+                <div className="flex items-center gap-1 p-1.5 rounded bg-success/10">
                   <Zap className="h-3 w-3 text-success" />
                   <span className="text-[8px]">Quick Learner</span>
-                  <CheckCircle2 className="h-2.5 w-2.5 text-success ml-auto anim-check" />
+                  <CheckCircle2 className="h-2.5 w-2.5 text-success ml-auto" />
                 </div>
-                <div className="flex items-center gap-1 p-1.5 rounded bg-primary/10 anim-badge-2">
+                <div className="flex items-center gap-1 p-1.5 rounded bg-primary/10">
                   <Target className="h-3 w-3 text-primary" />
                   <span className="text-[8px]">Perfect Quiz</span>
-                  <CheckCircle2 className="h-2.5 w-2.5 text-primary ml-auto anim-check" />
+                  <CheckCircle2 className="h-2.5 w-2.5 text-primary ml-auto" />
                 </div>
-                <div className="flex items-center gap-1 p-1.5 rounded bg-warning/10 anim-badge-3">
+                <div className="flex items-center gap-1 p-1.5 rounded bg-warning/10">
                   <Flame className="h-3 w-3 text-warning" />
                   <span className="text-[8px]">7-Day Streak</span>
-                  <CheckCircle2 className="h-2.5 w-2.5 text-warning ml-auto anim-check" />
+                  <CheckCircle2 className="h-2.5 w-2.5 text-warning ml-auto" />
                 </div>
-                <div className="flex items-center gap-1 p-1.5 rounded bg-muted anim-badge-4">
+                <div className="flex items-center gap-1 p-1.5 rounded bg-muted">
                   <Star className="h-3 w-3 text-muted-foreground" />
                   <span className="text-[8px] text-muted-foreground">Chapter Master</span>
                 </div>
@@ -164,25 +190,31 @@ export function ParentProgressPreview() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-card rounded-md border p-2 anim-activity">
+            <div className="bg-card rounded-md border p-2">
               <p className="text-[10px] font-medium mb-2">Recent Activity</p>
               <div className="space-y-1.5">
-                <div className="flex items-start gap-2 anim-activity-1">
-                  <div className="w-1 h-1 rounded-full bg-success mt-1.5" />
+                <div className="flex items-start gap-2">
+                  <div className="w-4 h-4 rounded bg-success/10 flex items-center justify-center mt-0.5">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-success" />
+                  </div>
                   <div>
                     <p className="text-[9px]">Completed: Quadratic Formula Quiz</p>
-                    <p className="text-[8px] text-muted-foreground">2 hours ago</p>
+                    <p className="text-[8px] text-muted-foreground">2 hours ago • Score: 92%</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 anim-activity-2">
-                  <div className="w-1 h-1 rounded-full bg-primary mt-1.5" />
+                <div className="flex items-start gap-2">
+                  <div className="w-4 h-4 rounded bg-primary/10 flex items-center justify-center mt-0.5">
+                    <BookOpen className="h-2.5 w-2.5 text-primary" />
+                  </div>
                   <div>
                     <p className="text-[9px]">Watched: Indices Rules Video</p>
-                    <p className="text-[8px] text-muted-foreground">Yesterday</p>
+                    <p className="text-[8px] text-muted-foreground">Yesterday • 15 min</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 anim-activity-3">
-                  <div className="w-1 h-1 rounded-full bg-muted-foreground mt-1.5" />
+                <div className="flex items-start gap-2">
+                  <div className="w-4 h-4 rounded bg-info/10 flex items-center justify-center mt-0.5">
+                    <Target className="h-2.5 w-2.5 text-info" />
+                  </div>
                   <div>
                     <p className="text-[9px]">Started: Chapter 6 - Graphs</p>
                     <p className="text-[8px] text-muted-foreground">2 days ago</p>
@@ -195,84 +227,58 @@ export function ParentProgressPreview() {
       </div>
 
       <style>{`
-        .parent-preview-container.paused * {
-          animation-play-state: paused !important;
+        .parent-preview-container.paused .anim-chrome,
+        .parent-preview-container.paused .anim-section-header,
+        .parent-preview-container.paused .anim-section-stats,
+        .parent-preview-container.paused .anim-section-courses,
+        .parent-preview-container.paused .anim-section-bottom {
           opacity: 0;
         }
-        .parent-preview-container.paused .anim-fade-in {
-          opacity: 1;
+        
+        .parent-preview-container.paused .anim-progress-1,
+        .parent-preview-container.paused .anim-progress-2 {
+          width: 0%;
         }
         
-        .parent-preview-container.animate .anim-fade-in {
-          animation: parent-fade-in 0.4s ease-out forwards;
-        }
-        .parent-preview-container.animate .anim-header {
-          animation: parent-slide-down 0.4s ease-out 0.3s forwards;
+        .parent-preview-container.paused .anim-ring-fill,
+        .parent-preview-container.paused .anim-ring-fill-2 {
+          stroke-dashoffset: 75.4;
         }
         
-        .parent-preview-container.animate .anim-stat-1 {
-          animation: parent-slide-up 0.3s ease-out 0.5s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-2 {
-          animation: parent-slide-up 0.3s ease-out 0.65s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-3 {
-          animation: parent-slide-up 0.3s ease-out 0.8s forwards;
-        }
-        .parent-preview-container.animate .anim-stat-4 {
-          animation: parent-slide-up 0.3s ease-out 0.95s forwards;
+        .parent-preview-container.animate .anim-chrome {
+          animation: parent-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         
-        .parent-preview-container.animate .anim-value {
-          animation: parent-fade-in 0.3s ease-out 1.2s forwards;
-        }
-        .parent-preview-container.animate .anim-badge-pop {
-          animation: parent-pop 0.3s ease-out 1.4s forwards;
+        .parent-preview-container.animate .anim-section-header {
+          animation: parent-slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
         }
         
-        .parent-preview-container.animate .anim-course-card {
-          animation: parent-slide-up 0.3s ease-out 1.6s forwards;
+        .parent-preview-container.animate .anim-section-stats {
+          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
         }
-        .parent-preview-container.animate .anim-progress-bar {
-          animation: parent-progress-fill 0.8s ease-out 2s forwards;
+        
+        .parent-preview-container.animate .anim-section-courses {
+          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
         }
-        .parent-preview-container.animate .anim-ring {
-          animation: parent-fade-in 0.3s ease-out 2s forwards;
+        
+        .parent-preview-container.animate .anim-progress-1 {
+          animation: parent-progress-fill-78 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
         }
+        
+        .parent-preview-container.animate .anim-progress-2 {
+          animation: parent-progress-fill-45 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
+        }
+        
         .parent-preview-container.animate .anim-ring-fill {
-          animation: parent-ring-fill 0.8s ease-out 2.2s forwards;
+          animation: parent-ring-fill 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
         }
         
-        .parent-preview-container.animate .anim-achievements {
-          animation: parent-slide-up 0.3s ease-out 2.8s forwards;
-        }
-        .parent-preview-container.animate .anim-badge-1 {
-          animation: parent-fade-in 0.2s ease-out 3.2s forwards;
-        }
-        .parent-preview-container.animate .anim-badge-2 {
-          animation: parent-fade-in 0.2s ease-out 3.4s forwards;
-        }
-        .parent-preview-container.animate .anim-badge-3 {
-          animation: parent-fade-in 0.2s ease-out 3.6s forwards;
-        }
-        .parent-preview-container.animate .anim-badge-4 {
-          animation: parent-fade-in 0.2s ease-out 3.8s forwards;
-        }
-        .parent-preview-container.animate .anim-check {
-          animation: parent-pop 0.2s ease-out 4s forwards;
+        .parent-preview-container.animate .anim-ring-fill-2 {
+          animation: parent-ring-fill-2 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
         }
         
-        .parent-preview-container.animate .anim-activity {
-          animation: parent-slide-up 0.3s ease-out 2.8s forwards;
-        }
-        .parent-preview-container.animate .anim-activity-1 {
-          animation: parent-slide-left 0.2s ease-out 3.2s forwards;
-        }
-        .parent-preview-container.animate .anim-activity-2 {
-          animation: parent-slide-left 0.2s ease-out 3.5s forwards;
-        }
-        .parent-preview-container.animate .anim-activity-3 {
-          animation: parent-slide-left 0.2s ease-out 3.8s forwards;
+        .parent-preview-container.animate .anim-section-bottom {
+          animation: parent-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.6s forwards;
         }
         
         @keyframes parent-fade-in {
@@ -286,29 +292,28 @@ export function ParentProgressPreview() {
         }
         
         @keyframes parent-slide-up {
-          from { opacity: 0; transform: translateY(15px); }
+          from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         
-        @keyframes parent-slide-left {
-          from { opacity: 0; transform: translateX(10px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes parent-pop {
-          0% { opacity: 0; transform: scale(0.5); }
-          70% { transform: scale(1.2); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        
-        @keyframes parent-progress-fill {
+        @keyframes parent-progress-fill-78 {
           from { width: 0%; }
           to { width: 78%; }
         }
         
+        @keyframes parent-progress-fill-45 {
+          from { width: 0%; }
+          to { width: 45%; }
+        }
+        
         @keyframes parent-ring-fill {
-          from { stroke-dashoffset: 100; }
-          to { stroke-dashoffset: 22; }
+          from { stroke-dashoffset: 75.4; }
+          to { stroke-dashoffset: 16.6; }
+        }
+        
+        @keyframes parent-ring-fill-2 {
+          from { stroke-dashoffset: 75.4; }
+          to { stroke-dashoffset: 41.5; }
         }
       `}</style>
     </div>
