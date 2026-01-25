@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/lib/demo-data";
 
-const roleConfig: Record<UserRole, { label: string; className: string }> = {
-  admin: { label: 'Admin', className: 'bg-role-admin/10 text-role-admin border-role-admin/20' },
-  tutor: { label: 'Tutor', className: 'bg-role-tutor/10 text-role-tutor border-role-tutor/20' },
-  student: { label: 'Student', className: 'bg-role-student/10 text-role-student border-role-student/20' },
-  parent: { label: 'Parent', className: 'bg-role-parent/10 text-role-parent border-role-parent/20' },
+const roleConfig: Record<UserRole, { label: string; color: string }> = {
+  admin: { label: 'Admin', color: 'bg-role-admin' },
+  tutor: { label: 'Tutor', color: 'bg-role-tutor' },
+  student: { label: 'Student', color: 'bg-role-student' },
+  parent: { label: 'Parent', color: 'bg-role-parent' },
 };
 
 interface RoleBadgeProps {
@@ -19,11 +19,11 @@ export function RoleBadge({ role, className }: RoleBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border",
-        config.className,
+        "inline-flex items-center gap-1.5 text-xs text-muted-foreground",
         className
       )}
     >
+      <span className={cn("w-1.5 h-1.5 rounded-full", config.color)} />
       {config.label}
     </span>
   );

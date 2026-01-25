@@ -22,36 +22,36 @@ export function AppHeader() {
   return (
     <header
       className={cn(
-        "fixed top-0 right-0 z-30 h-16 bg-background/80 backdrop-blur-sm border-b flex items-center justify-between px-6 transition-all duration-300",
-        sidebarCollapsed ? "left-16" : "left-64"
+        "fixed top-0 right-0 z-30 h-14 bg-background border-b border-border flex items-center justify-between px-6 transition-all duration-200",
+        sidebarCollapsed ? "left-16" : "left-60"
       )}
     >
       {/* Search */}
-      <div className="relative max-w-md flex-1">
+      <div className="relative max-w-sm flex-1">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search students, courses, sessions..."
-          className="pl-9 bg-muted/50 border-0 focus-visible:ring-1"
+          placeholder="Search..."
+          className="pl-9 h-8 text-sm bg-transparent border-transparent hover:border-border focus-visible:border-border"
         />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Role Switcher (Demo) */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <span className="text-muted-foreground text-xs">Demo:</span>
+            <Button variant="ghost" size="sm" className="gap-2 h-8 text-xs">
+              <span className="text-muted-foreground">Demo:</span>
               <RoleBadge role={currentRole} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Switch Role (Demo)</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Switch Role</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {roles.map((role) => (
               <DropdownMenuItem
                 key={role}
                 onClick={() => setCurrentRole(role)}
-                className={cn(role === currentRole && "bg-accent")}
+                className={cn(role === currentRole && "bg-muted")}
               >
                 <RoleBadge role={role} />
               </DropdownMenuItem>
@@ -60,9 +60,9 @@ export function AppHeader() {
         </DropdownMenu>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+        <Button variant="ghost" size="icon" className="relative h-8 w-8">
+          <Bell className="h-4 w-4" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-destructive rounded-full" />
         </Button>
       </div>
     </header>

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { 
   Users, 
   Calendar, 
@@ -51,15 +50,15 @@ export function ParentDashboard() {
       {/* Header with Child Selector */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Parent Portal</h1>
-          <p className="text-muted-foreground">Track your child's learning progress</p>
+          <h1 className="text-xl font-semibold text-foreground">Parent Portal</h1>
+          <p className="text-sm text-muted-foreground">Track your child's learning progress</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Users className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="gap-2">
+              <Users className="h-3 w-3" />
               {selectedChild.name}
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -73,18 +72,12 @@ export function ParentDashboard() {
       </div>
 
       {/* Stats */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           title="Course Progress"
           value={`${selectedChild.completionRate}%`}
           subtitle="Overall completion"
           icon={BarChart3}
-          variant="accent"
         />
         <StatCard
           title="Attendance Rate"
@@ -97,36 +90,30 @@ export function ParentDashboard() {
           value={unpaidInvoices.length}
           subtitle={`$${unpaidInvoices.reduce((sum, i) => sum + i.amount, 0)} total`}
           icon={CreditCard}
-          variant={unpaidInvoices.length > 0 ? 'warning' : 'default'}
         />
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Snapshot */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
+        <div className="bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
-            <h2 className="font-semibold">Progress Snapshot</h2>
+            <h2 className="text-sm font-medium">Progress Snapshot</h2>
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              className="gap-2"
+              className="gap-2 text-xs"
               onClick={handleDownloadReport}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-3 w-3" />
               Download Report
             </Button>
           </div>
           <div className="p-4">
             <div className="flex items-center gap-6 mb-6">
-              <ProgressRing progress={selectedChild.completionRate} size={80} strokeWidth={6} />
+              <ProgressRing progress={selectedChild.completionRate} size={64} strokeWidth={4} />
               <div>
-                <p className="text-sm text-muted-foreground">Overall Progress</p>
-                <p className="text-3xl font-bold">{selectedChild.completionRate}%</p>
+                <p className="text-xs text-muted-foreground">Overall Progress</p>
+                <p className="text-2xl font-semibold">{selectedChild.completionRate}%</p>
                 <p className="text-xs text-success">+5% from last week</p>
               </div>
             </div>
@@ -134,8 +121,8 @@ export function ParentDashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-sm">Sec 3 Mathematics</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-3/4 bg-accent rounded-full" />
+                  <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full w-3/4 bg-foreground rounded-full" />
                   </div>
                   <span className="text-xs text-muted-foreground">75%</span>
                 </div>
@@ -143,35 +130,30 @@ export function ParentDashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-sm">O-Level English</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-1/2 bg-accent rounded-full" />
+                  <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full w-1/2 bg-foreground rounded-full" />
                   </div>
                   <span className="text-xs text-muted-foreground">50%</span>
                 </div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Upcoming Sessions */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
+        <div className="bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
-            <h2 className="font-semibold">Upcoming Classes</h2>
-            <Button variant="ghost" size="sm" onClick={handleViewTimetable}>View All</Button>
+            <h2 className="text-sm font-medium">Upcoming Classes</h2>
+            <Button variant="ghost" size="sm" className="text-xs" onClick={handleViewTimetable}>View All</Button>
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-2">
             {upcomingSessions.map((session) => (
               <div 
                 key={session.id} 
-                className="p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                className="p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
                 onClick={handleViewTimetable}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <p className="font-medium text-sm">{session.title}</p>
                   <StatusBadge status="info" label={session.date} />
                 </div>
@@ -179,25 +161,20 @@ export function ParentDashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Invoices */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-      >
+      <div className="bg-card rounded-lg border">
         <div className="p-4 border-b flex items-center justify-between">
-          <h2 className="font-semibold">Invoices</h2>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/app/invoices')}>View All</Button>
+          <h2 className="text-sm font-medium">Invoices</h2>
+          <Button variant="ghost" size="sm" className="text-xs" onClick={() => navigate('/app/invoices')}>View All</Button>
         </div>
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-2">
           {childInvoices.map((invoice) => (
             <div 
               key={invoice.id}
-              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+              className="flex items-center justify-between p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
               onClick={() => navigate(`/app/invoices/${invoice.id}`)}
             >
               <div>
@@ -206,7 +183,7 @@ export function ParentDashboard() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className="font-semibold">${invoice.amount}</p>
+                  <p className="font-medium">${invoice.amount}</p>
                   <StatusBadge 
                     status={invoice.status === 'paid' ? 'success' : invoice.status === 'overdue' ? 'error' : 'warning'} 
                     label={invoice.status}
@@ -227,7 +204,7 @@ export function ParentDashboard() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

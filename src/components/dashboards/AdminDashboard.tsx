@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { 
   Users, 
   BookOpen, 
@@ -46,17 +45,12 @@ export function AdminDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's what's happening at your centre.</p>
+        <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Welcome back! Here's what's happening at your centre.</p>
       </div>
 
       {/* Stats Grid */}
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Students"
           value={demoStudents.length}
@@ -69,7 +63,6 @@ export function AdminDashboard() {
           value="67%"
           subtitle="Average across courses"
           icon={TrendingUp}
-          variant="accent"
         />
         <StatCard
           title="This Week Sessions"
@@ -84,37 +77,32 @@ export function AdminDashboard() {
           icon={DollarSign}
           trend={{ value: 8, label: "vs last month", positive: true }}
         />
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* At-Risk Students */}
-        <motion.div 
-          className="lg:col-span-1 bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
+        <div className="lg:col-span-1 bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
-              <h2 className="font-semibold">At-Risk Students</h2>
+              <h2 className="text-sm font-medium">At-Risk Students</h2>
             </div>
             <StatusBadge
               status="warning"
               label={`${atRiskStudents.length} student${atRiskStudents.length === 1 ? "" : "s"}`}
             />
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-2">
             {atRiskStudents.length > 0 ? (
               atRiskStudents.map((student) => (
                 <div 
                   key={student.id} 
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
                   onClick={() => navigate(`/app/students/${student.id}`)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
-                      <span className="text-xs font-medium text-warning">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {student.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     </div>
@@ -123,7 +111,7 @@ export function AdminDashboard() {
                       <p className="text-xs text-muted-foreground">Last active: {student.lastActive}</p>
                     </div>
                   </div>
-                  <ProgressRing progress={student.completionRate} size={36} strokeWidth={3} variant="warning" />
+                  <ProgressRing progress={student.completionRate} size={32} strokeWidth={2} variant="warning" />
                 </div>
               ))
             ) : (
@@ -132,34 +120,29 @@ export function AdminDashboard() {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full mt-2 gap-2"
+              className="w-full mt-2 gap-2 text-muted-foreground"
               onClick={() => navigate('/app/students')}
             >
               View All Students
               <ArrowRight className="h-3 w-3" />
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Upcoming Sessions */}
-        <motion.div 
-          className="lg:col-span-1 bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
+        <div className="lg:col-span-1 bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Video className="h-4 w-4 text-info" />
-              <h2 className="font-semibold">Upcoming Sessions</h2>
+              <Video className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium">Upcoming Sessions</h2>
             </div>
             <Link to="/app/timetable">
-              <Button variant="ghost" size="sm">View All</Button>
+              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
             </Link>
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-2">
             {upcomingSessions.slice(0, 3).map((session) => (
-              <div key={session.id} className="p-3 bg-muted/50 rounded-lg">
+              <div key={session.id} className="p-3 rounded-md hover:bg-muted transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="text-sm font-medium">{session.title}</p>
@@ -169,10 +152,10 @@ export function AdminDashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    {session.totalStudents} students enrolled
+                    {session.totalStudents} students
                   </span>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm" 
                     className="h-7 text-xs"
                     onClick={() => handleJoinLink(session)}
@@ -183,71 +166,61 @@ export function AdminDashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Invoice Summary */}
-        <motion.div 
-          className="lg:col-span-1 bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-        >
+        <div className="lg:col-span-1 bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-muted-foreground" />
-              <h2 className="font-semibold">Invoices</h2>
+              <h2 className="text-sm font-medium">Invoices</h2>
             </div>
             <Link to="/app/invoices">
-              <Button variant="ghost" size="sm">View All</Button>
+              <Button variant="ghost" size="sm" className="text-xs">View All</Button>
             </Link>
           </div>
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-3">
             {overdueInvoices.length > 0 && (
-              <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+              <div className="p-3 border rounded-md">
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-medium text-destructive">Overdue</span>
+                  <Clock className="h-3 w-3 text-destructive" />
+                  <span className="text-xs font-medium text-destructive">Overdue</span>
                 </div>
-                <p className="text-2xl font-bold">{overdueInvoices.length}</p>
+                <p className="text-xl font-semibold">{overdueInvoices.length}</p>
                 <p className="text-xs text-muted-foreground">
                   Total: ${overdueInvoices.reduce((sum, i) => sum + i.amount, 0)}
                 </p>
               </div>
             )}
-            <div className="p-3 bg-warning/5 border border-warning/20 rounded-lg">
+            <div className="p-3 border rounded-md">
               <div className="flex items-center gap-2 mb-1">
-                <Clock className="h-4 w-4 text-warning" />
-                <span className="text-sm font-medium text-warning">Pending</span>
+                <Clock className="h-3 w-3 text-warning" />
+                <span className="text-xs font-medium text-warning">Pending</span>
               </div>
-              <p className="text-2xl font-bold">{pendingInvoices.length}</p>
+              <p className="text-xl font-semibold">{pendingInvoices.length}</p>
               <p className="text-xs text-muted-foreground">
                 Total: ${pendingInvoices.reduce((sum, i) => sum + i.amount, 0)}
               </p>
             </div>
             <Button 
-              className="w-full gradient-hero text-primary-foreground"
+              className="w-full"
               onClick={() => setGenerateInvoicesOpen(true)}
             >
               Generate Invoices
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Course Overview */}
-      <motion.div 
-        className="bg-card rounded-xl border shadow-card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
-      >
+      <div className="bg-card rounded-lg border">
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-primary" />
-            <h2 className="font-semibold">Courses Overview</h2>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-medium">Courses Overview</h2>
           </div>
           <Link to="/app/courses">
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="ghost" size="sm" className="gap-2 text-xs">
               Manage Courses
               <ArrowRight className="h-3 w-3" />
             </Button>
@@ -259,18 +232,18 @@ export function AdminDashboard() {
               <Link 
                 key={course.id} 
                 to={`/app/courses/${course.id}`}
-                className="p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors group"
+                className="p-4 rounded-md hover:bg-muted transition-colors group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <BookOpen className="h-5 w-5 text-primary" />
+                  <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center">
+                    <BookOpen className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <StatusBadge 
                     status={course.status === 'published' ? 'success' : 'neutral'} 
                     label={course.status} 
                   />
                 </div>
-                <h3 className="font-medium text-sm mb-1 group-hover:text-primary transition-colors">
+                <h3 className="font-medium text-sm mb-1">
                   {course.title}
                 </h3>
                 <p className="text-xs text-muted-foreground mb-3">
@@ -280,13 +253,13 @@ export function AdminDashboard() {
                   <span className="text-xs text-muted-foreground">
                     {course.studentsEnrolled} students
                   </span>
-                  <ProgressRing progress={course.completionRate} size={32} strokeWidth={3} />
+                  <ProgressRing progress={course.completionRate} size={28} strokeWidth={2} />
                 </div>
               </Link>
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Dialogs */}
       <GenerateInvoicesDialog 

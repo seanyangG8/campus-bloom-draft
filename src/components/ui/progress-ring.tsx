@@ -11,8 +11,8 @@ interface ProgressRingProps {
 
 export function ProgressRing({ 
   progress, 
-  size = 48, 
-  strokeWidth = 4, 
+  size = 40, 
+  strokeWidth = 3, 
   className,
   showLabel = true,
   variant = 'default'
@@ -22,7 +22,7 @@ export function ProgressRing({
   const offset = circumference - (progress / 100) * circumference;
 
   const strokeColor = {
-    default: 'stroke-accent',
+    default: 'stroke-foreground',
     success: 'stroke-success',
     warning: 'stroke-warning',
   }[variant];
@@ -37,7 +37,7 @@ export function ProgressRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-muted/50"
+          className="text-border"
         />
         <circle
           cx={size / 2}
@@ -48,11 +48,11 @@ export function ProgressRing({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className={cn("transition-all duration-500 ease-out", strokeColor)}
+          className={cn("transition-all duration-300 ease-out", strokeColor)}
         />
       </svg>
       {showLabel && (
-        <span className="absolute text-xs font-semibold text-foreground">
+        <span className="absolute text-[10px] font-medium text-foreground">
           {progress}%
         </span>
       )}

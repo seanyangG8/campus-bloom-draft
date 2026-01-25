@@ -90,39 +90,39 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 flex flex-col",
-        sidebarCollapsed ? "w-16" : "w-64"
+        "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-200 flex flex-col",
+        sidebarCollapsed ? "w-16" : "w-60"
       )}
     >
       {/* Centre Branding */}
-      <div className="p-4 border-b border-sidebar-border">
+      <div className="p-3 border-b border-sidebar-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={cn(
-              "flex items-center gap-3 w-full hover:bg-sidebar-accent rounded-lg p-2 transition-colors",
+              "flex items-center gap-2.5 w-full hover:bg-sidebar-accent rounded-md p-2 transition-colors",
               sidebarCollapsed && "justify-center"
             )}>
-              <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center flex-shrink-0">
-                <Building2 className="h-4 w-4 text-white" />
+              <div className="w-7 h-7 rounded-md bg-foreground/10 flex items-center justify-center flex-shrink-0">
+                <Building2 className="h-3.5 w-3.5 text-foreground" />
               </div>
               {!sidebarCollapsed && (
                 <div className="text-left flex-1 min-w-0">
-                  <p className="text-sm font-semibold leading-tight">{currentCentre.name}</p>
-                  <p className="text-xs text-sidebar-foreground/60">Switch centre</p>
+                  <p className="text-sm font-medium leading-tight truncate">{currentCentre.name}</p>
+                  <p className="text-xs text-muted-foreground">Switch centre</p>
                 </div>
               )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuLabel>Switch Centre</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">Switch Centre</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {centres.map((centre) => (
               <DropdownMenuItem
                 key={centre.id}
                 onClick={() => setCurrentCentre(centre)}
-                className={cn(centre.id === currentCentre.id && "bg-accent")}
+                className={cn(centre.id === currentCentre.id && "bg-muted")}
               >
-                <Building2 className="mr-2 h-4 w-4" />
+                <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
                 {centre.name}
               </DropdownMenuItem>
             ))}
@@ -131,35 +131,35 @@ export function AppSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto scrollbar-thin">
+      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto scrollbar-thin">
         {navItems.map((item) => (
           <NavLink
             key={item.href}
             to={item.href}
             end={item.href === '/app'}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-              "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent",
+              "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors",
+              "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent",
               sidebarCollapsed && "justify-center px-2"
             )}
-            activeClassName="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
+            activeClassName="bg-sidebar-accent text-foreground font-medium"
           >
-            <item.icon className="h-5 w-5 flex-shrink-0" />
+            <item.icon className="h-4 w-4 flex-shrink-0" />
             {!sidebarCollapsed && <span>{item.label}</span>}
           </NavLink>
         ))}
       </nav>
 
       {/* User Menu */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-2 border-t border-sidebar-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={cn(
-              "flex items-center gap-3 w-full hover:bg-sidebar-accent rounded-lg p-2 transition-colors",
+              "flex items-center gap-2.5 w-full hover:bg-sidebar-accent rounded-md p-2 transition-colors",
               sidebarCollapsed && "justify-center"
             )}>
-              <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center flex-shrink-0">
-                <UserIcon className="h-4 w-4" />
+              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
               </div>
               {!sidebarCollapsed && (
                 <div className="text-left flex-1 min-w-0">
@@ -173,7 +173,7 @@ export function AppSidebar() {
             <DropdownMenuLabel>
               <div>
                 <p className="font-medium">{currentUser.name}</p>
-                <p className="text-xs text-muted-foreground">{currentUser.email}</p>
+                <p className="text-xs text-muted-foreground font-normal">{currentUser.email}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -199,7 +199,7 @@ export function AppSidebar() {
         variant="ghost"
         size="icon"
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className="absolute -right-3 top-20 h-6 w-6 rounded-full border bg-background shadow-md hover:bg-muted"
+        className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-border bg-background shadow-sm hover:bg-muted"
       >
         {sidebarCollapsed ? (
           <ChevronRight className="h-3 w-3" />

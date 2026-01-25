@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 
 type StatusType = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 
-const statusConfig: Record<StatusType, string> = {
-  success: 'bg-success/10 text-success border-success/20',
-  warning: 'bg-warning/10 text-warning border-warning/20',
-  error: 'bg-destructive/10 text-destructive border-destructive/20',
-  info: 'bg-info/10 text-info border-info/20',
-  neutral: 'bg-muted text-muted-foreground border-border',
+const statusConfig: Record<StatusType, { dot: string; text: string }> = {
+  success: { dot: 'bg-success', text: 'text-success' },
+  warning: { dot: 'bg-warning', text: 'text-warning' },
+  error: { dot: 'bg-destructive', text: 'text-destructive' },
+  info: { dot: 'bg-info', text: 'text-info' },
+  neutral: { dot: 'bg-muted-foreground', text: 'text-muted-foreground' },
 };
 
 interface StatusBadgeProps {
@@ -17,26 +17,20 @@ interface StatusBadgeProps {
   dot?: boolean;
 }
 
-export function StatusBadge({ status, label, className, dot = false }: StatusBadgeProps) {
+export function StatusBadge({ status, label, className, dot = true }: StatusBadgeProps) {
+  const config = statusConfig[status];
+  
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border max-w-full",
-        statusConfig[status],
+        "inline-flex items-center gap-1.5 text-xs font-medium max-w-full",
         className
       )}
     >
       {dot && (
-        <span className={cn(
-          "w-1.5 h-1.5 rounded-full",
-          status === 'success' && 'bg-success',
-          status === 'warning' && 'bg-warning',
-          status === 'error' && 'bg-destructive',
-          status === 'info' && 'bg-info',
-          status === 'neutral' && 'bg-muted-foreground',
-        )} />
+        <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", config.dot)} />
       )}
-      <span className="min-w-0 truncate">{label}</span>
+      <span className={cn("min-w-0 truncate", config.text)}>{label}</span>
     </span>
   );
 }

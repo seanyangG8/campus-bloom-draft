@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { 
   Calendar, 
   Video, 
@@ -84,34 +83,29 @@ export function TutorDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Today</h1>
-        <p className="text-muted-foreground">Welcome back, Mr. Ahmad! Here's your schedule for today.</p>
+        <h1 className="text-xl font-semibold text-foreground">Today</h1>
+        <p className="text-sm text-muted-foreground">Welcome back, Mr. Ahmad! Here's your schedule for today.</p>
       </div>
 
       {/* Today's Sessions */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div className="bg-card rounded-lg border">
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-primary" />
-            <h2 className="font-semibold">Today's Sessions</h2>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-medium">Today's Sessions</h2>
           </div>
           <StatusBadge status="info" label={`${todaySessions.length} classes`} />
         </div>
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-3">
           {todaySessions.map((session, index) => (
             <div 
               key={session.id}
-              className="p-4 bg-muted/30 rounded-xl border border-border/50"
+              className="p-4 rounded-md border"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold">{session.title}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-sm font-medium">{session.title}</h3>
+                  <p className="text-xs text-muted-foreground">
                     {demoCohorts.find(c => c.id === session.cohortId)?.name}
                   </p>
                 </div>
@@ -121,34 +115,37 @@ export function TutorDashboard() {
                   dot
                 />
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-3 w-3" />
                   {session.time}
                 </div>
                 <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
+                  <Users className="h-3 w-3" />
                   {session.totalStudents} students
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button 
-                  className="gradient-accent text-accent-foreground gap-2"
+                  size="sm"
+                  className="gap-2"
                   onClick={() => handleStartClass(session)}
                 >
-                  <Video className="h-4 w-4" />
+                  <Video className="h-3 w-3" />
                   Start Class
                 </Button>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="icon"
+                  className="h-8 w-8"
                   onClick={() => handleExternalLink(session)}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLink className="h-3 w-3" />
                 </Button>
                 <Button 
-                  variant="outline" 
-                  className="ml-auto"
+                  variant="ghost" 
+                  size="sm"
+                  className="ml-auto text-xs"
                   onClick={() => handleSessionCompanion(session)}
                 >
                   Session Companion
@@ -157,18 +154,13 @@ export function TutorDashboard() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Actions */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
+        <div className="bg-card rounded-lg border">
           <div className="p-4 border-b">
-            <h2 className="font-semibold">Quick Actions</h2>
+            <h2 className="text-sm font-medium">Quick Actions</h2>
           </div>
           <div className="p-4 grid grid-cols-2 gap-3">
             <Button 
@@ -176,7 +168,7 @@ export function TutorDashboard() {
               className="h-auto py-4 flex-col gap-2"
               onClick={handleReviewSubmissions}
             >
-              <FileText className="h-5 w-5 text-primary" />
+              <FileText className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">Review Submissions</span>
               <span className="text-xs text-muted-foreground">12 pending</span>
             </Button>
@@ -185,31 +177,26 @@ export function TutorDashboard() {
               className="h-auto py-4 flex-col gap-2"
               onClick={handleTakeAttendance}
             >
-              <CheckCircle2 className="h-5 w-5 text-success" />
+              <CheckCircle2 className="h-4 w-4 text-success" />
               <span className="text-sm">Take Attendance</span>
               <span className="text-xs text-muted-foreground">Next session</span>
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* At-Risk Students */}
-        <motion.div
-          className="bg-card rounded-xl border shadow-card"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
+        <div className="bg-card rounded-lg border">
           <div className="p-4 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-warning" />
-              <h2 className="font-semibold">At-Risk Students</h2>
+              <h2 className="text-sm font-medium">At-Risk Students</h2>
             </div>
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-2">
             {atRiskStudents.map((student) => (
               <div 
                 key={student.id} 
-                className="flex items-center justify-between p-3 bg-warning/5 rounded-lg border border-warning/20 cursor-pointer hover:bg-warning/10 transition-colors"
+                className="flex items-center justify-between p-3 rounded-md border cursor-pointer hover:bg-muted transition-colors"
                 onClick={() => navigate(`/app/students/${student.id}`)}
               >
                 <div>
@@ -219,8 +206,9 @@ export function TutorDashboard() {
                   </p>
                 </div>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
+                  className="text-xs"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleMessageParent(student);
@@ -231,7 +219,7 @@ export function TutorDashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
