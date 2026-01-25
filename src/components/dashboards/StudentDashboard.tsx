@@ -92,16 +92,16 @@ export function StudentDashboard() {
               <p className="text-xs text-muted-foreground">pages completed this week</p>
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="divide-y divide-border/50">
             <button 
-              className="w-full flex items-center justify-between p-3 rounded-md border hover:bg-muted transition-colors text-left"
+              className="w-full flex items-center justify-between p-3 border-l-2 border-l-success/40 hover:bg-muted/30 transition-colors text-left"
               onClick={() => navigate('/app/courses/course-1')}
             >
               <span className="text-sm">Complete "Quadratic Formula" page</span>
               <span className="text-xs text-success font-medium">In Progress</span>
             </button>
             <button 
-              className="w-full flex items-center justify-between p-3 rounded-md hover:bg-muted transition-colors text-left"
+              className="w-full flex items-center justify-between p-3 border-l-2 border-l-muted-foreground/30 hover:bg-muted/30 transition-colors text-left"
               onClick={() => navigate('/app/courses/course-1')}
             >
               <span className="text-sm">Submit whiteboard activity</span>
@@ -129,10 +129,10 @@ export function StudentDashboard() {
             <Link 
               key={course.id}
               to={`/app/courses/${course.id}`}
-              className="p-4 rounded-md hover:bg-muted transition-colors group"
+              className="p-4 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 hover:shadow-sm transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                <div className="w-10 h-10 rounded-md bg-background border border-border/50 flex items-center justify-center">
                   <BookOpen className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <ProgressRing progress={course.completionRate} size={36} strokeWidth={3} />

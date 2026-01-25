@@ -96,11 +96,11 @@ export function TutorDashboard() {
           </div>
           <StatusBadge status="info" label={`${todaySessions.length} classes`} />
         </div>
-        <div className="p-4 space-y-3">
+        <div className="divide-y divide-border/50">
           {todaySessions.map((session, index) => (
             <div 
               key={session.id}
-              className="p-4 rounded-md border"
+              className="p-4 border-l-2 border-l-info/40 hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -192,11 +192,11 @@ export function TutorDashboard() {
               <h2 className="text-sm font-medium">At-Risk Students</h2>
             </div>
           </div>
-          <div className="p-4 space-y-2">
+          <div className="divide-y divide-border/50">
             {atRiskStudents.map((student) => (
               <div 
                 key={student.id} 
-                className="flex items-center justify-between p-3 rounded-md border cursor-pointer hover:bg-muted transition-colors"
+                className="flex items-center justify-between p-3 border-l-2 border-l-warning/40 bg-subtle-warning cursor-pointer hover:bg-warning/10 transition-colors"
                 onClick={() => navigate(`/app/students/${student.id}`)}
               >
                 <div>

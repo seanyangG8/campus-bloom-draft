@@ -86,7 +86,7 @@ export function CoursesPage() {
         {isAdmin && (
           <Button 
             size="sm"
-            className="gradient-hero text-primary-foreground gap-2 w-full sm:w-auto"
+            className="gap-2 w-full sm:w-auto"
             onClick={() => setCreateCourseOpen(true)}
           >
             <Plus className="h-4 w-4" />
@@ -129,12 +129,7 @@ export function CoursesPage() {
 
       {/* Course Grid */}
       {filteredCourses.length > 0 ? (
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredCourses.map((course, index) => (
             <CourseCard 
               key={course.id} 
@@ -144,7 +139,7 @@ export function CoursesPage() {
               onAction={handleCourseAction}
             />
           ))}
-        </motion.div>
+        </div>
       ) : (
         <EmptyState
           icon={BookOpen}
@@ -172,17 +167,12 @@ function CourseCard({
   onAction: (action: string, course: Course) => void;
 }) {
   return (
-    <motion.div
-      className="bg-card rounded-xl border shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden group"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-    >
+    <div className="bg-card rounded-lg border border-border/50 hover:shadow-sm transition-all duration-200 overflow-hidden group">
       {/* Thumbnail */}
-      <div className="aspect-video bg-gradient-to-br from-primary/10 via-accent/5 to-background relative">
+      <div className="aspect-video bg-muted/30 relative">
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <BookOpen className="h-8 w-8 text-primary" />
+          <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
+            <BookOpen className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
         <div className="absolute top-3 right-3">
@@ -258,6 +248,6 @@ function CourseCard({
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

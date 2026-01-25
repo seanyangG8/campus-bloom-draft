@@ -132,20 +132,15 @@ export function SubmissionsPage() {
       </div>
 
       {/* Stats */}
-      <motion.div
-        className="grid grid-cols-3 gap-4"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <div className="bg-card rounded-xl border shadow-card p-4 text-center">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-card rounded-lg border p-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
             <Clock className="h-4 w-4 text-warning" />
             <span className="text-2xl font-bold">{pendingCount}</span>
           </div>
           <p className="text-sm text-muted-foreground">Pending</p>
         </div>
-        <div className="bg-card rounded-xl border shadow-card p-4 text-center">
+        <div className="bg-card rounded-lg border p-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
             <CheckCircle2 className="h-4 w-4 text-success" />
             <span className="text-2xl font-bold">
@@ -154,7 +149,7 @@ export function SubmissionsPage() {
           </div>
           <p className="text-sm text-muted-foreground">Graded</p>
         </div>
-        <div className="bg-card rounded-xl border shadow-card p-4 text-center">
+        <div className="bg-card rounded-lg border p-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
             <MessageSquare className="h-4 w-4 text-primary" />
             <span className="text-2xl font-bold">
@@ -163,7 +158,7 @@ export function SubmissionsPage() {
           </div>
           <p className="text-sm text-muted-foreground">With Feedback</p>
         </div>
-      </motion.div>
+      </div>
 
       {/* Search & Filter */}
       <motion.div
@@ -195,12 +190,7 @@ export function SubmissionsPage() {
       </motion.div>
 
       {/* Submissions Table */}
-      <motion.div
-        className="bg-card rounded-xl border shadow-card"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div className="bg-card rounded-lg border">
         <div className="overflow-x-auto">
           <Table className="min-w-[800px]">
             <TableHeader>
@@ -286,7 +276,7 @@ export function SubmissionsPage() {
             <p className="text-muted-foreground">Submissions from students will appear here.</p>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Grade Dialog */}
       <Dialog open={gradeDialogOpen} onOpenChange={setGradeDialogOpen}>

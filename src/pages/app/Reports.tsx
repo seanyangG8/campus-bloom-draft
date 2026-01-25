@@ -98,12 +98,7 @@ export function ReportsPage() {
       </div>
 
       {/* Stats Overview */}
-      <motion.div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Students"
           value="74"
@@ -128,16 +123,11 @@ export function ReportsPage() {
           icon={Calendar}
           trend={{ value: 3, label: "vs last week", positive: true }}
         />
-      </motion.div>
+      </div>
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="bg-card rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Student Enrollment</h3>
@@ -168,14 +158,9 @@ export function ReportsPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <div className="bg-card rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Revenue Trend</h3>
@@ -205,17 +190,12 @@ export function ReportsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div className="bg-card rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Weekly Attendance</h3>
@@ -245,14 +225,9 @@ export function ReportsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="bg-card rounded-xl border shadow-card p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div className="bg-card rounded-lg border p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Subject Distribution</h3>
@@ -288,7 +263,7 @@ export function ReportsPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -146,11 +146,11 @@ export function ParentDashboard() {
             <h2 className="text-sm font-medium">Upcoming Classes</h2>
             <Button variant="ghost" size="sm" className="text-xs" onClick={handleViewTimetable}>View All</Button>
           </div>
-          <div className="p-4 space-y-2">
+          <div className="divide-y divide-border/50">
             {upcomingSessions.map((session) => (
               <div 
                 key={session.id} 
-                className="p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
+                className="p-3 border-l-2 border-l-info/40 cursor-pointer hover:bg-muted/30 transition-colors"
                 onClick={handleViewTimetable}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -170,11 +170,15 @@ export function ParentDashboard() {
           <h2 className="text-sm font-medium">Invoices</h2>
           <Button variant="ghost" size="sm" className="text-xs" onClick={() => navigate('/app/invoices')}>View All</Button>
         </div>
-        <div className="p-4 space-y-2">
+        <div className="divide-y divide-border/50">
           {childInvoices.map((invoice) => (
             <div 
               key={invoice.id}
-              className="flex items-center justify-between p-3 rounded-md cursor-pointer hover:bg-muted transition-colors"
+              className={`flex items-center justify-between p-3 cursor-pointer hover:bg-muted/30 transition-colors border-l-2 ${
+                invoice.status === 'paid' ? 'border-l-success/40' : 
+                invoice.status === 'overdue' ? 'border-l-destructive/40 bg-subtle-destructive' : 
+                'border-l-warning/40 bg-subtle-warning'
+              }`}
               onClick={() => navigate(`/app/invoices/${invoice.id}`)}
             >
               <div>

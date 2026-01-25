@@ -140,12 +140,7 @@ export function TimetablePage() {
       <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6">
         {/* Calendar Sidebar */}
         <div className="flex justify-center md:justify-start">
-          <motion.div
-            className="bg-card rounded-xl border shadow-card p-4 h-fit w-fit"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="bg-card rounded-lg border p-4 h-fit w-fit">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -153,31 +148,26 @@ export function TimetablePage() {
               className="rounded-md"
             />
           
-          {/* Quick Stats */}
-          <div className="mt-4 pt-4 border-t space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Today's Sessions</span>
-              <span className="font-semibold">{todaySessions.length}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Upcoming This Week</span>
-              <span className="font-semibold">12</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Total Students</span>
-              <span className="font-semibold">48</span>
+            {/* Quick Stats */}
+            <div className="mt-4 pt-4 border-t space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Today's Sessions</span>
+                <span className="font-semibold">{todaySessions.length}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Upcoming This Week</span>
+                <span className="font-semibold">12</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Total Students</span>
+                <span className="font-semibold">48</span>
+              </div>
             </div>
           </div>
-          </motion.div>
         </div>
 
         {/* Sessions List */}
-        <motion.div
-          className="space-y-4 min-w-0"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
+        <div className="space-y-4 min-w-0">
           {/* View Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
@@ -208,13 +198,16 @@ export function TimetablePage() {
           </div>
 
           {/* Session Cards */}
-          <div className="space-y-3">
+          <div className="divide-y divide-border/50 bg-card rounded-lg border">
             {todaySessions.map((session) => (
-              <motion.div
+              <div
                 key={session.id}
-                className={`bg-card rounded-xl border p-4 cursor-pointer transition-all hover:shadow-md ${getSessionStatusColor(session.status)}`}
+                className={`p-4 cursor-pointer transition-all hover:bg-muted/30 border-l-2 ${
+                  session.status === 'live' ? 'border-l-destructive/60 bg-destructive/5' :
+                  session.status === 'scheduled' ? 'border-l-info/40' :
+                  'border-l-muted-foreground/30'
+                }`}
                 onClick={() => openSessionDetail(session)}
-                whileHover={{ scale: 1.01 }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -288,10 +281,10 @@ export function TimetablePage() {
                     </DropdownMenu>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Create Session Dialog */}
