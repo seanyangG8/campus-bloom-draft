@@ -12,10 +12,10 @@ export function SignInPage() {
             <div className="w-10 h-10 rounded-xl gradient-learning flex items-center justify-center">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="font-display font-bold text-xl">LearnCampus</span>
+            <span className="font-semibold text-xl">LearnCampus</span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold mb-2">Welcome back</h1>
+          <h1 className="text-3xl font-semibold tracking-tight mb-2">Welcome back</h1>
           <p className="text-muted-foreground mb-8">Sign in to your learning campus</p>
 
           <form className="space-y-4">
@@ -59,7 +59,7 @@ export function SignInPage() {
       {/* Right - Visual */}
       <div className="hidden lg:flex flex-1 gradient-hero items-center justify-center p-12">
         <div className="max-w-lg text-white">
-          <h2 className="font-display text-4xl font-bold mb-4">
+          <h2 className="text-4xl font-semibold tracking-tight mb-4">
             Your Learning Journey Awaits
           </h2>
           <p className="text-white/80 text-lg mb-8">

@@ -90,7 +90,7 @@ export function LandingPage() {
             <div className="w-8 h-8 rounded-lg gradient-learning flex items-center justify-center">
               <GraduationCap className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display font-bold text-xl">LearnCampus</span>
+            <span className="font-semibold text-xl">LearnCampus</span>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/app">
@@ -268,7 +268,7 @@ export function LandingPage() {
             className="text-center mb-16"
             {...fadeInUp}
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">
               Everything Your Centre Needs
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -289,7 +289,7 @@ export function LandingPage() {
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-display font-semibold text-lg mb-2">{feature.title}</h3>
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
@@ -304,7 +304,7 @@ export function LandingPage() {
             className="gradient-hero rounded-2xl p-8 md:p-12 text-center text-primary-foreground"
             {...fadeInUp}
           >
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-4">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-4">
               Ready to Transform Your Centre?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
@@ -337,7 +337,7 @@ export function LandingPage() {
             <div className="w-6 h-6 rounded gradient-learning flex items-center justify-center">
               <GraduationCap className="h-3 w-3 text-white" />
             </div>
-            <span className="font-display font-semibold">LearnCampus</span>
+            <span className="font-semibold">LearnCampus</span>
           </div>
           <p className="text-sm text-muted-foreground">
             © 2024 LearnCampus. Built for SG & MY Tuition Centres.
