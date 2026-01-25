@@ -14,6 +14,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { InteractiveCoursePreview } from "@/components/landing/InteractiveCoursePreview";
 
 const features = [
   {
@@ -64,7 +65,6 @@ export function LandingPage() {
       title: "Book a Call",
       description: "Redirecting to scheduling page...",
     });
-    // In production, this would open Calendly or similar
     window.open("https://calendly.com", "_blank");
   };
 
@@ -100,36 +100,36 @@ export function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 overflow-hidden">
-        <div className="container mx-auto max-w-6xl">
+      {/* Hero Section - Compact */}
+      <section className="pt-28 pb-10 px-4">
+        <div className="container mx-auto max-w-4xl">
           <motion.div 
             className="text-center"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6">
-              <Sparkles className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm font-medium mb-5">
+              <Sparkles className="h-3.5 w-3.5" />
               White-label Learning Platform
             </div>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-4 text-foreground">
               Your Tuition Centre,{" "}
-              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Elevated</span>
+              <span className="text-accent">Elevated</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              A premium learning campus platform built for Singapore and Malaysia tuition centres. 
-              Course builder, live classes, progress tracking, and parent portals—all in one place.
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-6">
+              A premium learning platform built for Singapore and Malaysia tuition centres. 
+              Course builder, live classes, progress tracking, and parent portals.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/app">
-                <Button size="lg" className="gradient-hero text-primary-foreground hover:opacity-90 gap-2 px-8">
+                <Button size="default" className="gap-2">
                   <Play className="h-4 w-4" />
                   View Demo
                 </Button>
               </Link>
               <Button 
-                size="lg" 
+                size="default" 
                 variant="outline" 
                 className="gap-2"
                 onClick={handleBookCall}
@@ -139,75 +139,35 @@ export function LandingPage() {
               </Button>
             </div>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Hero Visual */}
-          <motion.div
-            className="mt-16 relative"
-            initial={{ opacity: 0, y: 40 }}
+      {/* Capability Showcase - Courses */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div 
+            className="bg-card rounded-2xl border overflow-hidden"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="bg-card rounded-2xl shadow-xl border overflow-hidden">
-              <div className="h-8 bg-muted flex items-center px-4 gap-2 border-b">
-                <div className="w-3 h-3 rounded-full bg-destructive/50" />
-                <div className="w-3 h-3 rounded-full bg-warning/50" />
-                <div className="w-3 h-3 rounded-full bg-success/50" />
-                <span className="ml-4 text-xs text-muted-foreground">brightminds.learncampus.app</span>
-              </div>
-              <div className="aspect-[16/9] bg-gradient-to-br from-primary/5 via-accent/5 to-background p-8 flex items-center justify-center">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-                  {/* Dashboard Preview Cards */}
-                  <div className="bg-card rounded-xl p-4 shadow-card">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                        <BarChart3 className="h-4 w-4 text-accent" />
-                      </div>
-                      <span className="font-medium text-sm">Progress</span>
-                    </div>
-                    <div className="text-2xl font-bold text-foreground">78%</div>
-                    <div className="text-xs text-muted-foreground">Average completion</div>
-                    <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full w-3/4 gradient-accent rounded-full" />
-                    </div>
-                  </div>
-                  <div className="bg-card rounded-xl p-4 shadow-card">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Users className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="font-medium text-sm">Students</span>
-                    </div>
-                    <div className="text-2xl font-bold text-foreground">124</div>
-                    <div className="text-xs text-muted-foreground">Active this month</div>
-                    <div className="mt-3 flex -space-x-2">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="w-6 h-6 rounded-full bg-muted border-2 border-card" />
-                      ))}
-                      <div className="w-6 h-6 rounded-full bg-accent text-white text-xs flex items-center justify-center border-2 border-card">
-                        +
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-card rounded-xl p-4 shadow-card">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-                        <Calendar className="h-4 w-4 text-success" />
-                      </div>
-                      <span className="font-medium text-sm">Today</span>
-                    </div>
-                    <div className="text-2xl font-bold text-foreground">3</div>
-                    <div className="text-xs text-muted-foreground">Sessions scheduled</div>
-                    <div className="mt-3 space-y-1">
-                      <div className="h-1.5 bg-success/20 rounded-full w-full" />
-                      <div className="h-1.5 bg-success/20 rounded-full w-4/5" />
-                      <div className="h-1.5 bg-success/20 rounded-full w-3/5" />
-                    </div>
-                  </div>
+            {/* Bento Header */}
+            <div className="p-5 border-b">
+              <div className="flex items-center gap-3 mb-1.5">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <BookOpen className="h-4.5 w-4.5 text-primary" />
                 </div>
+                <h3 className="text-lg font-semibold">Interactive Courses</h3>
               </div>
+              <p className="text-sm text-muted-foreground ml-12">
+                Students progress through modular chapters with videos, quizzes, and active learning blocks.
+              </p>
             </div>
-            {/* Decorative elements */}
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl" />
+            
+            {/* Interactive Preview */}
+            <div className="aspect-[16/9]">
+              <InteractiveCoursePreview />
+            </div>
           </motion.div>
         </div>
       </section>
