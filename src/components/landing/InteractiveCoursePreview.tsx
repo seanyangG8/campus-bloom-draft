@@ -688,13 +688,13 @@ export function InteractiveCoursePreview() {
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-180px);
+            transform: translateY(-320px);
           }
           80% {
-            transform: translateY(-180px);
+            transform: translateY(-320px);
           }
           100% {
-            transform: translateY(-180px);
+            transform: translateY(-320px);
           }
         }
       `}</style>
