@@ -10,7 +10,10 @@ import {
   GripVertical,
   MessageSquare,
   Lightbulb,
-  Video
+  Video,
+  Download,
+  Pencil,
+  User
 } from "lucide-react";
 
 export function InteractiveCoursePreview() {
@@ -60,7 +63,7 @@ export function InteractiveCoursePreview() {
           </div>
           <div className="ml-3 flex-1 max-w-xs">
             <div className="bg-background/60 rounded px-2 py-0.5 text-[10px] text-muted-foreground">
-              brightminds.learncampus.app/course/algebra-101
+              brightminds.learncampus.app/course/sec3-math
             </div>
           </div>
         </div>
@@ -68,55 +71,68 @@ export function InteractiveCoursePreview() {
         {/* App Content */}
         <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Sidebar */}
-          <div className="w-44 border-r bg-muted/30 p-3 flex flex-col gap-2 shrink-0 sidebar-content">
-            <div className="text-[10px] font-medium text-foreground mb-1 anim-fade" style={{ "--delay": "0.3s" } as React.CSSProperties}>
-              Course Structure
+          <div className="w-48 border-r bg-muted/30 p-3 flex flex-col gap-2 shrink-0 sidebar-content">
+            <div className="text-[10px] font-medium text-foreground mb-1 flex items-center gap-1.5 anim-fade" style={{ "--delay": "0.3s" } as React.CSSProperties}>
+              <BookOpen className="h-3 w-3 text-primary" />
+              Sec 3 Mathematics
             </div>
             
             {/* Chapter 1 - Expands */}
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-[9px] font-medium text-foreground cursor-pointer anim-fade" style={{ "--delay": "0.5s" } as React.CSSProperties}>
                 <ChevronDown className="h-2.5 w-2.5 text-muted-foreground anim-rotate" style={{ "--delay": "1.2s" } as React.CSSProperties} />
-                Chapter 1: Basics
+                <span>Ch 1: Algebra Fundamentals</span>
               </div>
               
               {/* Pages reveal one by one */}
-              <div className="ml-3 space-y-0.5 overflow-hidden">
+              <div className="ml-4 space-y-0.5 overflow-hidden">
                 <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground anim-slide-down" style={{ "--delay": "1.4s" } as React.CSSProperties}>
                   <CheckCircle2 className="h-2.5 w-2.5 text-success" />
-                  Introduction
+                  <span>1.1 Introduction to Algebra</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground anim-slide-down" style={{ "--delay": "1.6s" } as React.CSSProperties}>
                   <CheckCircle2 className="h-2.5 w-2.5 text-success" />
-                  Variables
+                  <span>1.2 Variables & Constants</span>
                 </div>
                 <div 
                   className="flex items-center gap-1.5 text-[9px] font-medium text-foreground rounded px-1.5 py-0.5 -mx-1.5 anim-slide-down anim-highlight" 
                   style={{ "--delay": "1.8s", "--highlight-delay": "2.5s" } as React.CSSProperties}
                 >
                   <Play className="h-2.5 w-2.5 text-primary" />
-                  Expressions
+                  <span>1.3 Algebraic Expressions</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground anim-slide-down" style={{ "--delay": "2s" } as React.CSSProperties}>
                   <Circle className="h-2.5 w-2.5" />
-                  Practice Quiz
+                  <span>1.4 Simplifying Expressions</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground anim-slide-down" style={{ "--delay": "2.1s" } as React.CSSProperties}>
+                  <Circle className="h-2.5 w-2.5" />
+                  <span>Chapter Quiz</span>
                 </div>
               </div>
             </div>
 
             {/* Chapter 2 */}
-            <div className="space-y-1 mt-2 anim-fade" style={{ "--delay": "2.2s" } as React.CSSProperties}>
+            <div className="space-y-1 mt-1 anim-fade" style={{ "--delay": "2.3s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 text-[9px] font-medium text-muted-foreground">
                 <ChevronRight className="h-2.5 w-2.5" />
-                Chapter 2: Equations
+                <span>Ch 2: Linear Equations</span>
               </div>
             </div>
 
             {/* Chapter 3 */}
-            <div className="space-y-1 anim-fade" style={{ "--delay": "2.4s" } as React.CSSProperties}>
+            <div className="space-y-1 anim-fade" style={{ "--delay": "2.5s" } as React.CSSProperties}>
               <div className="flex items-center gap-1.5 text-[9px] font-medium text-muted-foreground">
                 <ChevronRight className="h-2.5 w-2.5" />
-                Chapter 3: Graphing
+                <span>Ch 3: Simultaneous Equations</span>
+              </div>
+            </div>
+
+            {/* Chapter 4 */}
+            <div className="space-y-1 anim-fade" style={{ "--delay": "2.6s" } as React.CSSProperties}>
+              <div className="flex items-center gap-1.5 text-[9px] font-medium text-muted-foreground">
+                <ChevronRight className="h-2.5 w-2.5" />
+                <span>Ch 4: Quadratic Expressions</span>
               </div>
             </div>
           </div>
@@ -126,116 +142,217 @@ export function InteractiveCoursePreview() {
             <div className="space-y-3">
               {/* Page Header */}
               <div className="mb-3 anim-fade" style={{ "--delay": "0.8s" } as React.CSSProperties}>
-                <h4 className="text-sm font-semibold text-foreground">Algebraic Expressions</h4>
-                <p className="text-[10px] text-muted-foreground">Learn how to write and simplify expressions</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-foreground">1.3 Algebraic Expressions</h4>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">Required</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  Learn to identify, write, and interpret algebraic expressions. By the end of this lesson, you'll be able to identify coefficients, variables, and constants in any expression.
+                </p>
               </div>
 
-              {/* Block 1: Video Lesson */}
+              {/* Block 1: Video Lesson with Whiteboard Content */}
               <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "1.2s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
                     <Video className="h-2.5 w-2.5 text-primary" />
                   </div>
-                  <span className="text-[10px] font-medium">Understanding Expressions</span>
+                  <span className="text-[10px] font-medium">Video: Understanding Algebraic Expressions</span>
                   <span className="text-[9px] text-muted-foreground ml-auto">8:24</span>
                 </div>
-                <div className="aspect-[16/7] bg-foreground/5 rounded relative overflow-hidden">
-                  {/* Video thumbnail with math content */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5">
-                    <div className="text-center">
-                      <div className="text-lg font-semibold text-foreground/40 mb-1">2x + 3y</div>
-                      <div className="text-[8px] text-muted-foreground">Expression with two terms</div>
+                <div className="aspect-[16/7] bg-slate-900 rounded relative overflow-hidden">
+                  {/* Whiteboard-style video thumbnail */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 p-3">
+                    {/* Tutor avatar */}
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5 anim-fade" style={{ "--delay": "2.4s" } as React.CSSProperties}>
+                      <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center">
+                        <span className="text-[7px] font-medium text-primary-foreground">AR</span>
+                      </div>
+                      <span className="text-[8px] text-slate-400">Mr. Ahmad</span>
+                    </div>
+                    
+                    {/* Whiteboard content - expression breakdown */}
+                    <div className="flex flex-col items-center justify-center h-full pt-2">
+                      <div className="text-center anim-math-reveal" style={{ "--delay": "2.6s" } as React.CSSProperties}>
+                        <div className="text-lg font-mono text-white mb-2 tracking-wider">
+                          <span className="text-blue-400">4</span><span className="text-green-400">x²</span> 
+                          <span className="text-white/60"> + </span>
+                          <span className="text-blue-400">3</span><span className="text-green-400">x</span>
+                          <span className="text-white/60"> − </span>
+                          <span className="text-orange-400">7</span>
+                        </div>
+                        {/* Labels */}
+                        <div className="flex justify-center gap-4 text-[7px] mt-1">
+                          <div className="flex flex-col items-center">
+                            <div className="w-px h-2 bg-blue-400/50" />
+                            <span className="text-blue-400">coefficient</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-px h-2 bg-green-400/50" />
+                            <span className="text-green-400">variable</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="w-px h-2 bg-orange-400/50" />
+                            <span className="text-orange-400">constant</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="anim-play-button absolute inset-0 flex items-center justify-center" style={{ "--delay": "2.2s" } as React.CSSProperties}>
-                    <div className="w-7 h-7 rounded-full bg-primary/90 flex items-center justify-center shadow-lg">
-                      <Play className="h-2.5 w-2.5 text-primary-foreground ml-0.5" />
+                  
+                  {/* Play button overlay */}
+                  <div className="anim-play-button absolute inset-0 flex items-center justify-center bg-black/20" style={{ "--delay": "2.2s" } as React.CSSProperties}>
+                    <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                      <Play className="h-3 w-3 text-slate-900 ml-0.5" />
                     </div>
                   </div>
+                  
                   {/* Video Progress */}
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/10">
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
                     <div className="h-full bg-primary rounded-r anim-progress" style={{ "--delay": "3s", "--width": "72%" } as React.CSSProperties} />
                   </div>
                 </div>
+                {/* Watched indicator */}
+                <div className="flex items-center gap-1.5 mt-2 anim-fade" style={{ "--delay": "3.5s" } as React.CSSProperties}>
+                  <CheckCircle2 className="h-3 w-3 text-success" />
+                  <span className="text-[9px] text-muted-foreground">Watched</span>
+                </div>
               </div>
 
-              {/* Block 2: Text Content */}
+              {/* Block 2: Key Concepts - Text Content */}
               <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "1.5s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-accent/10 flex items-center justify-center">
-                    <FileText className="h-2.5 w-2.5 text-accent" />
+                    <FileText className="h-2.5 w-2.5 text-accent-foreground" />
                   </div>
-                  <span className="text-[10px] font-medium">Key Vocabulary</span>
+                  <span className="text-[10px] font-medium">Key Terms to Remember</span>
                 </div>
-                <div className="space-y-1.5 text-[9px] text-muted-foreground">
-                  <div className="anim-text-line" style={{ "--delay": "2.4s" } as React.CSSProperties}>
-                    <span className="font-medium text-foreground">Variable:</span> A letter that represents an unknown value (x, y, n)
+                <div className="space-y-2 text-[9px]">
+                  <div className="anim-text-line flex gap-2" style={{ "--delay": "2.8s" } as React.CSSProperties}>
+                    <span className="font-semibold text-foreground min-w-[70px]">Variable</span>
+                    <span className="text-muted-foreground">A letter representing an unknown value (e.g., <span className="font-mono text-foreground">x</span>, <span className="font-mono text-foreground">y</span>, <span className="font-mono text-foreground">n</span>)</span>
                   </div>
-                  <div className="anim-text-line" style={{ "--delay": "2.6s" } as React.CSSProperties}>
-                    <span className="font-medium text-foreground">Coefficient:</span> The number multiplied by a variable (3 in 3x)
+                  <div className="anim-text-line flex gap-2" style={{ "--delay": "3s" } as React.CSSProperties}>
+                    <span className="font-semibold text-foreground min-w-[70px]">Coefficient</span>
+                    <span className="text-muted-foreground">The number in front of a variable (e.g., <span className="font-mono text-foreground">3</span> in <span className="font-mono text-foreground">3x</span>)</span>
                   </div>
-                  <div className="anim-text-line" style={{ "--delay": "2.8s" } as React.CSSProperties}>
-                    <span className="font-medium text-foreground">Term:</span> A single part of an expression (2x or 5)
+                  <div className="anim-text-line flex gap-2" style={{ "--delay": "3.2s" } as React.CSSProperties}>
+                    <span className="font-semibold text-foreground min-w-[70px]">Constant</span>
+                    <span className="text-muted-foreground">A fixed number with no variable (e.g., <span className="font-mono text-foreground">+5</span> or <span className="font-mono text-foreground">−2</span>)</span>
+                  </div>
+                  <div className="anim-text-line flex gap-2" style={{ "--delay": "3.4s" } as React.CSSProperties}>
+                    <span className="font-semibold text-foreground min-w-[70px]">Like Terms</span>
+                    <span className="text-muted-foreground">Terms with identical variables and powers (<span className="font-mono text-foreground">3x</span> and <span className="font-mono text-foreground">5x</span>)</span>
                   </div>
                 </div>
               </div>
 
-              {/* Block 3: Drag & Drop Reorder */}
+              {/* Block 3: Micro Quiz - Quick Check */}
               <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "1.8s" } as React.CSSProperties}>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 rounded bg-info/10 flex items-center justify-center">
-                    <GripVertical className="h-2.5 w-2.5 text-info" />
-                  </div>
-                  <span className="text-[10px] font-medium">Order the Steps</span>
-                  <span className="text-[8px] text-muted-foreground ml-auto">Drag to reorder</span>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "3.2s", "--move": "0px" } as React.CSSProperties}>
-                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
-                    <span className="text-[9px]">1. Identify like terms</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item anim-dragging" style={{ "--delay": "3.6s", "--move": "28px" } as React.CSSProperties}>
-                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
-                    <span className="text-[9px]">2. Combine coefficients</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "3.4s", "--move": "-28px" } as React.CSSProperties}>
-                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
-                    <span className="text-[9px]">3. Simplify the expression</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Block 4: Micro Quiz */}
-              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.1s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-success/10 flex items-center justify-center">
                     <Lightbulb className="h-2.5 w-2.5 text-success" />
                   </div>
                   <span className="text-[10px] font-medium">Quick Check</span>
-                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-success/10 text-success ml-auto">+5 pts</span>
+                  <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-success/10 text-success ml-auto anim-fade" style={{ "--delay": "4.8s" } as React.CSSProperties}>+5 pts</span>
                 </div>
-                <p className="text-[10px] text-foreground mb-2">Simplify: 4x + 2x + 3 = ?</p>
+                <p className="text-[10px] text-foreground mb-2">
+                  In the expression <span className="font-mono font-semibold">5y − 2</span>, what is the coefficient of <span className="font-mono">y</span>?
+                </p>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-[9px] text-muted-foreground px-2 py-1 rounded border border-transparent">
                     <Circle className="h-2.5 w-2.5" />
-                    <span>6x + 3x</span>
+                    <span className="font-mono">y</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[9px] px-2 py-1 rounded anim-answer-select" style={{ "--delay": "4.5s" } as React.CSSProperties}>
-                    <CheckCircle2 className="h-2.5 w-2.5 anim-check" style={{ "--delay": "4.7s" } as React.CSSProperties} />
-                    <span className="font-medium text-foreground">6x + 3</span>
-                    <span className="ml-auto text-success text-[8px] anim-fade" style={{ "--delay": "4.9s" } as React.CSSProperties}>
+                  <div className="flex items-center gap-2 text-[9px] px-2 py-1 rounded border anim-answer-select" style={{ "--delay": "4.2s" } as React.CSSProperties}>
+                    <CheckCircle2 className="h-2.5 w-2.5 anim-check" style={{ "--delay": "4.4s" } as React.CSSProperties} />
+                    <span className="font-mono font-medium text-foreground">5</span>
+                    <span className="ml-auto text-success text-[8px] anim-fade" style={{ "--delay": "4.6s" } as React.CSSProperties}>
                       ✓ Correct!
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-[9px] text-muted-foreground px-2 py-1 rounded border border-transparent">
                     <Circle className="h-2.5 w-2.5" />
-                    <span>4x + 5</span>
+                    <span className="font-mono">−2</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[9px] text-muted-foreground px-2 py-1 rounded border border-transparent">
+                    <Circle className="h-2.5 w-2.5" />
+                    <span className="font-mono">5y</span>
+                  </div>
+                </div>
+                {/* Feedback */}
+                <div className="mt-2 p-2 bg-success/5 rounded border border-success/20 anim-fade" style={{ "--delay": "4.8s" } as React.CSSProperties}>
+                  <p className="text-[9px] text-success">The coefficient is the number multiplied by the variable. In 5y, the coefficient is 5.</p>
+                </div>
+              </div>
+
+              {/* Block 4: Drag & Drop Reorder - Simplification Steps */}
+              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.1s" } as React.CSSProperties}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded bg-info/10 flex items-center justify-center">
+                    <GripVertical className="h-2.5 w-2.5 text-info" />
+                  </div>
+                  <span className="text-[10px] font-medium">Order the Simplification Steps</span>
+                  <span className="text-[8px] text-muted-foreground ml-auto">Drag to reorder</span>
+                </div>
+                <p className="text-[9px] text-muted-foreground mb-2">
+                  Arrange these steps to simplify: <span className="font-mono text-foreground">2a + 3b − a + 4b</span>
+                </p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5s", "--move": "0px" } as React.CSSProperties}>
+                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+                    <span className="text-[9px]">1. Identify like terms: (2a, −a) and (3b, 4b)</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5.2s", "--move": "0px" } as React.CSSProperties}>
+                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+                    <span className="text-[9px]">2. Combine: 2a − a = a</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item anim-dragging" style={{ "--delay": "5.4s", "--move": "28px" } as React.CSSProperties}>
+                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+                    <span className="text-[9px]">3. Combine: 3b + 4b = 7b</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-background/60 rounded px-2 py-1.5 border anim-reorder-item" style={{ "--delay": "5.6s", "--move": "-28px" } as React.CSSProperties}>
+                    <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+                    <span className="text-[9px]">4. Final answer: <span className="font-mono font-medium">a + 7b</span></span>
+                  </div>
+                </div>
+                {/* Success indicator */}
+                <div className="flex items-center gap-1.5 mt-2 anim-fade" style={{ "--delay": "6.2s" } as React.CSSProperties}>
+                  <CheckCircle2 className="h-3 w-3 text-success" />
+                  <span className="text-[9px] text-success">Correct order!</span>
+                </div>
+              </div>
+
+              {/* Block 5: Whiteboard Submission */}
+              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.4s" } as React.CSSProperties}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded bg-purple-500/10 flex items-center justify-center">
+                    <Pencil className="h-2.5 w-2.5 text-purple-600" />
+                  </div>
+                  <span className="text-[10px] font-medium">Your Turn: Show Your Working</span>
+                </div>
+                <p className="text-[9px] text-muted-foreground mb-2">
+                  Simplify this expression on the whiteboard: <span className="font-mono text-foreground">6m − 2n + 3m + 5n</span>
+                </p>
+                <div className="aspect-[16/5] bg-white rounded border-2 border-dashed border-muted-foreground/20 flex items-center justify-center">
+                  <div className="text-center text-[9px] text-muted-foreground anim-fade" style={{ "--delay": "6.4s" } as React.CSSProperties}>
+                    <Pencil className="h-4 w-4 mx-auto mb-1 opacity-40" />
+                    Draw or write your working
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-[8px] text-muted-foreground anim-fade" style={{ "--delay": "6.5s" } as React.CSSProperties}>
+                    <span className="anim-submission-count">1/1 submitted</span>
+                  </span>
+                  <div className="flex items-center gap-1 anim-fade" style={{ "--delay": "6.6s" } as React.CSSProperties}>
+                    <CheckCircle2 className="h-2.5 w-2.5 text-success" />
+                    <span className="text-[8px] text-success">Submitted</span>
                   </div>
                 </div>
               </div>
 
-              {/* Block 5: Reflection */}
-              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.4s" } as React.CSSProperties}>
+              {/* Block 6: Reflection Prompt */}
+              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "2.7s" } as React.CSSProperties}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-5 h-5 rounded bg-warning/10 flex items-center justify-center">
                     <MessageSquare className="h-2.5 w-2.5 text-warning" />
@@ -243,16 +360,45 @@ export function InteractiveCoursePreview() {
                   <span className="text-[10px] font-medium">Reflection</span>
                   <span className="text-[8px] text-muted-foreground ml-auto">Min 50 words</span>
                 </div>
-                <div className="bg-background/50 rounded p-2 border text-[9px] text-muted-foreground min-h-[40px]">
-                  <span className="anim-typing" style={{ "--delay": "5.2s" } as React.CSSProperties}>
-                    Why is it important to combine like terms when simplifying expressions?
+                <p className="text-[9px] text-muted-foreground mb-2">
+                  Why is it important to identify like terms before simplifying an algebraic expression?
+                </p>
+                <div className="bg-background/50 rounded p-2 border text-[9px] text-foreground min-h-[50px] relative">
+                  <span className="anim-typing" style={{ "--delay": "6.8s" } as React.CSSProperties}>
+                    Like terms have the same variable and power, so we can only combine numbers with matching variables. For example, 3x and 5x can be added because they're both...
                   </span>
+                  <span className="anim-cursor" style={{ "--delay": "6.8s" } as React.CSSProperties}>|</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 anim-fade" style={{ "--delay": "5.8s" } as React.CSSProperties}>
-                  <span className="text-[8px] text-muted-foreground">Share with class</span>
-                  <div className="w-6 h-3 rounded-full bg-primary/20 relative">
-                    <div className="absolute right-0.5 top-0.5 w-2 h-2 rounded-full bg-primary" />
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2 anim-fade" style={{ "--delay": "7.5s" } as React.CSSProperties}>
+                    <span className="text-[8px] text-muted-foreground">Share with class</span>
+                    <div className="w-6 h-3 rounded-full bg-primary relative">
+                      <div className="absolute right-0.5 top-0.5 w-2 h-2 rounded-full bg-white" />
+                    </div>
                   </div>
+                  <span className="text-[8px] text-muted-foreground anim-fade" style={{ "--delay": "7.3s" } as React.CSSProperties}>38/50 words</span>
+                </div>
+              </div>
+
+              {/* Block 7: Resource Download */}
+              <div className="bg-muted/50 rounded-lg p-3 border anim-slide-up" style={{ "--delay": "3s" } as React.CSSProperties}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 rounded bg-blue-500/10 flex items-center justify-center">
+                    <Download className="h-2.5 w-2.5 text-blue-600" />
+                  </div>
+                  <span className="text-[10px] font-medium">Practice Worksheet</span>
+                </div>
+                <div className="flex items-center gap-3 bg-background/50 rounded p-2 border">
+                  <div className="w-8 h-10 bg-red-500/10 rounded flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-red-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-medium text-foreground truncate">Algebraic_Expressions_Practice.pdf</p>
+                    <p className="text-[8px] text-muted-foreground">12 practice questions with answers</p>
+                  </div>
+                  <button className="px-2 py-1 text-[8px] bg-primary text-primary-foreground rounded hover:bg-primary/90">
+                    Download
+                  </button>
                 </div>
               </div>
             </div>
@@ -261,11 +407,11 @@ export function InteractiveCoursePreview() {
 
         {/* Bottom Progress Bar */}
         <div className="h-8 border-t bg-muted/30 flex items-center px-4 gap-3 shrink-0 anim-fade" style={{ "--delay": "0.6s" } as React.CSSProperties}>
-          <span className="text-[10px] text-muted-foreground">Progress</span>
+          <span className="text-[10px] text-muted-foreground">Lesson Progress</span>
           <div className="flex-1 h-1.5 bg-foreground/10 rounded-full overflow-hidden">
             <div className="h-full bg-success rounded-full anim-progress-bar" style={{ "--delay": "2.5s" } as React.CSSProperties} />
           </div>
-          <span className="text-[10px] font-medium text-foreground tabular-nums min-w-[28px] text-right anim-fade" style={{ "--delay": "2.5s" } as React.CSSProperties}>
+          <span className="text-[10px] font-medium text-foreground tabular-nums min-w-[28px] text-right anim-counter" style={{ "--delay": "2.5s" } as React.CSSProperties}>
             67%
           </span>
         </div>
@@ -285,7 +431,10 @@ export function InteractiveCoursePreview() {
         .preview-container.paused .anim-answer-select,
         .preview-container.paused .anim-check,
         .preview-container.paused .anim-typing,
+        .preview-container.paused .anim-cursor,
         .preview-container.paused .anim-reorder-item,
+        .preview-container.paused .anim-math-reveal,
+        .preview-container.paused .anim-counter,
         .preview-container.paused .sidebar-content {
           opacity: 0;
         }
@@ -364,8 +513,14 @@ export function InteractiveCoursePreview() {
         }
 
         .preview-container.animate .anim-typing {
-          animation: typing-reveal 1.5s ease-out forwards;
+          animation: typing-reveal 2s ease-out forwards;
           animation-delay: var(--delay, 0s);
+          opacity: 0;
+        }
+
+        .preview-container.animate .anim-cursor {
+          animation: cursor-blink 0.5s step-end infinite, fade-in 0.1s ease-out forwards;
+          animation-delay: calc(var(--delay, 0s) + 0.5s);
           opacity: 0;
         }
 
@@ -378,6 +533,18 @@ export function InteractiveCoursePreview() {
         .preview-container.animate .anim-reorder-item.anim-dragging {
           animation: reorder-slide 0.5s ease-out forwards, drag-effect 0.8s ease-in-out forwards;
           animation-delay: var(--delay, 0s), calc(var(--delay, 0s) + 0.8s);
+        }
+
+        .preview-container.animate .anim-math-reveal {
+          animation: math-reveal 0.6s ease-out forwards;
+          animation-delay: var(--delay, 0s);
+          opacity: 0;
+        }
+
+        .preview-container.animate .anim-counter {
+          animation: fade-in 0.4s ease-out forwards;
+          animation-delay: var(--delay, 0s);
+          opacity: 0;
         }
 
         @keyframes slide-in-left {
@@ -486,13 +653,21 @@ export function InteractiveCoursePreview() {
         @keyframes typing-reveal {
           0% { 
             opacity: 0;
+            max-width: 0;
           }
-          10% {
+          5% {
             opacity: 1;
+            max-width: 0;
           }
           100% { 
             opacity: 1;
+            max-width: 100%;
           }
+        }
+
+        @keyframes cursor-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
 
         @keyframes reorder-slide {
@@ -523,6 +698,17 @@ export function InteractiveCoursePreview() {
           100% { 
             transform: translateY(0);
             box-shadow: none;
+          }
+        }
+
+        @keyframes math-reveal {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
           }
         }
       `}</style>
