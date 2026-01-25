@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   Plus, 
@@ -40,33 +41,16 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { demoQuizzes } from "@/lib/quiz-types";
 import { demoCourses } from "@/lib/demo-data";
 import { useToast } from "@/hooks/use-toast";
 
-interface Quiz {
-  id: string;
-  title: string;
-  courseId: string;
-  questionsCount: number;
-  duration: number;
-  status: 'draft' | 'published' | 'archived';
-  attempts: number;
-  avgScore: number;
-  createdAt: string;
-}
-
-const demoQuizzes: Quiz[] = [
-  { id: 'quiz-1', title: 'Quadratic Equations - Chapter Test', courseId: 'course-1', questionsCount: 10, duration: 30, status: 'published', attempts: 18, avgScore: 76, createdAt: '2024-01-15' },
-  { id: 'quiz-2', title: 'Indices Quick Check', courseId: 'course-1', questionsCount: 5, duration: 10, status: 'published', attempts: 24, avgScore: 82, createdAt: '2024-01-18' },
-  { id: 'quiz-3', title: 'Energy Forms Assessment', courseId: 'course-2', questionsCount: 15, duration: 45, status: 'published', attempts: 28, avgScore: 71, createdAt: '2024-01-10' },
-  { id: 'quiz-4', title: 'Polynomials Practice', courseId: 'course-1', questionsCount: 8, duration: 20, status: 'draft', attempts: 0, avgScore: 0, createdAt: '2024-01-20' },
-];
-
 export function QuizzesPage() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<typeof demoQuizzes[0] | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
 
   const filteredQuizzes = demoQuizzes.filter((quiz) =>
@@ -83,30 +67,36 @@ export function QuizzesPage() {
       description: "New quiz has been created as a draft.",
     });
     setCreateDialogOpen(false);
+    // Navigate to the new quiz builder
+    setTimeout(() => navigate('/app/quizzes/new-quiz'), 300);
   };
 
-  const handlePublishQuiz = (quiz: Quiz) => {
+  const handleEditQuiz = (quiz: typeof demoQuizzes[0]) => {
+    navigate(`/app/quizzes/${quiz.id}`);
+  };
+
+  const handlePublishQuiz = (quiz: typeof demoQuizzes[0]) => {
     toast({
       title: "Quiz Published",
       description: `${quiz.title} is now available to students.`,
     });
   };
 
-  const handleDuplicateQuiz = (quiz: Quiz) => {
+  const handleDuplicateQuiz = (quiz: typeof demoQuizzes[0]) => {
     toast({
       title: "Quiz Duplicated",
       description: `Copy of ${quiz.title} created.`,
     });
   };
 
-  const handleDeleteQuiz = (quiz: Quiz) => {
+  const handleDeleteQuiz = (quiz: typeof demoQuizzes[0]) => {
     toast({
       title: "Quiz Deleted",
       description: `${quiz.title} has been removed.`,
     });
   };
 
-  const handlePreview = (quiz: Quiz) => {
+  const handlePreview = (quiz: typeof demoQuizzes[0]) => {
     setSelectedQuiz(quiz);
     setPreviewDialogOpen(true);
   };
@@ -197,7 +187,7 @@ export function QuizzesPage() {
                       <Eye className="h-4 w-4 mr-2" />
                       Preview
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleEditQuiz(quiz)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Quiz
                     </DropdownMenuItem>
