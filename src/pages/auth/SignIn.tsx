@@ -10,12 +10,12 @@ export function SignInPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <Link to="/" className="flex items-center justify-center gap-2 mb-8 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="text-xl font-semibold">LearnCampus</span>
-        </div>
+        </Link>
 
         {/* Header */}
         <div className="text-center mb-8">
