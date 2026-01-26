@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProgressRing } from "@/components/ui/progress-ring";
+import { PageHeader } from "@/components/ui/page-header";
 import { demoCourses, demoSessions } from "@/lib/demo-data";
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,16 +39,16 @@ export function StudentDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Welcome back, Wei Lin!</h1>
-          <p className="text-sm text-muted-foreground">Keep up the great work. You're making progress!</p>
-        </div>
-        <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
-          <Star className="h-3.5 w-3.5 text-foreground" />
-          <span className="text-sm font-medium">450 points</span>
-        </div>
-      </div>
+      <PageHeader
+        title="Welcome back, Wei Lin!"
+        description="Keep up the great work. You're making progress!"
+        actions={
+          <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-md">
+            <Star className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-sm font-medium">450 points</span>
+          </div>
+        }
+      />
 
       {/* Next Session CTA */}
       {nextSession && (

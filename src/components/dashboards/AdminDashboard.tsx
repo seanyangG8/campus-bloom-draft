@@ -15,6 +15,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ProgressRing } from "@/components/ui/progress-ring";
+import { PageHeader } from "@/components/ui/page-header";
 import { demoCourses, demoStudents, demoSessions, demoInvoices } from "@/lib/demo-data";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -44,10 +45,10 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Welcome back! Here's what's happening at your centre.</p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Welcome back! Here's what's happening at your centre."
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
