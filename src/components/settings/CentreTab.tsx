@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Save, 
   Upload, 
   Building2,
   Palette,
   Globe,
-  CreditCard,
-  FileText
+  FileText,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 export function CentreTab() {
   const { toast } = useToast();
-  const { currentCentre, setCurrentCentre } = useApp();
+  const { currentCentre, setCurrentCentre, currentTheme, setCurrentTheme } = useApp();
   
   const [centreForm, setCentreForm] = useState({
     name: currentCentre.name,
@@ -34,10 +34,23 @@ export function CentreTab() {
     timezone: currentCentre.timezone || 'Asia/Singapore',
     currency: currentCentre.currency || 'SGD',
     invoicePrefix: currentCentre.invoicePrefix || 'INV',
-    themeId: currentCentre.themeId || 'theme-navy',
+    themeId: currentTheme?.id || currentCentre.themeId || 'theme-navy',
   });
 
+  // Sync theme selection with current theme
+  useEffect(() => {
+    if (currentTheme) {
+      setCentreForm(prev => ({ ...prev, themeId: currentTheme.id }));
+    }
+  }, [currentTheme]);
+
   const selectedTheme = centreThemes.find(t => t.id === centreForm.themeId) || centreThemes[0];
+
+  const handleThemeSelect = (theme: CentreTheme) => {
+    setCentreForm({ ...centreForm, themeId: theme.id });
+    // Apply theme immediately for live preview
+    setCurrentTheme(theme);
+  };
 
   const handleSave = () => {
     setCurrentCentre({
@@ -204,25 +217,33 @@ export function CentreTab() {
           <Palette className="h-4 w-4" />
           Theme Selection
         </h3>
+        <p className="text-xs text-muted-foreground">
+          Select a theme to customize your portal's accent colors. Changes apply immediately.
+        </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {centreThemes.map((theme) => (
             <button
               key={theme.id}
-              onClick={() => setCentreForm({ ...centreForm, themeId: theme.id })}
+              onClick={() => handleThemeSelect(theme)}
               className={cn(
-                "p-3 rounded-lg border-2 transition-all text-left",
+                "p-3 rounded-lg border-2 transition-all text-left relative",
                 centreForm.themeId === theme.id 
-                  ? "border-primary bg-primary/5" 
+                  ? "border-foreground bg-muted/30" 
                   : "border-border hover:border-muted-foreground/50"
               )}
             >
+              {centreForm.themeId === theme.id && (
+                <div className="absolute top-2 right-2">
+                  <Check className="h-4 w-4 text-foreground" />
+                </div>
+              )}
               <div className="flex items-center gap-2 mb-2">
                 <div 
-                  className="w-5 h-5 rounded-full"
+                  className="w-6 h-6 rounded-full border border-border/50"
                   style={{ backgroundColor: theme.primaryColor }}
                 />
                 <div 
-                  className="w-5 h-5 rounded-full"
+                  className="w-6 h-6 rounded-full border border-border/50"
                   style={{ backgroundColor: theme.secondaryColor }}
                 />
               </div>
