@@ -12,7 +12,8 @@ import {
   Edit,
   Plus,
   Download,
-  MoreHorizontal
+  MoreHorizontal,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,10 +34,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { demoStudents, demoInvoices, demoCourses, demoSessions } from "@/lib/demo-data";
+import { demoStudents, demoInvoices, demoCourses, demoSessions, demoParents } from "@/lib/demo-data";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { EditStudentDialog, AddMakeUpCreditDialog } from "@/components/dialogs";
+import { OverviewTab, LearningTab, MessagesTab, ActivityEvent } from "@/components/student-profile";
 
 export function StudentProfilePage() {
   const { studentId } = useParams();
@@ -51,6 +53,35 @@ export function StudentProfilePage() {
   const studentInvoices = demoInvoices.filter(i => i.studentId === student.id);
   const enrolledCourses = demoCourses.slice(0, student.enrolledCourses);
   const attendanceHistory = demoSessions.slice(0, 5);
+  const parent = demoParents.find(p => p.studentIds.includes(student.id));
+
+  // Mock data for new tabs
+  const courseProgress = enrolledCourses.map(course => ({
+    id: course.id,
+    title: course.title,
+    subject: course.subject,
+    level: course.level,
+    chaptersCompleted: Math.floor(course.chaptersCount * (course.completionRate / 100)),
+    chaptersTotal: course.chaptersCount,
+    pagesCompleted: Math.floor(course.chaptersCount * 4 * (course.completionRate / 100)),
+    pagesTotal: course.chaptersCount * 4,
+    completionRate: course.completionRate,
+    lastActivity: student.lastActive,
+  }));
+
+  const activityEvents: ActivityEvent[] = [
+    { id: 'ae-1', type: 'attendance', title: 'Attended Session', description: 'Sec 3 Math - Quadratic Equations', timestamp: '2 hours ago', status: 'success' },
+    { id: 'ae-2', type: 'submission', title: 'Assignment Graded', description: 'Chapter 2 Quiz - Score: 85%', timestamp: '1 day ago', status: 'success' },
+    { id: 'ae-3', type: 'invoice', title: 'Invoice Paid', description: 'Jan 2024 - $480 SGD', timestamp: '3 days ago', status: 'success' },
+    { id: 'ae-4', type: 'message', title: 'Message Sent', description: 'Progress update to parent', timestamp: '5 days ago', status: 'neutral' },
+    { id: 'ae-5', type: 'attendance', title: 'Absent', description: 'P6 Science - Energy Conversion', timestamp: '1 week ago', status: 'warning' },
+  ];
+
+  const messageThreads = [
+    { id: 'mt-1', subject: 'Progress Update', lastMessage: 'Great improvement in the latest quiz!', sender: 'Mr. Ahmad Rahman', timestamp: '2 days ago', unread: false },
+    { id: 'mt-2', subject: 'Make-up Session', lastMessage: 'Confirmed for Saturday 9am', sender: 'Admin', timestamp: '5 days ago', unread: false },
+    { id: 'mt-3', subject: 'Invoice Query', lastMessage: 'Payment confirmed, thank you!', sender: 'Parent', timestamp: '1 week ago', unread: false },
+  ];
 
   const handleSendMessage = () => {
     toast({
@@ -159,11 +190,15 @@ export function StudentProfilePage() {
       </motion.div>
 
       {/* Tabs */}
-      <Tabs defaultValue="courses" className="space-y-4">
+      <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="w-full sm:w-auto flex overflow-x-auto">
-          <TabsTrigger value="courses" className="gap-2 flex-1 sm:flex-none">
+          <TabsTrigger value="overview" className="gap-2 flex-1 sm:flex-none">
             <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">Courses</span>
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="learning" className="gap-2 flex-1 sm:flex-none">
+            <GraduationCap className="h-4 w-4" />
+            <span className="hidden sm:inline">Learning</span>
           </TabsTrigger>
           <TabsTrigger value="attendance" className="gap-2 flex-1 sm:flex-none">
             <Calendar className="h-4 w-4" />
@@ -173,65 +208,34 @@ export function StudentProfilePage() {
             <CreditCard className="h-4 w-4" />
             <span className="hidden sm:inline">Billing</span>
           </TabsTrigger>
+          <TabsTrigger value="messages" className="gap-2 flex-1 sm:flex-none">
+            <MessageSquare className="h-4 w-4" />
+            <span className="hidden sm:inline">Messages</span>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="courses">
-          <motion.div
-            className="bg-card rounded-xl border shadow-card"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Course</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {enrolledCourses.map((course) => (
-                  <TableRow key={course.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{course.title}</p>
-                        <p className="text-xs text-muted-foreground">{course.subject}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>{course.level}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-accent rounded-full" 
-                            style={{ width: `${course.completionRate}%` }}
-                          />
-                        </div>
-                        <span className="text-xs">{course.completionRate}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status="success" label={course.status} />
-                    </TableCell>
-                    <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => navigate(`/app/courses/${course.id}`)}
-                      >
-                        View
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </motion.div>
+        {/* Overview Tab */}
+        <TabsContent value="overview">
+          <OverviewTab 
+            student={student}
+            courses={enrolledCourses.map(c => ({
+              id: c.id,
+              title: c.title,
+              level: c.level,
+              progress: c.completionRate,
+              status: c.status,
+            }))}
+            attendanceRate={92}
+            activityEvents={activityEvents}
+          />
         </TabsContent>
 
+        {/* Learning Tab */}
+        <TabsContent value="learning">
+          <LearningTab courses={courseProgress} />
+        </TabsContent>
+
+        {/* Attendance Tab */}
         <TabsContent value="attendance">
           <motion.div
             className="bg-card rounded-xl border shadow-card"
@@ -285,6 +289,7 @@ export function StudentProfilePage() {
           </motion.div>
         </TabsContent>
 
+        {/* Billing Tab */}
         <TabsContent value="billing">
           <motion.div
             className="bg-card rounded-xl border shadow-card"
@@ -330,6 +335,16 @@ export function StudentProfilePage() {
               </TableBody>
             </Table>
           </motion.div>
+        </TabsContent>
+
+        {/* Messages Tab */}
+        <TabsContent value="messages">
+          <MessagesTab 
+            threads={messageThreads}
+            studentName={student.name}
+            parentName={parent?.name}
+            parentPhone={parent?.phone}
+          />
         </TabsContent>
       </Tabs>
 
