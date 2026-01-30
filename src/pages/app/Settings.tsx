@@ -4,12 +4,12 @@ import {
   User, 
   Bell, 
   Shield, 
-  Palette, 
   Building2,
   Mail,
   Phone,
   Save,
-  Camera
+  Camera,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +19,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/contexts/AppContext";
+import { CentreTab } from "@/components/settings/CentreTab";
+import { TeamTab } from "@/components/settings/TeamTab";
 
 export function SettingsPage() {
   const { toast } = useToast();
-  const { currentUser, currentCentre, currentRole } = useApp();
+  const { currentUser, currentRole } = useApp();
   const [profileForm, setProfileForm] = useState({
     name: currentUser.name,
     email: currentUser.email,
@@ -66,7 +68,7 @@ export function SettingsPage() {
         transition={{ delay: 0.1 }}
       >
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-muted/50">
+          <TabsList className="bg-muted/50 flex-wrap h-auto gap-1">
             <TabsTrigger value="profile" className="gap-2">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -80,6 +82,10 @@ export function SettingsPage() {
                 <TabsTrigger value="centre" className="gap-2">
                   <Building2 className="h-4 w-4" />
                   <span className="hidden sm:inline">Centre</span>
+                </TabsTrigger>
+                <TabsTrigger value="team" className="gap-2">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Team</span>
                 </TabsTrigger>
                 <TabsTrigger value="security" className="gap-2">
                   <Shield className="h-4 w-4" />
@@ -229,46 +235,12 @@ export function SettingsPage() {
 
           {/* Centre Tab (Admin only) */}
           <TabsContent value="centre">
-            <div className="bg-card rounded-xl border shadow-card p-6 space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold">Centre Settings</h2>
-                <p className="text-sm text-muted-foreground">Manage your tuition centre details</p>
-              </div>
-              <Separator />
+            <CentreTab />
+          </TabsContent>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Centre Name</Label>
-                  <Input defaultValue={currentCentre.name} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Subdomain</Label>
-                  <div className="flex">
-                    <Input defaultValue={currentCentre.subdomain} className="rounded-r-none" />
-                    <div className="flex items-center px-3 border border-l-0 rounded-r-md bg-muted text-sm text-muted-foreground">
-                      .campus.edu
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label>Primary Color</Label>
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-10 h-10 rounded-lg border"
-                      style={{ backgroundColor: currentCentre.primaryColor }}
-                    />
-                    <Input defaultValue={currentCentre.primaryColor} className="max-w-[150px]" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button className="gap-2">
-                  <Save className="h-4 w-4" />
-                  Save Centre Settings
-                </Button>
-              </div>
-            </div>
+          {/* Team Tab (Admin only) */}
+          <TabsContent value="team">
+            <TeamTab />
           </TabsContent>
 
           {/* Security Tab (Admin only) */}
