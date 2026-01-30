@@ -2,12 +2,38 @@
 
 export type UserRole = 'admin' | 'tutor' | 'student' | 'parent';
 
+export type TeamMemberRole = 'owner' | 'admin' | 'tutor';
+
+export type TeamMemberStatus = 'active' | 'invited' | 'deactivated';
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: TeamMemberRole;
+  status: TeamMemberStatus;
+  invitedAt?: string;
+  joinedAt?: string;
+}
+
+export interface CentreTheme {
+  id: string;
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+}
+
 export interface Centre {
   id: string;
   name: string;
   logo?: string;
   subdomain: string;
   primaryColor?: string;
+  secondaryColor?: string;
+  timezone: 'Asia/Singapore' | 'Asia/Kuala_Lumpur';
+  currency: 'SGD' | 'MYR';
+  invoicePrefix: string;
+  themeId?: string;
 }
 
 export interface User {
@@ -132,6 +158,16 @@ export interface Parent {
   studentIds: string[];
 }
 
+// Centre Themes
+export const centreThemes: CentreTheme[] = [
+  { id: 'theme-navy', name: 'Professional Navy', primaryColor: '#1e3a5f', secondaryColor: '#3b82f6' },
+  { id: 'theme-teal', name: 'Modern Teal', primaryColor: '#0d9488', secondaryColor: '#14b8a6' },
+  { id: 'theme-purple', name: 'Creative Purple', primaryColor: '#7c3aed', secondaryColor: '#a78bfa' },
+  { id: 'theme-emerald', name: 'Fresh Emerald', primaryColor: '#059669', secondaryColor: '#34d399' },
+  { id: 'theme-rose', name: 'Warm Rose', primaryColor: '#e11d48', secondaryColor: '#fb7185' },
+  { id: 'theme-amber', name: 'Vibrant Amber', primaryColor: '#d97706', secondaryColor: '#fbbf24' },
+];
+
 // Demo Data
 export const demoCentres: Centre[] = [
   {
@@ -139,13 +175,32 @@ export const demoCentres: Centre[] = [
     name: 'Bright Minds Academy',
     subdomain: 'brightminds',
     primaryColor: '#1e3a5f',
+    secondaryColor: '#3b82f6',
+    timezone: 'Asia/Singapore',
+    currency: 'SGD',
+    invoicePrefix: 'INV',
+    themeId: 'theme-navy',
   },
   {
     id: 'centre-2',
     name: 'Excel Learning Hub',
     subdomain: 'excelhub',
     primaryColor: '#0d9488',
+    secondaryColor: '#14b8a6',
+    timezone: 'Asia/Kuala_Lumpur',
+    currency: 'MYR',
+    invoicePrefix: 'EXC',
+    themeId: 'theme-teal',
   },
+];
+
+// Demo Team Members
+export const demoTeamMembers: TeamMember[] = [
+  { id: 'tm-1', name: 'Sarah Chen', email: 'sarah@brightminds.edu', role: 'owner', status: 'active', joinedAt: '2023-01-15' },
+  { id: 'tm-2', name: 'Mr. Ahmad Rahman', email: 'ahmad@brightminds.edu', role: 'tutor', status: 'active', joinedAt: '2023-03-20' },
+  { id: 'tm-3', name: 'Lisa Wong', email: 'lisa@brightminds.edu', role: 'admin', status: 'active', joinedAt: '2023-06-10' },
+  { id: 'tm-4', name: 'James Lee', email: 'james.lee@brightminds.edu', role: 'tutor', status: 'invited', invitedAt: '2024-01-18' },
+  { id: 'tm-5', name: 'Emily Tan', email: 'emily.tan@brightminds.edu', role: 'tutor', status: 'deactivated', joinedAt: '2023-02-01' },
 ];
 
 export const demoUsers: Record<UserRole, User> = {

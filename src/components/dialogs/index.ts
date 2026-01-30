@@ -17,5 +17,8 @@ export { NewTemplateDialog } from "./NewTemplateDialog";
 // Course Dialogs
 export { CreateCourseDialog } from "./CreateCourseDialog";
 
+// Team Dialogs
+export { InviteTeamMemberDialog } from "./InviteTeamMemberDialog";
+
 // Utility Dialogs
 export { ImportCSVDialog } from "./ImportCSVDialog";
