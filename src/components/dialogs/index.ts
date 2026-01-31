@@ -20,5 +20,11 @@ export { CreateCourseDialog } from "./CreateCourseDialog";
 // Team Dialogs
 export { InviteTeamMemberDialog } from "./InviteTeamMemberDialog";
 
+// Session/Timetable Dialogs
+export { RescheduleSessionDialog } from "./RescheduleSessionDialog";
+export { CancelSessionDialog } from "./CancelSessionDialog";
+export { MakeUpCreditsDialog } from "./MakeUpCreditsDialog";
+export { MarkMakeUpDialog } from "./MarkMakeUpDialog";
+
 // Utility Dialogs
 export { ImportCSVDialog } from "./ImportCSVDialog";

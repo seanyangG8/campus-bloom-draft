@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, AlertTriangle, TrendingUp, Calendar, Award, Clock } from "lucide-react";
+import { BookOpen, AlertTriangle, TrendingUp, Calendar, Award, Clock, Ticket } from "lucide-react";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ActivityTimeline, ActivityEvent } from "./ActivityTimeline";
+import { MakeUpCreditsDialog } from "@/components/dialogs/MakeUpCreditsDialog";
+import { Student } from "@/lib/demo-data";
 
 interface CourseEnrollment {
   id: string;
@@ -15,14 +18,7 @@ interface CourseEnrollment {
 }
 
 interface OverviewTabProps {
-  student: {
-    name: string;
-    status: 'active' | 'inactive' | 'at-risk';
-    completionRate: number;
-    enrolledCourses: number;
-    makeUpCredits: number;
-    lastActive: string;
-  };
+  student: Student;
   courses: CourseEnrollment[];
   attendanceRate: number;
   activityEvents: ActivityEvent[];
@@ -30,6 +26,7 @@ interface OverviewTabProps {
 
 export function OverviewTab({ student, courses, attendanceRate, activityEvents }: OverviewTabProps) {
   const navigate = useNavigate();
+  const [makeUpDialogOpen, setMakeUpDialogOpen] = useState(false);
 
   return (
     <motion.div
@@ -67,8 +64,14 @@ export function OverviewTab({ student, courses, attendanceRate, activityEvents }
             <p className="text-2xl font-bold text-foreground">{attendanceRate}%</p>
             <p className="text-xs text-muted-foreground mt-1">Attendance</p>
           </div>
-          <div className="bg-card rounded-lg border border-border/50 p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{student.makeUpCredits}</p>
+          <div 
+            className="bg-card rounded-lg border border-border/50 p-4 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+            onClick={() => setMakeUpDialogOpen(true)}
+          >
+            <p className="text-2xl font-bold text-foreground flex items-center justify-center gap-1">
+              {student.makeUpCredits}
+              <Ticket className="h-4 w-4 text-primary" />
+            </p>
             <p className="text-xs text-muted-foreground mt-1">Make-up Credits</p>
           </div>
         </div>
@@ -123,6 +126,12 @@ export function OverviewTab({ student, courses, attendanceRate, activityEvents }
           <ActivityTimeline events={activityEvents} />
         </div>
       </div>
+      {/* Make-up Credits Dialog */}
+      <MakeUpCreditsDialog
+        student={student}
+        open={makeUpDialogOpen}
+        onOpenChange={setMakeUpDialogOpen}
+      />
     </motion.div>
   );
 }

@@ -18,6 +18,7 @@ import {
   Edit,
   ChevronUp,
   ChevronDown,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -51,7 +52,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { BlockEditorDialog } from "./BlockEditorDialog";
+import { CompletionRulesSummary } from "./CompletionRulesSummary";
 
 const iconMap: Record<BlockType, any> = {
   text: Type,
@@ -99,32 +107,49 @@ export function PageEditor({ pageId, isAdmin }: PageEditorProps) {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-semibold text-lg">{page.title}</h2>
             <p className="text-sm text-muted-foreground">
-              {blocks.length} blocks • {requiredBlocks} required
+              {blocks.length} block{blocks.length !== 1 ? 's' : ''} • {requiredBlocks} required
             </p>
           </div>
           {isAdmin && (
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="gating"
-                  checked={page.isLocked}
-                  onCheckedChange={(checked) => updatePage(pageId, { isLocked: checked })}
-                />
-                <Label htmlFor="gating" className="text-sm cursor-pointer">
-                  Gate page
-                </Label>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="gating"
+                        checked={page.isLocked}
+                        onCheckedChange={(checked) => updatePage(pageId, { isLocked: checked })}
+                      />
+                      <Label htmlFor="gating" className="text-sm cursor-pointer flex items-center gap-1">
+                        Gate page
+                        <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Label>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[250px]">
+                    <p className="text-xs">
+                      When enabled, students must complete this page before accessing the next page.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button variant="ghost" size="icon" onClick={() => setPageSettingsOpen(true)}>
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
           )}
         </div>
+        
+        {/* Completion Rules Summary */}
+        {isAdmin && blocks.length > 0 && (
+          <CompletionRulesSummary blocks={blocks} isGated={page.isLocked} />
+        )}
       </div>
 
       {/* Blocks List - Full area drop zone */}
