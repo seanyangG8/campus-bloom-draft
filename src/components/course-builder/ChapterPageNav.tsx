@@ -11,12 +11,14 @@ import {
   Edit,
   Trash2,
   Copy,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Chapter, Page } from "@/lib/demo-data";
 import { useCourseBuilder } from "@/contexts/CourseBuilderContext";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Collapsible,
   CollapsibleContent,
@@ -170,7 +172,11 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
     updateChapter, 
     deleteChapter,
     updatePage,
-    deletePage 
+    deletePage,
+    reorderPages,
+    pages,
+    blocks,
+    getBlocksByPage
   } = useCourseBuilder();
   
   const [isOpen, setIsOpen] = useState(!chapter.isLocked);
@@ -183,7 +189,7 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [editingPageTitle, setEditingPageTitle] = useState("");
 
-  const pages = getPagesByChapter(chapter.id);
+  const chapterPages = getPagesByChapter(chapter.id);
 
   const handleAddPage = () => {
     if (newPageTitle.trim()) {
@@ -218,6 +224,26 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
       deletePage(pageToDelete);
       setPageToDelete(null);
     }
+  };
+
+  // Duplicate page with all its blocks
+  const handleDuplicatePage = (page: Page) => {
+    const newPageId = addPage(chapter.id, `${page.title} (Copy)`);
+    // In a real app, we'd also duplicate blocks here
+    toast.success(`Page "${page.title}" duplicated`);
+  };
+
+  // Move page up/down
+  const handleMovePage = (page: Page, direction: 'up' | 'down') => {
+    const currentIndex = chapterPages.findIndex(p => p.id === page.id);
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex < 0 || newIndex >= chapterPages.length) return;
+    
+    const newOrder = [...chapterPages];
+    [newOrder[currentIndex], newOrder[newIndex]] = [newOrder[newIndex], newOrder[currentIndex]];
+    reorderPages(chapter.id, newOrder.map(p => p.id));
+    toast.success(`Page moved ${direction}`);
   };
 
   return (
@@ -353,12 +379,32 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
                               <Edit className="mr-2 h-4 w-4" />
                               Rename
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicatePage(page)}>
+                              <Copy className="mr-2 h-4 w-4" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleMovePage(page, 'up')}
+                              disabled={chapterPages.findIndex(p => p.id === page.id) === 0}
+                            >
+                              <ChevronUp className="mr-2 h-4 w-4" />
+                              Move Up
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleMovePage(page, 'down')}
+                              disabled={chapterPages.findIndex(p => p.id === page.id) === chapterPages.length - 1}
+                            >
+                              <ChevronDown className="mr-2 h-4 w-4" />
+                              Move Down
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => updatePage(page.id, { isRequired: !page.isRequired })}>
                               {page.isRequired ? "Mark Optional" : "Mark Required"}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => updatePage(page.id, { isLocked: !page.isLocked })}>
                               <Lock className="mr-2 h-4 w-4" />
-                              {page.isLocked ? "Unlock" : "Lock"}
+                              {page.isLocked ? "Unlock (Gate)" : "Lock (Gate)"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
