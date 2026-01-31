@@ -280,9 +280,14 @@ function StudentRow({
   onToggle: () => void;
   onAction: (action: string, student: Student) => void;
 }) {
+  const navigate = useNavigate();
+
   return (
-    <TableRow className="hover:bg-muted/30">
-      <TableCell>
+    <TableRow 
+      className="hover:bg-muted/30 cursor-pointer"
+      onClick={() => navigate(`/app/students/${student.id}`)}
+    >
+      <TableCell onClick={(e) => e.stopPropagation()}>
         <Checkbox checked={isSelected} onCheckedChange={onToggle} />
       </TableCell>
       <TableCell>
@@ -329,7 +334,7 @@ function StudentRow({
           </span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">

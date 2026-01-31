@@ -124,7 +124,8 @@ export function CohortsPage() {
           return (
             <div
               key={cohort.id}
-              className="bg-card rounded-lg border border-border/50 p-5 hover:shadow-sm transition-all"
+              className="bg-card rounded-lg border border-border/50 p-5 hover:shadow-sm transition-all cursor-pointer"
+              onClick={() => navigate(`/app/cohorts/${cohort.id}`)}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="min-w-0 flex-1">
@@ -134,31 +135,33 @@ export function CohortsPage() {
                   </p>
                 </div>
                 {isAdmin && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="shrink-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-popover">
-                      <DropdownMenuItem onClick={() => handleManageStudents(cohort)}>
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Manage Students
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Cohort
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        className="text-destructive"
-                        onClick={() => handleDeleteCohort(cohort)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Cohort
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="shrink-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-popover">
+                        <DropdownMenuItem onClick={() => handleManageStudents(cohort)}>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Manage Students
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Cohort
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDeleteCohort(cohort)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Cohort
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 )}
               </div>
 
@@ -184,7 +187,10 @@ export function CohortsPage() {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate('/app/timetable')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/app/timetable');
+                  }}
                 >
                   View Schedule
                 </Button>
