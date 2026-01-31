@@ -19,6 +19,7 @@ import { TimetablePage } from "@/pages/app/Timetable";
 import { SettingsPage } from "@/pages/app/Settings";
 import { ReportsPage } from "@/pages/app/Reports";
 import { CohortsPage } from "@/pages/app/Cohorts";
+import { CohortDetailPage } from "@/pages/app/CohortDetail";
 import { ParentsPage } from "@/pages/app/Parents";
 import { ProgressPage } from "@/pages/app/Progress";
 import { AssessmentsPage } from "@/pages/app/Assessments";
@@ -46,6 +47,7 @@ function AppRoutes() {
       <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
       <Route path="/app/reports" element={<AppLayout><ReportsPage /></AppLayout>} />
       <Route path="/app/cohorts" element={<AppLayout><CohortsPage /></AppLayout>} />
+      <Route path="/app/cohorts/:cohortId" element={<AppLayout><CohortDetailPage /></AppLayout>} />
       <Route path="/app/parents" element={<AppLayout><ParentsPage /></AppLayout>} />
       <Route path="/app/progress" element={<AppLayout><ProgressPage /></AppLayout>} />
       <Route path="/app/assessments" element={<AppLayout><AssessmentsPage /></AppLayout>} />
