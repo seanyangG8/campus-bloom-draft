@@ -11,7 +11,10 @@ import {
   MoreHorizontal,
   Play,
   ExternalLink,
-  Copy
+  Copy,
+  CalendarClock,
+  XCircle,
+  Ticket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,9 +44,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { demoSessions, demoCohorts, demoCourses } from "@/lib/demo-data";
+import { demoSessions, demoCohorts, demoCourses, Session } from "@/lib/demo-data";
 import { useToast } from "@/hooks/use-toast";
 import { useApp } from "@/contexts/AppContext";
+import { RescheduleSessionDialog } from "@/components/dialogs/RescheduleSessionDialog";
+import { CancelSessionDialog } from "@/components/dialogs/CancelSessionDialog";
+import { MarkMakeUpDialog } from "@/components/dialogs/MarkMakeUpDialog";
 
 export function TimetablePage() {
   const { toast } = useToast();
@@ -51,8 +57,13 @@ export function TimetablePage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
   const [createSessionOpen, setCreateSessionOpen] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<typeof demoSessions[0] | null>(null);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [sessionDetailOpen, setSessionDetailOpen] = useState(false);
+  
+  // New dialogs for session actions
+  const [rescheduleSession, setRescheduleSession] = useState<Session | null>(null);
+  const [cancelSession, setCancelSession] = useState<Session | null>(null);
+  const [makeUpSession, setMakeUpSession] = useState<Session | null>(null);
 
   // Filter sessions for the selected date (mock filtering)
   const todaySessions = demoSessions;
@@ -266,13 +277,35 @@ export function TimetablePage() {
                           <ExternalLink className="h-4 w-4 mr-2" />
                           View Recording
                         </DropdownMenuItem>
-                        {(currentRole === 'admin' || currentRole === 'tutor') && (
+                        {(currentRole === 'admin' || currentRole === 'tutor') && session.status === 'scheduled' && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => setRescheduleSession(session)}>
+                              <CalendarClock className="h-4 w-4 mr-2" />
+                              Reschedule
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setMakeUpSession(session)}>
+                              <Ticket className="h-4 w-4 mr-2" />
+                              Mark as Make-up
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => setCancelSession(session)}
+                            >
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Cancel Session
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {(currentRole === 'admin' || currentRole === 'tutor') && session.status !== 'scheduled' && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               className="text-destructive"
-                              onClick={() => handleCancelSession(session)}
+                              onClick={() => setCancelSession(session)}
                             >
+                              <XCircle className="h-4 w-4 mr-2" />
                               Cancel Session
                             </DropdownMenuItem>
                           </>
@@ -439,6 +472,27 @@ export function TimetablePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Reschedule Dialog */}
+      <RescheduleSessionDialog
+        session={rescheduleSession}
+        open={!!rescheduleSession}
+        onOpenChange={(open) => !open && setRescheduleSession(null)}
+      />
+
+      {/* Cancel Dialog */}
+      <CancelSessionDialog
+        session={cancelSession}
+        open={!!cancelSession}
+        onOpenChange={(open) => !open && setCancelSession(null)}
+      />
+
+      {/* Mark as Make-up Dialog */}
+      <MarkMakeUpDialog
+        session={makeUpSession}
+        open={!!makeUpSession}
+        onOpenChange={(open) => !open && setMakeUpSession(null)}
+      />
     </div>
   );
 }
