@@ -73,7 +73,7 @@ export function CentreTab() {
   const handleLogoUpload = () => {
     toast({
       title: "Upload Logo",
-      description: "Logo upload functionality will be available with Lovable Cloud.",
+      description: "Logo upload functionality is coming soon.",
     });
   };
 
