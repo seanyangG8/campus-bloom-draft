@@ -23,11 +23,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useCourseBuilder } from "@/contexts/CourseBuilderContext";
 import { Chapter, Page, Block, BlockType } from "@/lib/demo-data";
 import { calculatePageCompletion, getBlockCompletionRule, BlockProgress } from "@/lib/completion-rules";
 import { toast } from "sonner";
+import { WhiteboardCanvas } from "./WhiteboardCanvas";
 
 interface StudentPreviewDialogProps {
   courseId: string;
@@ -51,6 +53,7 @@ export function StudentPreviewDialog({
     submitQuizAnswer,
     submitReorderAttempt,
     submitReflection,
+    submitWhiteboardWork,
     getBlockProgress,
   } = useCourseBuilder();
   
@@ -228,6 +231,7 @@ export function StudentPreviewDialog({
                           onSubmitQuiz={(answers) => submitQuizAnswer(block.id, answers)}
                           onSubmitReorder={(order) => submitReorderAttempt(block.id, order)}
                           onSubmitReflection={(text) => submitReflection(block.id, text)}
+                          onSubmitWhiteboard={(data) => submitWhiteboardWork(block.id, data)}
                         />
                       ))
                     )}
@@ -288,9 +292,10 @@ interface InteractiveBlockProps {
   block: Block;
   progress?: BlockProgress;
   onMarkViewed: () => void;
-  onSubmitQuiz: (answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+  onSubmitQuiz: (answers: Record<string, number | number[] | string>) => { passed: boolean; score: number };
   onSubmitReorder: (order: number[]) => { correct: boolean; score: number };
   onSubmitReflection: (text: string) => void;
+  onSubmitWhiteboard: (data: any) => void;
 }
 
 function InteractiveBlock({ 
@@ -300,6 +305,7 @@ function InteractiveBlock({
   onSubmitQuiz,
   onSubmitReorder,
   onSubmitReflection,
+  onSubmitWhiteboard,
 }: InteractiveBlockProps) {
   const rule = getBlockCompletionRule(block.type);
   const isComplete = progress?.status === 'completed';
@@ -362,7 +368,13 @@ function InteractiveBlock({
             onSubmit={onSubmitReorder} 
           />
         )}
-        {block.type === 'whiteboard' && <WhiteboardBlockPreview block={block} />}
+        {block.type === 'whiteboard' && (
+          <WhiteboardBlockInteractive 
+            block={block} 
+            progress={progress}
+            onSubmit={onSubmitWhiteboard} 
+          />
+        )}
         {block.type === 'reflection' && (
           <ReflectionBlockInteractive 
             block={block} 
@@ -378,20 +390,35 @@ function InteractiveBlock({
   );
 }
 
-// Text Block Preview
+// Text Block Preview with safe link rendering
 function TextBlockPreview({ block }: { block: Block }) {
   const calloutStyle = block.content?.calloutStyle;
+  
+  // Sanitize HTML to ensure links open safely
+  const sanitizeHtml = (html: string) => {
+    // Add target="_blank" and rel="noopener noreferrer" to all anchor tags
+    return html.replace(/<a\s+([^>]*href=[^>]*)>/gi, (match, attrs) => {
+      if (!attrs.includes('target=')) {
+        attrs += ' target="_blank"';
+      }
+      if (!attrs.includes('rel=')) {
+        attrs += ' rel="noopener noreferrer"';
+      }
+      return `<a ${attrs}>`;
+    });
+  };
   
   return (
     <div className={cn(
       "p-4 bg-muted/50 rounded prose prose-sm max-w-none",
+      "prose-a:text-primary prose-a:underline",
       calloutStyle === 'info' && "bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-950/30",
       calloutStyle === 'warning' && "bg-amber-50 border-l-4 border-amber-500 dark:bg-amber-950/30",
       calloutStyle === 'tip' && "bg-green-50 border-l-4 border-green-500 dark:bg-green-950/30",
       calloutStyle === 'success' && "bg-emerald-50 border-l-4 border-emerald-500 dark:bg-emerald-950/30",
     )}>
       {block.content?.html ? (
-        <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.content.html) }} />
       ) : (
         <p className="text-muted-foreground italic">No content yet</p>
       )}
@@ -468,15 +495,15 @@ function QuizBlockInteractive({
 }: { 
   block: Block; 
   progress?: BlockProgress;
-  onSubmit: (answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+  onSubmit: (answers: Record<string, number | number[] | string>) => { passed: boolean; score: number };
 }) {
   const questions = block.content?.questions || [];
-  const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
+  const [answers, setAnswers] = useState<Record<string, number | number[] | string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState<{ passed: boolean; score: number } | null>(null);
   const [showHints, setShowHints] = useState<Set<string>>(new Set());
 
-  const handleAnswerChange = (questionId: string, value: number | number[]) => {
+  const handleAnswerChange = (questionId: string, value: number | number[] | string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
@@ -511,12 +538,28 @@ function QuizBlockInteractive({
     <div className="space-y-4">
       {questions.map((q: any, qIndex: number) => {
         const userAnswer = answers[q.id];
-        const isAnswered = userAnswer !== undefined;
-        const isCorrect = submitted && (
-          q.type === 'multi-select' 
-            ? JSON.stringify((userAnswer as number[])?.sort()) === JSON.stringify((q.correctAnswer as number[])?.sort())
-            : userAnswer === q.correctAnswer
-        );
+        const isAnswered = userAnswer !== undefined && userAnswer !== '';
+        
+        // Calculate correctness based on question type
+        const getIsCorrect = () => {
+          if (!submitted) return false;
+          if (q.type === 'multi-select') {
+            const userArr = Array.isArray(userAnswer) ? [...userAnswer].sort((a, b) => a - b) : [];
+            const correctArr = Array.isArray(q.correctAnswer) ? [...q.correctAnswer].sort((a, b) => a - b) : [];
+            return JSON.stringify(userArr) === JSON.stringify(correctArr);
+          } else if (q.type === 'short-answer') {
+            const userText = typeof userAnswer === 'string' ? userAnswer.trim() : '';
+            const expectedText = (q.correctAnswerText || q.options?.[0] || '').trim();
+            if (q.caseSensitive) {
+              return userText === expectedText;
+            }
+            return userText.toLowerCase() === expectedText.toLowerCase();
+          } else {
+            // single-choice or true-false
+            return userAnswer === q.correctAnswer;
+          }
+        };
+        const isCorrect = getIsCorrect();
 
         return (
           <div key={q.id || qIndex} className="p-4 bg-muted/50 rounded-lg">
@@ -607,7 +650,38 @@ function QuizBlockInteractive({
               </div>
             )}
 
-            {/* Hint button */}
+            {/* Short Answer Input */}
+            {q.type === 'short-answer' && (
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  value={(userAnswer as string) || ''}
+                  onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                  placeholder="Type your answer..."
+                  disabled={submitted}
+                  className={cn(
+                    submitted && isCorrect && "border-success bg-success/10",
+                    submitted && !isCorrect && "border-destructive bg-destructive/10"
+                  )}
+                />
+                {submitted && (
+                  <div className={cn(
+                    "text-xs p-2 rounded",
+                    isCorrect ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                  )}>
+                    {isCorrect ? (
+                      <span className="flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Correct!
+                      </span>
+                    ) : (
+                      <span>
+                        Expected: <strong>{q.correctAnswerText || q.options?.[0]}</strong>
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             {q.hint && !submitted && (
               <button 
                 onClick={() => toggleHint(q.id)}
@@ -773,30 +847,48 @@ function ReorderBlockInteractive({
   );
 }
 
-// Whiteboard Block Preview
-function WhiteboardBlockPreview({ block }: { block: Block }) {
-  const canvasSize = block.content?.canvasSize || 'a4';
-  const background = block.content?.background || 'blank';
+// Interactive Whiteboard Block
+function WhiteboardBlockInteractive({ 
+  block, 
+  progress,
+  onSubmit 
+}: { 
+  block: Block; 
+  progress?: BlockProgress;
+  onSubmit: (data: any) => void;
+}) {
+  const isComplete = progress?.status === 'completed';
+  
+  if (isComplete) {
+    return (
+      <div className="p-4 bg-success/10 rounded-lg text-center">
+        <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
+        <p className="text-sm font-medium text-success">Whiteboard submitted</p>
+        {progress?.responses?.pngDataUrl && (
+          <img 
+            src={progress.responses.pngDataUrl} 
+            alt="Your submission" 
+            className="mt-3 border rounded max-h-48 mx-auto"
+          />
+        )}
+      </div>
+    );
+  }
   
   return (
-    <div className={cn(
-      "border-2 border-dashed rounded-lg flex items-center justify-center",
-      canvasSize === 'a4' && "aspect-[1/1.4] max-h-64",
-      canvasSize === 'square' && "aspect-square max-h-64",
-      canvasSize === 'wide' && "aspect-video max-h-48",
-      background === 'blank' && "bg-white dark:bg-muted/30",
-      background === 'grid' && "bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[size:20px_20px]",
-      background === 'ruled' && "bg-[linear-gradient(transparent_23px,#e5e7eb_24px)] bg-[size:100%_24px]"
-    )}>
-      <div className="text-center p-4">
-        <span className="text-3xl mb-2 block">✏️</span>
-        <p className="text-sm text-muted-foreground">
-          {block.content?.prompt || "Draw or write your answer"}
-        </p>
-        <Button className="mt-3" size="sm">
-          Start Drawing
-        </Button>
-      </div>
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {block.content?.prompt || "Draw or write your answer"}
+      </p>
+      <WhiteboardCanvas
+        blockId={block.id}
+        canvasSize={block.content?.canvasSize}
+        background={block.content?.background}
+        enabledTools={block.content?.enabledTools}
+        multiPage={block.content?.multiPage}
+        onSubmit={onSubmit}
+        disabled={isComplete}
+      />
     </div>
   );
 }

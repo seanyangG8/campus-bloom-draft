@@ -163,6 +163,7 @@ export interface MicroQuizQuestion {
   question: string;
   options: string[];
   correctAnswer: number | number[]; // number for single, array for multi
+  correctAnswerText?: string; // For short-answer questions
   hint?: string;
   explanation?: string;
   points?: number;

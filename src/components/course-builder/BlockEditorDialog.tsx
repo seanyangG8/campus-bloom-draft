@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trash2, GripVertical, Info, AlertCircle, Lightbulb, CheckCircle2 } from "lucide-react";
 import { useCourseBuilder } from "@/contexts/CourseBuilderContext";
 import { BlockSettingsPanel } from "./BlockSettingsPanel";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { cn } from "@/lib/utils";
 
 interface BlockEditorDialogProps {
@@ -166,7 +167,7 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
   );
 }
 
-// Text Block Editor with callout styles
+// Text Block Editor with Rich Text Editor
 function TextBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   const calloutStyles = [
     { value: 'none', label: 'None', icon: null },
@@ -202,15 +203,12 @@ function TextBlockEditor({ content, onChange }: { content: any; onChange: (c: an
 
       <div className="space-y-2">
         <Label>Content</Label>
-        <Textarea
+        <RichTextEditor
           value={content.html || ""}
-          onChange={(e) => onChange({ ...content, html: e.target.value })}
-          placeholder="Enter your text content here..."
-          className="min-h-[200px] font-mono text-sm"
+          onChange={(html) => onChange({ ...content, html })}
+          placeholder="Start typing your content..."
+          minHeight="200px"
         />
-        <p className="text-xs text-muted-foreground">
-          Supports basic HTML formatting (headings, bold, italic, lists, links).
-        </p>
       </div>
 
       {content.calloutStyle && content.calloutStyle !== 'none' && (
@@ -221,8 +219,8 @@ function TextBlockEditor({ content, onChange }: { content: any; onChange: (c: an
           content.calloutStyle === 'tip' && "bg-green-50 border-green-500 dark:bg-green-950/30",
           content.calloutStyle === 'success' && "bg-emerald-50 border-emerald-500 dark:bg-emerald-950/30",
         )}>
-          <p className="text-sm font-medium mb-1">Preview</p>
-          <div dangerouslySetInnerHTML={{ __html: content.html || '<p>Your content here...</p>' }} className="text-sm" />
+          <p className="text-sm font-medium mb-1">Callout Preview</p>
+          <div dangerouslySetInnerHTML={{ __html: content.html || '<p>Your content here...</p>' }} className="text-sm prose prose-sm max-w-none" />
         </div>
       )}
     </div>
@@ -424,20 +422,24 @@ function ImageBlockEditor({ content, onChange }: { content: any; onChange: (c: a
 function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   const questions = content.questions || [];
 
+  const generateQuestionId = () => `q-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
   const addQuestion = () => {
     onChange({
       ...content,
       questions: [
         ...questions,
         {
-          id: `q-${Date.now()}`,
+          id: generateQuestionId(),
           type: 'single-choice',
           question: "",
           options: ["", "", "", ""],
           correctAnswer: 0,
+          correctAnswerText: "",
           hint: "",
           explanation: "",
           points: 1,
+          caseSensitive: false,
         },
       ],
     });
@@ -637,8 +639,9 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
             <div className="space-y-2">
               <Label>Expected Answer</Label>
               <Input
-                value={q.options?.[0] || ""}
+                value={q.correctAnswerText || q.options?.[0] || ""}
                 onChange={(e) => updateQuestion(qIndex, { 
+                  correctAnswerText: e.target.value,
                   options: [e.target.value],
                   correctAnswer: 0
                 })}
@@ -646,12 +649,15 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
               />
               <div className="flex items-center gap-2">
                 <Switch
-                  id={`caseSensitive-${qIndex}`}
+                  id={`caseSensitive-${q.id}-${qIndex}`}
                   checked={q.caseSensitive === true}
                   onCheckedChange={(checked) => updateQuestion(qIndex, { caseSensitive: checked })}
                 />
-                <Label htmlFor={`caseSensitive-${qIndex}`}>Case sensitive</Label>
+                <Label htmlFor={`caseSensitive-${q.id}-${qIndex}`}>Case sensitive</Label>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {q.caseSensitive ? "Exact match required" : "Case insensitive matching"}
+              </p>
             </div>
           )}
 
