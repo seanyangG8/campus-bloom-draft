@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Block, BlockType } from "@/lib/demo-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,13 +36,13 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
   const [isRequired, setIsRequired] = useState(block?.isRequired || false);
 
   // Reset state when block changes
-  useState(() => {
+  useEffect(() => {
     if (block) {
       setTitle(block.title);
-      setContent(block.content);
+      setContent(JSON.parse(JSON.stringify(block.content || {})));
       setIsRequired(block.isRequired);
     }
-  });
+  }, [block]);
 
   const handleSave = () => {
     if (block) {

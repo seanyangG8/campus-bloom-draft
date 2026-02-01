@@ -71,7 +71,16 @@ function CourseBuilder({ course }: { course: typeof demoCourses[0] }) {
               <Eye className="h-4 w-4" />
               Preview as Student
             </Button>
-            <Button variant="outline" size="icon">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => {
+                // TODO: Open course settings dialog
+                import('sonner').then(({ toast }) => {
+                  toast.info('Course settings dialog coming soon');
+                });
+              }}
+            >
               <Settings className="h-4 w-4" />
             </Button>
             <Button 

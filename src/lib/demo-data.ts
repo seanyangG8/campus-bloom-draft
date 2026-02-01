@@ -289,19 +289,62 @@ export const demoChapters: Chapter[] = [
 ];
 
 export const demoPages: Page[] = [
+  // Chapter 1: Quadratic Equations
   { id: 'pg-1', chapterId: 'ch-1', title: 'Introduction to Quadratics', order: 1, blocksCount: 4, isRequired: true, isCompleted: true, isLocked: false },
   { id: 'pg-2', chapterId: 'ch-1', title: 'Solving by Factorisation', order: 2, blocksCount: 6, isRequired: true, isCompleted: true, isLocked: false },
   { id: 'pg-3', chapterId: 'ch-1', title: 'The Quadratic Formula', order: 3, blocksCount: 5, isRequired: true, isCompleted: false, isLocked: false },
   { id: 'pg-4', chapterId: 'ch-1', title: 'Graphing Quadratics', order: 4, blocksCount: 7, isRequired: true, isCompleted: false, isLocked: true },
   { id: 'pg-5', chapterId: 'ch-1', title: 'Chapter Quiz', order: 5, blocksCount: 3, isRequired: true, isCompleted: false, isLocked: true },
+  
+  // Chapter 2: Indices and Surds
+  { id: 'pg-6', chapterId: 'ch-2', title: 'Introduction to Indices', order: 1, blocksCount: 3, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-7', chapterId: 'ch-2', title: 'Laws of Indices', order: 2, blocksCount: 4, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-8', chapterId: 'ch-2', title: 'Surds and Rationalising', order: 3, blocksCount: 5, isRequired: true, isCompleted: false, isLocked: true },
+  { id: 'pg-9', chapterId: 'ch-2', title: 'Chapter Quiz', order: 4, blocksCount: 2, isRequired: true, isCompleted: false, isLocked: true },
+  
+  // Chapter 3: Polynomials
+  { id: 'pg-10', chapterId: 'ch-3', title: 'Introduction to Polynomials', order: 1, blocksCount: 3, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-11', chapterId: 'ch-3', title: 'Polynomial Division', order: 2, blocksCount: 4, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-12', chapterId: 'ch-3', title: 'Factor and Remainder Theorems', order: 3, blocksCount: 5, isRequired: true, isCompleted: false, isLocked: true },
+  { id: 'pg-13', chapterId: 'ch-3', title: 'Factorising Polynomials', order: 4, blocksCount: 4, isRequired: true, isCompleted: false, isLocked: true },
+  { id: 'pg-14', chapterId: 'ch-3', title: 'Polynomial Equations', order: 5, blocksCount: 3, isRequired: true, isCompleted: false, isLocked: true },
+  { id: 'pg-15', chapterId: 'ch-3', title: 'Chapter Quiz', order: 6, blocksCount: 2, isRequired: true, isCompleted: false, isLocked: true },
+  
+  // Chapter 4: Linear Inequalities
+  { id: 'pg-16', chapterId: 'ch-4', title: 'Introduction to Inequalities', order: 1, blocksCount: 3, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-17', chapterId: 'ch-4', title: 'Solving Linear Inequalities', order: 2, blocksCount: 4, isRequired: true, isCompleted: false, isLocked: false },
+  { id: 'pg-18', chapterId: 'ch-4', title: 'Graphing Inequalities', order: 3, blocksCount: 4, isRequired: true, isCompleted: false, isLocked: true },
+  { id: 'pg-19', chapterId: 'ch-4', title: 'Chapter Quiz', order: 4, blocksCount: 2, isRequired: true, isCompleted: false, isLocked: true },
 ];
 
 export const demoBlocks: Block[] = [
-  { id: 'blk-1', pageId: 'pg-3', type: 'text', title: 'Learning Objectives', content: {}, order: 1, isRequired: false, isCompleted: true },
-  { id: 'blk-2', pageId: 'pg-3', type: 'video', title: 'Video: Deriving the Formula', content: { duration: '12:34' }, order: 2, isRequired: true, isCompleted: true },
-  { id: 'blk-3', pageId: 'pg-3', type: 'micro-quiz', title: 'Quick Check', content: { questions: 3 }, order: 3, isRequired: true, isCompleted: false },
-  { id: 'blk-4', pageId: 'pg-3', type: 'whiteboard', title: 'Practice: Solve These', content: {}, order: 4, isRequired: true, isCompleted: false },
-  { id: 'blk-5', pageId: 'pg-3', type: 'reflection', title: 'Reflection: What did you learn?', content: {}, order: 5, isRequired: false, isCompleted: false },
+  // Chapter 1, Page 3: The Quadratic Formula
+  { id: 'blk-1', pageId: 'pg-3', type: 'text', title: 'Learning Objectives', content: { html: '<p>By the end of this lesson, you will be able to:</p><ul><li>Derive the quadratic formula from completing the square</li><li>Apply the formula to solve any quadratic equation</li><li>Understand when to use the formula vs factorisation</li></ul>' }, order: 1, isRequired: false, isCompleted: true },
+  { id: 'blk-2', pageId: 'pg-3', type: 'video', title: 'Video: Deriving the Formula', content: { url: 'https://youtube.com/watch?v=example', duration: '12:34' }, order: 2, isRequired: true, isCompleted: true },
+  { id: 'blk-3', pageId: 'pg-3', type: 'micro-quiz', title: 'Quick Check', content: { questions: [{ id: 'q-1', question: 'What is the quadratic formula?', options: ['x = -b ± √(b² - 4ac) / 2a', 'x = b ± √(b² - 4ac) / 2a', 'x = -b ± √(b² + 4ac) / 2a', 'x = -b ± √(b² - 4ac) / a'], correctAnswer: 0 }] }, order: 3, isRequired: true, isCompleted: false },
+  { id: 'blk-4', pageId: 'pg-3', type: 'whiteboard', title: 'Practice: Solve These', content: { prompt: 'Solve the equation: 2x² + 5x - 3 = 0', allowImage: true }, order: 4, isRequired: true, isCompleted: false },
+  { id: 'blk-5', pageId: 'pg-3', type: 'reflection', title: 'Reflection: What did you learn?', content: { prompt: 'Reflect on what you learned about the quadratic formula. When would you use it instead of factorisation?', minWords: 50 }, order: 5, isRequired: false, isCompleted: false },
+  
+  // Chapter 2, Page 6: Introduction to Indices
+  { id: 'blk-6', pageId: 'pg-6', type: 'text', title: 'What are Indices?', content: { html: '<p>Indices (also called exponents or powers) are a shorthand way of writing repeated multiplication.</p><p>For example: 2³ = 2 × 2 × 2 = 8</p>' }, order: 1, isRequired: false, isCompleted: false },
+  { id: 'blk-7', pageId: 'pg-6', type: 'video', title: 'Introduction to Indices', content: { url: 'https://youtube.com/watch?v=indices-intro', duration: '8:20' }, order: 2, isRequired: true, isCompleted: false },
+  { id: 'blk-8', pageId: 'pg-6', type: 'micro-quiz', title: 'Quick Check', content: { questions: [{ id: 'q-2', question: 'What is 5³?', options: ['15', '25', '125', '243'], correctAnswer: 2 }] }, order: 3, isRequired: true, isCompleted: false },
+  
+  // Chapter 2, Page 7: Laws of Indices
+  { id: 'blk-9', pageId: 'pg-7', type: 'text', title: 'The Laws of Indices', content: { html: '<h3>Key Laws:</h3><ul><li>aᵐ × aⁿ = aᵐ⁺ⁿ</li><li>aᵐ ÷ aⁿ = aᵐ⁻ⁿ</li><li>(aᵐ)ⁿ = aᵐⁿ</li><li>a⁰ = 1</li><li>a⁻ⁿ = 1/aⁿ</li></ul>' }, order: 1, isRequired: false, isCompleted: false },
+  { id: 'blk-10', pageId: 'pg-7', type: 'drag-drop-reorder', title: 'Order the Steps', content: { instruction: 'Simplify 2³ × 2⁵ ÷ 2² by ordering these steps:', items: ['Apply multiplication law: 2³⁺⁵ = 2⁸', 'Apply division law: 2⁸⁻² = 2⁶', 'Calculate: 2⁶ = 64'], correctOrder: [0, 1, 2] }, order: 2, isRequired: true, isCompleted: false },
+  { id: 'blk-11', pageId: 'pg-7', type: 'micro-quiz', title: 'Practice Quiz', content: { questions: [{ id: 'q-3', question: 'Simplify: a⁴ × a³', options: ['a⁷', 'a¹²', 'a¹', '2a⁷'], correctAnswer: 0 }, { id: 'q-4', question: 'What is 2⁻³?', options: ['-8', '-6', '1/8', '1/6'], correctAnswer: 2 }] }, order: 3, isRequired: true, isCompleted: false },
+  { id: 'blk-12', pageId: 'pg-7', type: 'reflection', title: 'Reflection', content: { prompt: 'Which law of indices do you find most useful? Give an example.', minWords: 30 }, order: 4, isRequired: false, isCompleted: false },
+  
+  // Chapter 3, Page 10: Introduction to Polynomials  
+  { id: 'blk-13', pageId: 'pg-10', type: 'text', title: 'What are Polynomials?', content: { html: '<p>A polynomial is an expression with multiple terms involving variables raised to non-negative integer powers.</p><p>Examples: 3x² + 2x - 5, x³ - 4x + 1</p>' }, order: 1, isRequired: false, isCompleted: false },
+  { id: 'blk-14', pageId: 'pg-10', type: 'video', title: 'Polynomial Basics', content: { url: 'https://youtube.com/watch?v=polynomials', duration: '10:15' }, order: 2, isRequired: true, isCompleted: false },
+  { id: 'blk-15', pageId: 'pg-10', type: 'micro-quiz', title: 'Identify Polynomials', content: { questions: [{ id: 'q-5', question: 'Which of these is a polynomial?', options: ['1/x + 2', '√x + 3', 'x² + 3x - 1', 'x⁻² + x'], correctAnswer: 2 }] }, order: 3, isRequired: true, isCompleted: false },
+  
+  // Chapter 4, Page 16: Introduction to Inequalities
+  { id: 'blk-16', pageId: 'pg-16', type: 'text', title: 'Understanding Inequalities', content: { html: '<p>An inequality is a mathematical statement that compares two expressions using symbols like &lt;, &gt;, ≤, or ≥.</p><p>Unlike equations, inequalities have a range of solutions.</p>' }, order: 1, isRequired: false, isCompleted: false },
+  { id: 'blk-17', pageId: 'pg-16', type: 'video', title: 'Intro to Inequalities', content: { url: 'https://youtube.com/watch?v=inequalities', duration: '7:45' }, order: 2, isRequired: true, isCompleted: false },
+  { id: 'blk-18', pageId: 'pg-16', type: 'micro-quiz', title: 'Quick Check', content: { questions: [{ id: 'q-6', question: 'Which symbol means "less than or equal to"?', options: ['<', '>', '≤', '≥'], correctAnswer: 2 }] }, order: 3, isRequired: true, isCompleted: false },
 ];
 
 export const demoStudents: Student[] = [
