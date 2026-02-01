@@ -127,7 +127,7 @@ export function isBlockComplete(block: Block, progress?: BlockProgress): boolean
 // Check if a quiz attempt passes based on content settings
 export function checkQuizPassed(
   block: Block,
-  answers: Record<string, number | number[]>,
+  answers: Record<string, number | number[] | string>,
   questions: any[]
 ): { passed: boolean; score: number; maxScore: number } {
   const content = block.content as MicroQuizBlockContent;
@@ -137,26 +137,44 @@ export function checkQuizPassed(
   let correct = 0;
   let total = questions.length;
   
-  questions.forEach((q, i) => {
+  if (total === 0) {
+    return { passed: true, score: 100, maxScore: 100 };
+  }
+  
+  questions.forEach((q) => {
     const userAnswer = answers[q.id];
     const correctAnswer = q.correctAnswer;
     
     if (q.type === 'multi-select') {
-      // For multi-select, compare arrays
-      const userArr = Array.isArray(userAnswer) ? userAnswer.sort() : [];
-      const correctArr = Array.isArray(correctAnswer) ? correctAnswer.sort() : [];
+      // For multi-select, compare arrays (sort copies to avoid mutation)
+      const userArr = Array.isArray(userAnswer) ? [...userAnswer].sort((a, b) => a - b) : [];
+      const correctArr = Array.isArray(correctAnswer) ? [...correctAnswer].sort((a, b) => a - b) : [];
       if (JSON.stringify(userArr) === JSON.stringify(correctArr)) {
         correct++;
       }
+    } else if (q.type === 'short-answer') {
+      // For short-answer, compare text
+      const userText = typeof userAnswer === 'string' ? userAnswer.trim() : '';
+      const expectedText = (q.correctAnswerText || q.options?.[0] || '').trim();
+      const caseSensitive = q.caseSensitive === true;
+      
+      if (caseSensitive) {
+        if (userText === expectedText) correct++;
+      } else {
+        if (userText.toLowerCase() === expectedText.toLowerCase()) correct++;
+      }
     } else {
-      // For single choice, true/false, short answer
-      if (userAnswer === correctAnswer) {
+      // For single choice, true/false - compare as numbers
+      const userNum = typeof userAnswer === 'number' ? userAnswer : parseInt(String(userAnswer), 10);
+      const correctNum = typeof correctAnswer === 'number' ? correctAnswer : parseInt(String(correctAnswer), 10);
+      
+      if (!isNaN(userNum) && !isNaN(correctNum) && userNum === correctNum) {
         correct++;
       }
     }
   });
   
-  const score = Math.round((correct / total) * 100);
+  const score = total > 0 ? Math.round((correct / total) * 100) : 100;
   const passed = completionRule === 'attempted' || score >= passMark;
   
   return { passed, score, maxScore: 100 };

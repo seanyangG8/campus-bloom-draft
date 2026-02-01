@@ -39,7 +39,7 @@ interface CourseBuilderContextType {
   
   // Student Progress Actions
   markBlockViewed: (blockId: string) => void;
-  submitQuizAnswer: (blockId: string, answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+  submitQuizAnswer: (blockId: string, answers: Record<string, number | number[] | string>) => { passed: boolean; score: number };
   submitReorderAttempt: (blockId: string, userOrder: number[]) => { correct: boolean; score: number };
   submitWhiteboardWork: (blockId: string, data: any) => void;
   submitReflection: (blockId: string, text: string) => void;
@@ -324,7 +324,7 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
     });
   }, [blocks]);
 
-  const submitQuizAnswer = useCallback((blockId: string, answers: Record<string, number | number[]>) => {
+  const submitQuizAnswer = useCallback((blockId: string, answers: Record<string, number | number[] | string>) => {
     const block = blocks.find(b => b.id === blockId);
     if (!block) return { passed: false, score: 0 };
     
