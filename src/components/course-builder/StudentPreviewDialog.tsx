@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Eye, 
   Lock, 
   CheckCircle2, 
   ChevronRight, 
   ChevronLeft,
-  X,
   Play,
-  AlertTriangle
+  AlertTriangle,
+  GripVertical,
+  Download,
+  ExternalLink,
+  Lightbulb
 } from "lucide-react";
 import {
   Dialog,
@@ -19,10 +22,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCourseBuilder } from "@/contexts/CourseBuilderContext";
 import { Chapter, Page, Block, BlockType } from "@/lib/demo-data";
-import { calculatePageCompletion, getBlockCompletionRule } from "@/lib/completion-rules";
+import { calculatePageCompletion, getBlockCompletionRule, BlockProgress } from "@/lib/completion-rules";
+import { toast } from "sonner";
 
 interface StudentPreviewDialogProps {
   courseId: string;
@@ -37,7 +42,17 @@ export function StudentPreviewDialog({
   open, 
   onOpenChange 
 }: StudentPreviewDialogProps) {
-  const { getChaptersByCourse, getPagesByChapter, getBlocksByPage } = useCourseBuilder();
+  const { 
+    getChaptersByCourse, 
+    getPagesByChapter, 
+    getBlocksByPage,
+    studentProgress,
+    markBlockViewed,
+    submitQuizAnswer,
+    submitReorderAttempt,
+    submitReflection,
+    getBlockProgress,
+  } = useCourseBuilder();
   
   const chapters = getChaptersByCourse(courseId);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
@@ -97,25 +112,9 @@ export function StudentPreviewDialog({
     ? Math.round((completedPages.size / totalPages) * 100) 
     : 0;
 
-  const getBlockTypeLabel = (type: BlockType): string => {
-    const labels: Record<BlockType, string> = {
-      'text': 'Text Content',
-      'video': 'Video',
-      'image': 'Image',
-      'micro-quiz': 'Quiz',
-      'drag-drop-reorder': 'Reorder Activity',
-      'whiteboard': 'Whiteboard',
-      'reflection': 'Reflection',
-      'qa-thread': 'Q&A',
-      'resource': 'Resource',
-      'divider': 'Divider',
-    };
-    return labels[type] || type;
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+      <DialogContent className="max-w-5xl h-[85vh] flex flex-col p-0">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b shrink-0">
           <div className="flex items-center gap-3">
@@ -149,7 +148,7 @@ export function StudentPreviewDialog({
                 Course Structure
               </p>
             </div>
-            {chapters.map((chapter, chapterIndex) => {
+            {chapters.map((chapter) => {
               const pages = getPagesByChapter(chapter.id);
               return (
                 <div key={chapter.id} className="mb-2">
@@ -220,151 +219,17 @@ export function StudentPreviewDialog({
                         <p>This page has no content yet.</p>
                       </div>
                     ) : (
-                      currentPageData.blocks.map((block) => {
-                        const rule = getBlockCompletionRule(block.type);
-                        return (
-                          <div 
-                            key={block.id}
-                            className="p-4 rounded-lg border bg-card"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-lg">
-                                {block.type === 'text' && '📝'}
-                                {block.type === 'video' && '🎬'}
-                                {block.type === 'image' && '🖼️'}
-                                {block.type === 'micro-quiz' && '❓'}
-                                {block.type === 'drag-drop-reorder' && '↕️'}
-                                {block.type === 'whiteboard' && '✏️'}
-                                {block.type === 'reflection' && '💭'}
-                                {block.type === 'qa-thread' && '💬'}
-                                {block.type === 'resource' && '📎'}
-                                {block.type === 'divider' && '—'}
-                              </span>
-                              <span className="font-medium text-sm">{block.title}</span>
-                              {block.isRequired && (
-                                <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                                  Required
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {getBlockTypeLabel(block.type)} • {rule.description}
-                            </p>
-                            {/* Actual content preview */}
-                            <div className="mt-3">
-                              {block.type === 'text' && (
-                                <div className="p-4 bg-muted/50 rounded prose prose-sm max-w-none">
-                                  {block.content?.html ? (
-                                    <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
-                                  ) : (
-                                    <p className="text-muted-foreground italic">No content yet</p>
-                                  )}
-                                </div>
-                              )}
-                              {block.type === 'video' && (
-                                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                                  {block.content?.url ? (
-                                    <div className="text-center">
-                                      <Play className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
-                                      <p className="text-sm text-muted-foreground">{block.content.duration || "Video"}</p>
-                                      <p className="text-xs text-muted-foreground truncate max-w-xs">{block.content.url}</p>
-                                    </div>
-                                  ) : (
-                                    <p className="text-sm text-muted-foreground">No video URL set</p>
-                                  )}
-                                </div>
-                              )}
-                              {block.type === 'image' && (
-                                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                                  {block.content?.url ? (
-                                    <img
-                                      src={block.content.url}
-                                      alt={block.content.alt || ""}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
-                                      }}
-                                    />
-                                  ) : (
-                                    <p className="text-sm text-muted-foreground">No image URL set</p>
-                                  )}
-                                </div>
-                              )}
-                              {block.type === 'micro-quiz' && block.content?.questions?.length > 0 && (
-                                <div className="space-y-3">
-                                  {block.content.questions.map((q: any, qIndex: number) => (
-                                    <div key={q.id || qIndex} className="p-4 bg-muted/50 rounded-lg">
-                                      <p className="font-medium text-sm mb-3">Q{qIndex + 1}: {q.question || "Enter question..."}</p>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        {q.options?.map((opt: string, i: number) => (
-                                          <button 
-                                            key={i} 
-                                            className="p-2 text-left text-sm border rounded-lg hover:bg-muted transition-colors"
-                                          >
-                                            {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {block.type === 'drag-drop-reorder' && block.content?.items?.length > 0 && (
-                                <div className="space-y-2">
-                                  <p className="text-sm text-muted-foreground">{block.content.instruction || "Drag and drop to reorder:"}</p>
-                                  {block.content.items.map((item: string, i: number) => (
-                                    <div key={i} className="flex items-center gap-2 p-3 bg-muted/50 rounded border cursor-move">
-                                      <span className="text-muted-foreground">≡</span>
-                                      <span className="text-sm">{item || `Item ${i + 1}`}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {block.type === 'whiteboard' && (
-                                <div className="h-32 bg-muted/30 border-2 border-dashed rounded-lg flex items-center justify-center">
-                                  <div className="text-center">
-                                    <span className="text-2xl mb-2 block">✏️</span>
-                                    <p className="text-sm text-muted-foreground">{block.content?.prompt || "Draw or write your answer"}</p>
-                                  </div>
-                                </div>
-                              )}
-                              {block.type === 'reflection' && (
-                                <div className="space-y-2">
-                                  <p className="text-sm text-muted-foreground">{block.content?.prompt || "Share your reflection..."}</p>
-                                  <textarea 
-                                    className="w-full p-3 border rounded-lg text-sm min-h-[100px] bg-background"
-                                    placeholder="Type your reflection here..."
-                                    disabled
-                                  />
-                                  {block.content?.minWords > 0 && (
-                                    <p className="text-xs text-muted-foreground">Minimum {block.content.minWords} words required</p>
-                                  )}
-                                </div>
-                              )}
-                              {block.type === 'resource' && (
-                                <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
-                                  <span className="text-2xl">📎</span>
-                                  <div>
-                                    <p className="text-sm font-medium">{block.content?.fileName || "Resource file"}</p>
-                                    {block.content?.fileSize && (
-                                      <p className="text-xs text-muted-foreground">{block.content.fileSize}</p>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              {block.type === 'qa-thread' && (
-                                <div className="p-4 bg-muted/50 rounded-lg text-center">
-                                  <span className="text-2xl mb-2 block">💬</span>
-                                  <p className="text-sm text-muted-foreground">Ask questions and discuss with your tutor</p>
-                                </div>
-                              )}
-                              {block.type === 'divider' && (
-                                <div className="border-t my-4" />
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })
+                      currentPageData.blocks.map((block) => (
+                        <InteractiveBlock 
+                          key={block.id} 
+                          block={block}
+                          progress={getBlockProgress(block.id)}
+                          onMarkViewed={() => markBlockViewed(block.id)}
+                          onSubmitQuiz={(answers) => submitQuizAnswer(block.id, answers)}
+                          onSubmitReorder={(order) => submitReorderAttempt(block.id, order)}
+                          onSubmitReflection={(text) => submitReflection(block.id, text)}
+                        />
+                      ))
                     )}
                   </div>
                 </ScrollArea>
@@ -415,5 +280,683 @@ export function StudentPreviewDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Interactive Block Component
+interface InteractiveBlockProps {
+  block: Block;
+  progress?: BlockProgress;
+  onMarkViewed: () => void;
+  onSubmitQuiz: (answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+  onSubmitReorder: (order: number[]) => { correct: boolean; score: number };
+  onSubmitReflection: (text: string) => void;
+}
+
+function InteractiveBlock({ 
+  block, 
+  progress, 
+  onMarkViewed,
+  onSubmitQuiz,
+  onSubmitReorder,
+  onSubmitReflection,
+}: InteractiveBlockProps) {
+  const rule = getBlockCompletionRule(block.type);
+  const isComplete = progress?.status === 'completed';
+
+  // Mark viewable blocks as viewed when rendered
+  useEffect(() => {
+    if (['text', 'image', 'resource'].includes(block.type) && !isComplete) {
+      const timer = setTimeout(() => onMarkViewed(), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [block.type, isComplete, onMarkViewed]);
+
+  return (
+    <div 
+      className={cn(
+        "p-4 rounded-lg border bg-card transition-all",
+        isComplete && "ring-2 ring-success/30"
+      )}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-lg">
+          {block.type === 'text' && '📝'}
+          {block.type === 'video' && '🎬'}
+          {block.type === 'image' && '🖼️'}
+          {block.type === 'micro-quiz' && '❓'}
+          {block.type === 'drag-drop-reorder' && '↕️'}
+          {block.type === 'whiteboard' && '✏️'}
+          {block.type === 'reflection' && '💭'}
+          {block.type === 'qa-thread' && '💬'}
+          {block.type === 'resource' && '📎'}
+          {block.type === 'divider' && '—'}
+        </span>
+        <span className="font-medium text-sm">{block.title}</span>
+        {block.isRequired && (
+          <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+            Required
+          </span>
+        )}
+        {isComplete && (
+          <CheckCircle2 className="h-4 w-4 text-success ml-auto" />
+        )}
+      </div>
+
+      {/* Block content based on type */}
+      <div className="mt-3">
+        {block.type === 'text' && <TextBlockPreview block={block} />}
+        {block.type === 'video' && <VideoBlockPreview block={block} />}
+        {block.type === 'image' && <ImageBlockPreview block={block} />}
+        {block.type === 'micro-quiz' && (
+          <QuizBlockInteractive 
+            block={block} 
+            progress={progress}
+            onSubmit={onSubmitQuiz} 
+          />
+        )}
+        {block.type === 'drag-drop-reorder' && (
+          <ReorderBlockInteractive 
+            block={block} 
+            progress={progress}
+            onSubmit={onSubmitReorder} 
+          />
+        )}
+        {block.type === 'whiteboard' && <WhiteboardBlockPreview block={block} />}
+        {block.type === 'reflection' && (
+          <ReflectionBlockInteractive 
+            block={block} 
+            progress={progress}
+            onSubmit={onSubmitReflection} 
+          />
+        )}
+        {block.type === 'resource' && <ResourceBlockPreview block={block} />}
+        {block.type === 'qa-thread' && <QAThreadBlockPreview block={block} />}
+        {block.type === 'divider' && <DividerBlockPreview block={block} />}
+      </div>
+    </div>
+  );
+}
+
+// Text Block Preview
+function TextBlockPreview({ block }: { block: Block }) {
+  const calloutStyle = block.content?.calloutStyle;
+  
+  return (
+    <div className={cn(
+      "p-4 bg-muted/50 rounded prose prose-sm max-w-none",
+      calloutStyle === 'info' && "bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-950/30",
+      calloutStyle === 'warning' && "bg-amber-50 border-l-4 border-amber-500 dark:bg-amber-950/30",
+      calloutStyle === 'tip' && "bg-green-50 border-l-4 border-green-500 dark:bg-green-950/30",
+      calloutStyle === 'success' && "bg-emerald-50 border-l-4 border-emerald-500 dark:bg-emerald-950/30",
+    )}>
+      {block.content?.html ? (
+        <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
+      ) : (
+        <p className="text-muted-foreground italic">No content yet</p>
+      )}
+    </div>
+  );
+}
+
+// Video Block Preview
+function VideoBlockPreview({ block }: { block: Block }) {
+  return (
+    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+      {block.content?.url ? (
+        <>
+          <div className="text-center">
+            <Play className="h-16 w-16 text-muted-foreground/50 mx-auto mb-2 hover:text-primary cursor-pointer transition-colors" />
+            <p className="text-sm text-muted-foreground">{block.content.duration || "Video"}</p>
+            {block.content.watchThreshold && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Watch {block.content.watchThreshold}% to complete
+              </p>
+            )}
+          </div>
+          {block.content.transcript && (
+            <Button variant="ghost" size="sm" className="absolute bottom-2 right-2">
+              View Transcript
+            </Button>
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-muted-foreground">No video URL set</p>
+      )}
+    </div>
+  );
+}
+
+// Image Block Preview
+function ImageBlockPreview({ block }: { block: Block }) {
+  const [isZoomed, setIsZoomed] = useState(false);
+  
+  return (
+    <div className={cn(
+      "bg-muted rounded-lg flex items-center justify-center overflow-hidden cursor-pointer",
+      block.content?.displaySize === 'small' && "max-w-[25%]",
+      block.content?.displaySize === 'medium' && "max-w-[50%]",
+      block.content?.displaySize === 'large' && "max-w-[75%]",
+    )}
+    onClick={() => setIsZoomed(!isZoomed)}
+    >
+      {block.content?.url ? (
+        <div className="relative">
+          <img
+            src={block.content.url}
+            alt={block.content.alt || ""}
+            className="w-full h-auto"
+          />
+          {block.content.caption && (
+            <p className="text-xs text-center text-muted-foreground mt-2 italic">
+              {block.content.caption}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground p-8">No image URL set</p>
+      )}
+    </div>
+  );
+}
+
+// Interactive Quiz Block
+function QuizBlockInteractive({ 
+  block, 
+  progress,
+  onSubmit 
+}: { 
+  block: Block; 
+  progress?: BlockProgress;
+  onSubmit: (answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+}) {
+  const questions = block.content?.questions || [];
+  const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<{ passed: boolean; score: number } | null>(null);
+  const [showHints, setShowHints] = useState<Set<string>>(new Set());
+
+  const handleAnswerChange = (questionId: string, value: number | number[]) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleSubmit = () => {
+    const res = onSubmit(answers);
+    setResult(res);
+    setSubmitted(true);
+    if (res.passed) {
+      toast.success(`Quiz passed! Score: ${res.score}%`);
+    } else {
+      toast.error(`Quiz not passed. Score: ${res.score}%`);
+    }
+  };
+
+  const toggleHint = (questionId: string) => {
+    setShowHints(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId);
+      } else {
+        newSet.add(questionId);
+      }
+      return newSet;
+    });
+  };
+
+  if (questions.length === 0) {
+    return <p className="text-sm text-muted-foreground">No questions configured</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {questions.map((q: any, qIndex: number) => {
+        const userAnswer = answers[q.id];
+        const isAnswered = userAnswer !== undefined;
+        const isCorrect = submitted && (
+          q.type === 'multi-select' 
+            ? JSON.stringify((userAnswer as number[])?.sort()) === JSON.stringify((q.correctAnswer as number[])?.sort())
+            : userAnswer === q.correctAnswer
+        );
+
+        return (
+          <div key={q.id || qIndex} className="p-4 bg-muted/50 rounded-lg">
+            <p className="font-medium text-sm mb-3">
+              Q{qIndex + 1}: {q.question || "Question not set"}
+            </p>
+
+            {/* Question type specific rendering */}
+            {(q.type === 'single-choice' || !q.type) && (
+              <div className="space-y-2">
+                {q.options?.map((opt: string, i: number) => (
+                  <button 
+                    key={i}
+                    onClick={() => !submitted && handleAnswerChange(q.id, i)}
+                    disabled={submitted}
+                    className={cn(
+                      "w-full p-3 text-left text-sm border rounded-lg transition-all",
+                      userAnswer === i && !submitted && "border-primary bg-primary/10",
+                      submitted && q.correctAnswer === i && "border-success bg-success/10",
+                      submitted && userAnswer === i && q.correctAnswer !== i && "border-destructive bg-destructive/10",
+                      !submitted && userAnswer !== i && "hover:bg-muted"
+                    )}
+                  >
+                    {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
+                    {submitted && q.correctAnswer === i && <CheckCircle2 className="inline h-4 w-4 ml-2 text-success" />}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {q.type === 'multi-select' && (
+              <div className="space-y-2">
+                {q.options?.map((opt: string, i: number) => {
+                  const selected = Array.isArray(userAnswer) && userAnswer.includes(i);
+                  const isCorrectOption = Array.isArray(q.correctAnswer) && q.correctAnswer.includes(i);
+                  
+                  return (
+                    <button 
+                      key={i}
+                      onClick={() => {
+                        if (submitted) return;
+                        const current = (userAnswer as number[]) || [];
+                        const newAnswer = selected 
+                          ? current.filter(x => x !== i)
+                          : [...current, i];
+                        handleAnswerChange(q.id, newAnswer);
+                      }}
+                      disabled={submitted}
+                      className={cn(
+                        "w-full p-3 text-left text-sm border rounded-lg transition-all flex items-center gap-2",
+                        selected && !submitted && "border-primary bg-primary/10",
+                        submitted && isCorrectOption && "border-success bg-success/10",
+                        submitted && selected && !isCorrectOption && "border-destructive bg-destructive/10",
+                        !submitted && !selected && "hover:bg-muted"
+                      )}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={selected} 
+                        readOnly 
+                        className="h-4 w-4"
+                      />
+                      {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {q.type === 'true-false' && (
+              <div className="flex gap-4">
+                {['True', 'False'].map((opt, i) => (
+                  <button
+                    key={opt}
+                    onClick={() => !submitted && handleAnswerChange(q.id, i)}
+                    disabled={submitted}
+                    className={cn(
+                      "flex-1 p-3 text-center text-sm border rounded-lg transition-all",
+                      userAnswer === i && !submitted && "border-primary bg-primary/10",
+                      submitted && q.correctAnswer === i && "border-success bg-success/10",
+                      submitted && userAnswer === i && q.correctAnswer !== i && "border-destructive bg-destructive/10",
+                      !submitted && userAnswer !== i && "hover:bg-muted"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Hint button */}
+            {q.hint && !submitted && (
+              <button 
+                onClick={() => toggleHint(q.id)}
+                className="mt-2 text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+              >
+                <Lightbulb className="h-3 w-3" />
+                {showHints.has(q.id) ? 'Hide hint' : 'Show hint'}
+              </button>
+            )}
+            {showHints.has(q.id) && q.hint && (
+              <p className="mt-2 text-xs bg-muted p-2 rounded">{q.hint}</p>
+            )}
+
+            {/* Explanation after submission */}
+            {submitted && q.explanation && (
+              <div className="mt-3 p-2 bg-muted rounded text-xs">
+                <strong>Explanation:</strong> {q.explanation}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {!submitted ? (
+        <Button 
+          onClick={handleSubmit}
+          disabled={Object.keys(answers).length < questions.length}
+          className="w-full"
+        >
+          Submit Answers
+        </Button>
+      ) : (
+        <div className={cn(
+          "p-3 rounded-lg text-center",
+          result?.passed ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+        )}>
+          <p className="font-medium">
+            {result?.passed ? "Passed!" : "Not passed"} - Score: {result?.score}%
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Interactive Reorder Block
+function ReorderBlockInteractive({ 
+  block, 
+  progress,
+  onSubmit 
+}: { 
+  block: Block; 
+  progress?: BlockProgress;
+  onSubmit: (order: number[]) => { correct: boolean; score: number };
+}) {
+  const items = block.content?.items || [];
+  const [userOrder, setUserOrder] = useState<number[]>(() => {
+    // Shuffle items initially
+    const indices = items.map((_: any, i: number) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<{ correct: boolean; score: number } | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const newOrder = [...userOrder];
+    const draggedItem = newOrder[draggedIndex];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(index, 0, draggedItem);
+    setUserOrder(newOrder);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  const handleSubmit = () => {
+    const res = onSubmit(userOrder);
+    setResult(res);
+    setSubmitted(true);
+    if (res.correct) {
+      toast.success("Correct order!");
+    } else {
+      toast.error(`Score: ${res.score}%`);
+    }
+  };
+
+  if (items.length === 0) {
+    return <p className="text-sm text-muted-foreground">No items configured</p>;
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {block.content?.instruction || "Drag and drop to reorder:"}
+      </p>
+      
+      <div className="space-y-2">
+        {userOrder.map((itemIndex, displayIndex) => (
+          <div
+            key={itemIndex}
+            draggable={!submitted}
+            onDragStart={() => handleDragStart(displayIndex)}
+            onDragOver={(e) => handleDragOver(e, displayIndex)}
+            onDragEnd={handleDragEnd}
+            className={cn(
+              "flex items-center gap-2 p-3 bg-muted/50 rounded border transition-all",
+              !submitted && "cursor-move hover:bg-muted",
+              draggedIndex === displayIndex && "opacity-50",
+              submitted && block.content?.correctOrder?.[displayIndex] === itemIndex && "border-success bg-success/10",
+              submitted && block.content?.correctOrder?.[displayIndex] !== itemIndex && "border-destructive bg-destructive/10"
+            )}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{items[itemIndex] || `Item ${itemIndex + 1}`}</span>
+          </div>
+        ))}
+      </div>
+
+      {!submitted ? (
+        <Button onClick={handleSubmit} className="w-full">
+          Check Order
+        </Button>
+      ) : (
+        <>
+          <div className={cn(
+            "p-3 rounded-lg text-center",
+            result?.correct ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+          )}>
+            <p className="font-medium">
+              {result?.correct ? "Correct!" : `Score: ${result?.score}%`}
+            </p>
+          </div>
+          
+          {block.content?.showCorrectOrderAfter !== false && !result?.correct && (
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-xs font-medium mb-2">Correct order:</p>
+              {(block.content?.correctOrder || []).map((idx: number, i: number) => (
+                <p key={i} className="text-xs">{i + 1}. {items[idx]}</p>
+              ))}
+            </div>
+          )}
+          
+          {block.content?.explanation && (
+            <p className="text-xs text-muted-foreground">{block.content.explanation}</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// Whiteboard Block Preview
+function WhiteboardBlockPreview({ block }: { block: Block }) {
+  const canvasSize = block.content?.canvasSize || 'a4';
+  const background = block.content?.background || 'blank';
+  
+  return (
+    <div className={cn(
+      "border-2 border-dashed rounded-lg flex items-center justify-center",
+      canvasSize === 'a4' && "aspect-[1/1.4] max-h-64",
+      canvasSize === 'square' && "aspect-square max-h-64",
+      canvasSize === 'wide' && "aspect-video max-h-48",
+      background === 'blank' && "bg-white dark:bg-muted/30",
+      background === 'grid' && "bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[size:20px_20px]",
+      background === 'ruled' && "bg-[linear-gradient(transparent_23px,#e5e7eb_24px)] bg-[size:100%_24px]"
+    )}>
+      <div className="text-center p-4">
+        <span className="text-3xl mb-2 block">✏️</span>
+        <p className="text-sm text-muted-foreground">
+          {block.content?.prompt || "Draw or write your answer"}
+        </p>
+        <Button className="mt-3" size="sm">
+          Start Drawing
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Interactive Reflection Block
+function ReflectionBlockInteractive({ 
+  block, 
+  progress,
+  onSubmit 
+}: { 
+  block: Block; 
+  progress?: BlockProgress;
+  onSubmit: (text: string) => void;
+}) {
+  const [text, setText] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const minWords = block.content?.minWords || 0;
+  const maxWords = block.content?.maxWords;
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  const meetsMinimum = wordCount >= minWords;
+  const exceedsMax = maxWords && wordCount > maxWords;
+
+  const handleSubmit = () => {
+    if (!meetsMinimum || exceedsMax) return;
+    onSubmit(text);
+    setSubmitted(true);
+    toast.success("Reflection submitted!");
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        {block.content?.prompt || "Share your reflection..."}
+      </p>
+      
+      {block.content?.exampleResponse && (
+        <details className="text-xs">
+          <summary className="cursor-pointer text-muted-foreground hover:text-primary">
+            View example response
+          </summary>
+          <p className="mt-2 p-2 bg-muted rounded italic">{block.content.exampleResponse}</p>
+        </details>
+      )}
+      
+      <Textarea 
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Type your reflection here..."
+        className="min-h-[120px]"
+        disabled={submitted}
+      />
+      
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span className={cn(
+          !meetsMinimum && wordCount > 0 && "text-destructive",
+          meetsMinimum && "text-success"
+        )}>
+          {wordCount} words
+          {minWords > 0 && ` (min: ${minWords})`}
+          {maxWords && ` (max: ${maxWords})`}
+        </span>
+        {exceedsMax && <span className="text-destructive">Exceeds maximum</span>}
+      </div>
+
+      {!submitted ? (
+        <Button 
+          onClick={handleSubmit}
+          disabled={!meetsMinimum || !!exceedsMax}
+          className="w-full"
+        >
+          Submit Reflection
+        </Button>
+      ) : (
+        <div className="p-3 rounded-lg bg-success/10 text-success text-center">
+          <CheckCircle2 className="h-5 w-5 inline mr-2" />
+          Reflection submitted
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Resource Block Preview
+function ResourceBlockPreview({ block }: { block: Block }) {
+  const fileTypeIcons: Record<string, string> = {
+    pdf: '📄',
+    doc: '📝',
+    ppt: '📊',
+    xls: '📈',
+    image: '🖼️',
+    zip: '📦',
+    other: '📎',
+  };
+
+  const icon = fileTypeIcons[block.content?.fileType || 'other'] || '📎';
+  const isLink = block.content?.resourceType === 'link';
+
+  return (
+    <div className="p-4 bg-muted/50 rounded-lg flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <span className="text-2xl">{icon}</span>
+        <div>
+          <p className="text-sm font-medium">{block.content?.fileName || "Resource file"}</p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {block.content?.fileSize && <span>{block.content.fileSize}</span>}
+            {block.content?.versionLabel && <span>• {block.content.versionLabel}</span>}
+          </div>
+        </div>
+      </div>
+      <Button variant="outline" size="sm">
+        {isLink ? (
+          <>
+            <ExternalLink className="h-4 w-4 mr-1" />
+            Open
+          </>
+        ) : (
+          <>
+            <Download className="h-4 w-4 mr-1" />
+            Download
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+// Q&A Thread Block Preview
+function QAThreadBlockPreview({ block }: { block: Block }) {
+  return (
+    <div className="p-4 bg-muted/50 rounded-lg text-center">
+      <span className="text-2xl mb-2 block">💬</span>
+      <p className="text-sm text-muted-foreground mb-3">Ask questions and discuss with your tutor</p>
+      <Button variant="outline" size="sm" className="w-full">
+        Ask a Question
+      </Button>
+    </div>
+  );
+}
+
+// Divider Block Preview
+function DividerBlockPreview({ block }: { block: Block }) {
+  const style = block.content?.style || 'line';
+  const spacing = block.content?.spacing || 'normal';
+  
+  return (
+    <div className={cn(
+      spacing === 'compact' && "py-2",
+      spacing === 'normal' && "py-4",
+      spacing === 'large' && "py-8",
+    )}>
+      {style === 'line' && <hr className="border-t" />}
+      {style === 'whitespace' && <div className="h-8" />}
+      {style === 'section-break' && (
+        <div className="text-center">
+          <hr className="border-t mb-4" />
+          {block.content?.sectionHeading && (
+            <p className="font-semibold text-lg">{block.content.sectionHeading}</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

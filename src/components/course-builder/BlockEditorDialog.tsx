@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Dialog,
   DialogContent,
@@ -20,8 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Trash2, GripVertical, Info, AlertCircle, Lightbulb, CheckCircle2 } from "lucide-react";
 import { useCourseBuilder } from "@/contexts/CourseBuilderContext";
+import { BlockSettingsPanel } from "./BlockSettingsPanel";
+import { cn } from "@/lib/utils";
 
 interface BlockEditorDialogProps {
   block: Block | null;
@@ -34,6 +38,12 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
   const [title, setTitle] = useState(block?.title || "");
   const [content, setContent] = useState<any>(block?.content || {});
   const [isRequired, setIsRequired] = useState(block?.isRequired || false);
+  const [points, setPoints] = useState<number | undefined>(block?.points);
+  const [maxAttempts, setMaxAttempts] = useState<number | undefined>(block?.maxAttempts);
+  const [visibilityCondition, setVisibilityCondition] = useState<'always' | 'after_prev_complete' | 'score_threshold'>(
+    block?.visibilityCondition || 'always'
+  );
+  const [visibilityThreshold, setVisibilityThreshold] = useState<number | undefined>(block?.visibilityThreshold);
 
   // Reset state when block changes
   useEffect(() => {
@@ -41,21 +51,35 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
       setTitle(block.title);
       setContent(JSON.parse(JSON.stringify(block.content || {})));
       setIsRequired(block.isRequired);
+      setPoints(block.points);
+      setMaxAttempts(block.maxAttempts);
+      setVisibilityCondition(block.visibilityCondition || 'always');
+      setVisibilityThreshold(block.visibilityThreshold);
     }
   }, [block]);
 
   const handleSave = () => {
     if (block) {
-      updateBlock(block.id, { title, content, isRequired });
+      updateBlock(block.id, { 
+        title, 
+        content, 
+        isRequired,
+        points,
+        maxAttempts,
+        visibilityCondition,
+        visibilityThreshold,
+      });
       onOpenChange(false);
     }
   };
 
   if (!block) return null;
 
+  const hasAdvancedSettings = ['micro-quiz', 'drag-drop-reorder', 'whiteboard', 'reflection'].includes(block.type);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit {getBlockTypeLabel(block.type)}</DialogTitle>
           <DialogDescription>
@@ -63,53 +87,73 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Common Fields */}
-          <div className="space-y-2">
-            <Label htmlFor="title">Block Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter block title..."
-            />
-          </div>
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-          <div className="flex items-center gap-2">
-            <Switch
-              id="required"
-              checked={isRequired}
-              onCheckedChange={setIsRequired}
-            />
-            <Label htmlFor="required">Required to complete page</Label>
-          </div>
+          <TabsContent value="content" className="space-y-6 py-4">
+            {/* Common Fields */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Block Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter block title..."
+              />
+            </div>
 
-          {/* Block-specific editors */}
-          {block.type === "text" && (
-            <TextBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "video" && (
-            <VideoBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "image" && (
-            <ImageBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "micro-quiz" && (
-            <MicroQuizEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "drag-drop-reorder" && (
-            <ReorderBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "whiteboard" && (
-            <WhiteboardBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "reflection" && (
-            <ReflectionBlockEditor content={content} onChange={setContent} />
-          )}
-          {block.type === "resource" && (
-            <ResourceBlockEditor content={content} onChange={setContent} />
-          )}
-        </div>
+            {/* Block-specific editors */}
+            {block.type === "text" && (
+              <TextBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "video" && (
+              <VideoBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "image" && (
+              <ImageBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "micro-quiz" && (
+              <MicroQuizEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "drag-drop-reorder" && (
+              <ReorderBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "whiteboard" && (
+              <WhiteboardBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "reflection" && (
+              <ReflectionBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "resource" && (
+              <ResourceBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "divider" && (
+              <DividerBlockEditor content={content} onChange={setContent} />
+            )}
+            {block.type === "qa-thread" && (
+              <QAThreadBlockEditor content={content} onChange={setContent} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="settings" className="py-4">
+            <BlockSettingsPanel
+              block={block}
+              isRequired={isRequired}
+              setIsRequired={setIsRequired}
+              points={points}
+              setPoints={setPoints}
+              maxAttempts={maxAttempts}
+              setMaxAttempts={setMaxAttempts}
+              visibilityCondition={visibilityCondition}
+              setVisibilityCondition={setVisibilityCondition}
+              visibilityThreshold={visibilityThreshold}
+              setVisibilityThreshold={setVisibilityThreshold}
+            />
+          </TabsContent>
+        </Tabs>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -122,26 +166,73 @@ export function BlockEditorDialog({ block, open, onOpenChange }: BlockEditorDial
   );
 }
 
-// Text Block Editor
+// Text Block Editor with callout styles
 function TextBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  const calloutStyles = [
+    { value: 'none', label: 'None', icon: null },
+    { value: 'info', label: 'Info', icon: Info, color: 'text-blue-500' },
+    { value: 'warning', label: 'Warning', icon: AlertCircle, color: 'text-amber-500' },
+    { value: 'tip', label: 'Tip', icon: Lightbulb, color: 'text-green-500' },
+    { value: 'success', label: 'Success', icon: CheckCircle2, color: 'text-emerald-500' },
+  ];
+
   return (
-    <div className="space-y-2">
-      <Label>Content</Label>
-      <Textarea
-        value={content.html || ""}
-        onChange={(e) => onChange({ ...content, html: e.target.value })}
-        placeholder="Enter your text content here..."
-        className="min-h-[200px]"
-      />
-      <p className="text-xs text-muted-foreground">
-        Supports basic HTML formatting.
-      </p>
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Callout Style (optional)</Label>
+        <Select
+          value={content.calloutStyle || 'none'}
+          onValueChange={(val) => onChange({ ...content, calloutStyle: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {calloutStyles.map(style => (
+              <SelectItem key={style.value} value={style.value}>
+                <div className="flex items-center gap-2">
+                  {style.icon && <style.icon className={cn("h-4 w-4", style.color)} />}
+                  <span>{style.label}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Content</Label>
+        <Textarea
+          value={content.html || ""}
+          onChange={(e) => onChange({ ...content, html: e.target.value })}
+          placeholder="Enter your text content here..."
+          className="min-h-[200px] font-mono text-sm"
+        />
+        <p className="text-xs text-muted-foreground">
+          Supports basic HTML formatting (headings, bold, italic, lists, links).
+        </p>
+      </div>
+
+      {content.calloutStyle && content.calloutStyle !== 'none' && (
+        <div className={cn(
+          "p-4 rounded-lg border-l-4",
+          content.calloutStyle === 'info' && "bg-blue-50 border-blue-500 dark:bg-blue-950/30",
+          content.calloutStyle === 'warning' && "bg-amber-50 border-amber-500 dark:bg-amber-950/30",
+          content.calloutStyle === 'tip' && "bg-green-50 border-green-500 dark:bg-green-950/30",
+          content.calloutStyle === 'success' && "bg-emerald-50 border-emerald-500 dark:bg-emerald-950/30",
+        )}>
+          <p className="text-sm font-medium mb-1">Preview</p>
+          <div dangerouslySetInnerHTML={{ __html: content.html || '<p>Your content here...</p>' }} className="text-sm" />
+        </div>
+      )}
     </div>
   );
 }
 
-// Video Block Editor
+// Video Block Editor with enhanced fields
 function VideoBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -152,6 +243,7 @@ function VideoBlockEditor({ content, onChange }: { content: any; onChange: (c: a
           placeholder="https://youtube.com/watch?v=... or Vimeo link"
         />
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Duration</Label>
@@ -162,19 +254,88 @@ function VideoBlockEditor({ content, onChange }: { content: any; onChange: (c: a
           />
         </div>
         <div className="space-y-2">
-          <Label>Thumbnail URL (optional)</Label>
-          <Input
-            value={content.thumbnail || ""}
-            onChange={(e) => onChange({ ...content, thumbnail: e.target.value })}
-            placeholder="https://..."
-          />
+          <Label>Watch Threshold (%)</Label>
+          <div className="flex items-center gap-4">
+            <Slider
+              value={[content.watchThreshold || 80]}
+              onValueChange={([val]) => onChange({ ...content, watchThreshold: val })}
+              min={0}
+              max={100}
+              step={5}
+              className="flex-1"
+            />
+            <span className="text-sm font-medium w-12">{content.watchThreshold || 80}%</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Students must watch this percentage to complete
+          </p>
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label>Transcript (optional)</Label>
+        <Textarea
+          value={content.transcript || ""}
+          onChange={(e) => onChange({ ...content, transcript: e.target.value })}
+          placeholder="Paste video transcript here for accessibility..."
+          className="min-h-[100px]"
+        />
+      </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => setShowAdvanced(!showAdvanced)}
+      >
+        {showAdvanced ? "Hide" : "Show"} Advanced Options
+      </Button>
+
+      {showAdvanced && (
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Start Time</Label>
+              <Input
+                value={content.startTime || ""}
+                onChange={(e) => onChange({ ...content, startTime: e.target.value })}
+                placeholder="e.g., 0:30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>End Time</Label>
+              <Input
+                value={content.endTime || ""}
+                onChange={(e) => onChange({ ...content, endTime: e.target.value })}
+                placeholder="e.g., 10:00"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Captions URL (VTT/SRT)</Label>
+            <Input
+              value={content.captionsUrl || ""}
+              onChange={(e) => onChange({ ...content, captionsUrl: e.target.value })}
+              placeholder="https://..."
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Switch
+              id="allowDownload"
+              checked={content.allowDownload === true}
+              onCheckedChange={(checked) => onChange({ ...content, allowDownload: checked })}
+            />
+            <Label htmlFor="allowDownload">Allow download</Label>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// Image Block Editor
+// Image Block Editor with size and gallery options
 function ImageBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   return (
     <div className="space-y-4">
@@ -186,14 +347,16 @@ function ImageBlockEditor({ content, onChange }: { content: any; onChange: (c: a
           placeholder="https://..."
         />
       </div>
+
       <div className="space-y-2">
-        <Label>Alt Text</Label>
+        <Label>Alt Text (required for accessibility)</Label>
         <Input
           value={content.alt || ""}
           onChange={(e) => onChange({ ...content, alt: e.target.value })}
           placeholder="Describe the image..."
         />
       </div>
+
       <div className="space-y-2">
         <Label>Caption (optional)</Label>
         <Input
@@ -202,11 +365,62 @@ function ImageBlockEditor({ content, onChange }: { content: any; onChange: (c: a
           placeholder="Image caption..."
         />
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Display Size</Label>
+          <Select
+            value={content.displaySize || 'large'}
+            onValueChange={(val) => onChange({ ...content, displaySize: val })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="small">Small (25%)</SelectItem>
+              <SelectItem value="medium">Medium (50%)</SelectItem>
+              <SelectItem value="large">Large (75%)</SelectItem>
+              <SelectItem value="full">Full Width</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="allowImgDownload"
+          checked={content.allowDownload === true}
+          onCheckedChange={(checked) => onChange({ ...content, allowDownload: checked })}
+        />
+        <Label htmlFor="allowImgDownload">Allow download</Label>
+      </div>
+
+      {content.url && (
+        <div className="mt-4">
+          <Label className="mb-2 block">Preview</Label>
+          <div className={cn(
+            "rounded-lg overflow-hidden border bg-muted",
+            content.displaySize === 'small' && "w-1/4",
+            content.displaySize === 'medium' && "w-1/2",
+            content.displaySize === 'large' && "w-3/4",
+            content.displaySize === 'full' && "w-full",
+          )}>
+            <img 
+              src={content.url} 
+              alt={content.alt || ""} 
+              className="w-full h-auto"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// Micro-Quiz Editor
+// Enhanced Micro-Quiz Editor
 function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   const questions = content.questions || [];
 
@@ -217,9 +431,13 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
         ...questions,
         {
           id: `q-${Date.now()}`,
+          type: 'single-choice',
           question: "",
           options: ["", "", "", ""],
           correctAnswer: 0,
+          hint: "",
+          explanation: "",
+          points: 1,
         },
       ],
     });
@@ -239,7 +457,68 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Quiz Settings */}
+      <div className="p-4 bg-muted/30 rounded-lg space-y-4">
+        <h4 className="font-medium text-sm">Quiz Settings</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Pass Mark (%)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={content.passMark || ""}
+              onChange={(e) => onChange({ ...content, passMark: e.target.value ? parseInt(e.target.value) : undefined })}
+              placeholder="e.g., 70"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Completion Rule</Label>
+            <Select
+              value={content.completionRule || 'attempted'}
+              onValueChange={(val) => onChange({ ...content, completionRule: val })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="attempted">Attempted (any answer)</SelectItem>
+                <SelectItem value="passed">Passed (meet pass mark)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="shuffleQuestions"
+              checked={content.shuffleQuestions === true}
+              onCheckedChange={(checked) => onChange({ ...content, shuffleQuestions: checked })}
+            />
+            <Label htmlFor="shuffleQuestions">Shuffle questions</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="shuffleAnswers"
+              checked={content.shuffleAnswers === true}
+              onCheckedChange={(checked) => onChange({ ...content, shuffleAnswers: checked })}
+            />
+            <Label htmlFor="shuffleAnswers">Shuffle answers</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="showCorrect"
+              checked={content.showCorrectAfterAttempt !== false}
+              onCheckedChange={(checked) => onChange({ ...content, showCorrectAfterAttempt: checked })}
+            />
+            <Label htmlFor="showCorrect">Show correct answer after attempt</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Questions */}
       <div className="flex items-center justify-between">
         <Label>Questions</Label>
         <Button variant="outline" size="sm" onClick={addQuestion}>
@@ -249,9 +528,25 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
       </div>
 
       {questions.map((q: any, qIndex: number) => (
-        <div key={q.id} className="p-4 border rounded-lg space-y-4 bg-muted/30">
+        <div key={q.id} className="p-4 border rounded-lg space-y-4 bg-card">
           <div className="flex items-start justify-between">
-            <span className="text-sm font-medium">Question {qIndex + 1}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Question {qIndex + 1}</span>
+              <Select
+                value={q.type || 'single-choice'}
+                onValueChange={(val) => updateQuestion(qIndex, { type: val })}
+              >
+                <SelectTrigger className="w-36 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single-choice">Single Choice</SelectItem>
+                  <SelectItem value="multi-select">Multi-Select</SelectItem>
+                  <SelectItem value="true-false">True/False</SelectItem>
+                  <SelectItem value="short-answer">Short Answer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -269,32 +564,115 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
             className="min-h-[60px]"
           />
 
-          <div className="space-y-2">
-            <Label>Answer Options</Label>
-            {q.options.map((opt: string, optIndex: number) => (
-              <div key={optIndex} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name={`correct-${q.id}`}
-                  checked={q.correctAnswer === optIndex}
-                  onChange={() => updateQuestion(qIndex, { correctAnswer: optIndex })}
-                  className="h-4 w-4"
+          {/* Answer Options */}
+          {(q.type === 'single-choice' || q.type === 'multi-select' || !q.type) && (
+            <div className="space-y-2">
+              <Label>Answer Options</Label>
+              {q.options.map((opt: string, optIndex: number) => (
+                <div key={optIndex} className="flex items-center gap-2">
+                  {q.type === 'multi-select' ? (
+                    <input
+                      type="checkbox"
+                      checked={Array.isArray(q.correctAnswer) ? q.correctAnswer.includes(optIndex) : false}
+                      onChange={(e) => {
+                        const current = Array.isArray(q.correctAnswer) ? q.correctAnswer : [];
+                        const newCorrect = e.target.checked
+                          ? [...current, optIndex]
+                          : current.filter((i: number) => i !== optIndex);
+                        updateQuestion(qIndex, { correctAnswer: newCorrect });
+                      }}
+                      className="h-4 w-4"
+                    />
+                  ) : (
+                    <input
+                      type="radio"
+                      name={`correct-${q.id}`}
+                      checked={q.correctAnswer === optIndex}
+                      onChange={() => updateQuestion(qIndex, { correctAnswer: optIndex })}
+                      className="h-4 w-4"
+                    />
+                  )}
+                  <Input
+                    value={opt}
+                    onChange={(e) => {
+                      const newOptions = [...q.options];
+                      newOptions[optIndex] = e.target.value;
+                      updateQuestion(qIndex, { options: newOptions });
+                    }}
+                    placeholder={`Option ${String.fromCharCode(65 + optIndex)}`}
+                    className="flex-1"
+                  />
+                </div>
+              ))}
+              <p className="text-xs text-muted-foreground">
+                {q.type === 'multi-select' 
+                  ? 'Check all correct answers.' 
+                  : 'Select the radio button next to the correct answer.'}
+              </p>
+            </div>
+          )}
+
+          {q.type === 'true-false' && (
+            <div className="space-y-2">
+              <Label>Correct Answer</Label>
+              <Select
+                value={q.correctAnswer === 0 ? 'true' : 'false'}
+                onValueChange={(val) => updateQuestion(qIndex, { 
+                  correctAnswer: val === 'true' ? 0 : 1,
+                  options: ['True', 'False']
+                })}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">True</SelectItem>
+                  <SelectItem value="false">False</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {q.type === 'short-answer' && (
+            <div className="space-y-2">
+              <Label>Expected Answer</Label>
+              <Input
+                value={q.options?.[0] || ""}
+                onChange={(e) => updateQuestion(qIndex, { 
+                  options: [e.target.value],
+                  correctAnswer: 0
+                })}
+                placeholder="Enter the expected answer..."
+              />
+              <div className="flex items-center gap-2">
+                <Switch
+                  id={`caseSensitive-${qIndex}`}
+                  checked={q.caseSensitive === true}
+                  onCheckedChange={(checked) => updateQuestion(qIndex, { caseSensitive: checked })}
                 />
-                <Input
-                  value={opt}
-                  onChange={(e) => {
-                    const newOptions = [...q.options];
-                    newOptions[optIndex] = e.target.value;
-                    updateQuestion(qIndex, { options: newOptions });
-                  }}
-                  placeholder={`Option ${String.fromCharCode(65 + optIndex)}`}
-                  className="flex-1"
-                />
+                <Label htmlFor={`caseSensitive-${qIndex}`}>Case sensitive</Label>
               </div>
-            ))}
-            <p className="text-xs text-muted-foreground">
-              Select the radio button next to the correct answer.
-            </p>
+            </div>
+          )}
+
+          {/* Hint and Explanation */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Hint (optional)</Label>
+              <Input
+                value={q.hint || ""}
+                onChange={(e) => updateQuestion(qIndex, { hint: e.target.value })}
+                placeholder="Give students a hint..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Explanation (shown after answer)</Label>
+              <Input
+                value={q.explanation || ""}
+                onChange={(e) => updateQuestion(qIndex, { explanation: e.target.value })}
+                placeholder="Explain the correct answer..."
+              />
+            </div>
           </div>
         </div>
       ))}
@@ -308,7 +686,7 @@ function MicroQuizEditor({ content, onChange }: { content: any; onChange: (c: an
   );
 }
 
-// Reorder Block Editor
+// Enhanced Reorder Block Editor
 function ReorderBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   const items = content.items || [];
 
@@ -347,6 +725,42 @@ function ReorderBlockEditor({ content, onChange }: { content: any; onChange: (c:
         />
       </div>
 
+      {/* Scoring Settings */}
+      <div className="p-4 bg-muted/30 rounded-lg space-y-4">
+        <h4 className="font-medium text-sm">Scoring Settings</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Scoring Mode</Label>
+            <Select
+              value={content.scoringMode || 'all-or-nothing'}
+              onValueChange={(val) => onChange({ ...content, scoringMode: val })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-or-nothing">All or Nothing</SelectItem>
+                <SelectItem value="partial-credit">Partial Credit</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {content.scoringMode === 'partial-credit' 
+                ? 'Students get points for each correctly placed item'
+                : 'Students must get the entire order correct'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Switch
+            id="showCorrectOrder"
+            checked={content.showCorrectOrderAfter !== false}
+            onCheckedChange={(checked) => onChange({ ...content, showCorrectOrderAfter: checked })}
+          />
+          <Label htmlFor="showCorrectOrder">Show correct order after submission</Label>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <Label>Items (in correct order)</Label>
         <Button variant="outline" size="sm" onClick={addItem}>
@@ -378,6 +792,16 @@ function ReorderBlockEditor({ content, onChange }: { content: any; onChange: (c:
         ))}
       </div>
 
+      <div className="space-y-2">
+        <Label>Explanation (shown after attempt)</Label>
+        <Textarea
+          value={content.explanation || ""}
+          onChange={(e) => onChange({ ...content, explanation: e.target.value })}
+          placeholder="Explain why this order is correct..."
+          className="min-h-[80px]"
+        />
+      </div>
+
       <p className="text-xs text-muted-foreground">
         Enter items in the correct order. Students will see them shuffled.
       </p>
@@ -385,8 +809,25 @@ function ReorderBlockEditor({ content, onChange }: { content: any; onChange: (c:
   );
 }
 
-// Whiteboard Block Editor
+// Enhanced Whiteboard Block Editor
 function WhiteboardBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  const defaultTools = {
+    pen: true,
+    highlighter: true,
+    eraser: true,
+    shapes: true,
+    text: true,
+    undo: true,
+  };
+  const tools = content.enabledTools || defaultTools;
+
+  const updateTool = (tool: string, enabled: boolean) => {
+    onChange({
+      ...content,
+      enabledTools: { ...tools, [tool]: enabled }
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -398,19 +839,90 @@ function WhiteboardBlockEditor({ content, onChange }: { content: any; onChange: 
           className="min-h-[80px]"
         />
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Canvas Size</Label>
+          <Select
+            value={content.canvasSize || 'a4'}
+            onValueChange={(val) => onChange({ ...content, canvasSize: val })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="a4">A4 (Portrait)</SelectItem>
+              <SelectItem value="square">Square</SelectItem>
+              <SelectItem value="wide">Wide (Landscape)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Background</Label>
+          <Select
+            value={content.background || 'blank'}
+            onValueChange={(val) => onChange({ ...content, background: val })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="blank">Blank</SelectItem>
+              <SelectItem value="grid">Grid</SelectItem>
+              <SelectItem value="ruled">Ruled Lines</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Enabled Tools</Label>
+        <div className="flex flex-wrap gap-4">
+          {Object.entries(tools).map(([tool, enabled]) => (
+            <div key={tool} className="flex items-center gap-2">
+              <Switch
+                id={`tool-${tool}`}
+                checked={enabled as boolean}
+                onCheckedChange={(checked) => updateTool(tool, checked)}
+              />
+              <Label htmlFor={`tool-${tool}`} className="capitalize">{tool}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex items-center gap-2">
         <Switch
           id="allowImage"
           checked={content.allowImage !== false}
           onCheckedChange={(checked) => onChange({ ...content, allowImage: checked })}
         />
-        <Label htmlFor="allowImage">Allow image upload</Label>
+        <Label htmlFor="allowImage">Allow image upload onto canvas</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="multiPage"
+          checked={content.multiPage === true}
+          onCheckedChange={(checked) => onChange({ ...content, multiPage: checked })}
+        />
+        <Label htmlFor="multiPage">Allow multiple pages</Label>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Rubric / Marking Criteria (for tutor)</Label>
+        <Textarea
+          value={content.rubric || ""}
+          onChange={(e) => onChange({ ...content, rubric: e.target.value })}
+          placeholder="Describe what you're looking for in submissions..."
+          className="min-h-[80px]"
+        />
       </div>
     </div>
   );
 }
 
-// Reflection Block Editor
+// Enhanced Reflection Block Editor
 function ReflectionBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
   return (
     <div className="space-y-4">
@@ -423,9 +935,20 @@ function ReflectionBlockEditor({ content, onChange }: { content: any; onChange: 
           className="min-h-[80px]"
         />
       </div>
+
+      <div className="space-y-2">
+        <Label>Example Response (optional)</Label>
+        <Textarea
+          value={content.exampleResponse || ""}
+          onChange={(e) => onChange({ ...content, exampleResponse: e.target.value })}
+          placeholder="Provide an example of a good response..."
+          className="min-h-[60px]"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Minimum Words (optional)</Label>
+          <Label>Minimum Words</Label>
           <Input
             type="number"
             value={content.minWords || ""}
@@ -433,40 +956,143 @@ function ReflectionBlockEditor({ content, onChange }: { content: any; onChange: 
             placeholder="e.g., 50"
           />
         </div>
+        <div className="space-y-2">
+          <Label>Maximum Words (optional)</Label>
+          <Input
+            type="number"
+            value={content.maxWords || ""}
+            onChange={(e) => onChange({ ...content, maxWords: parseInt(e.target.value) || undefined })}
+            placeholder="e.g., 500"
+          />
+        </div>
       </div>
+
+      <div className="space-y-2">
+        <Label>Privacy Mode</Label>
+        <Select
+          value={content.privacyMode || 'private'}
+          onValueChange={(val) => onChange({ ...content, privacyMode: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="private">Private (tutor only)</SelectItem>
+            <SelectItem value="peer-gallery">Peer Gallery (shared with class)</SelectItem>
+            <SelectItem value="anonymous">Anonymous Peer Gallery</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          {content.privacyMode === 'peer-gallery' && "Students can see each other's reflections with names visible"}
+          {content.privacyMode === 'anonymous' && "Students can see each other's reflections without names"}
+          {(!content.privacyMode || content.privacyMode === 'private') && "Only the tutor can see submissions"}
+        </p>
+      </div>
+
+      {(content.privacyMode === 'peer-gallery' || content.privacyMode === 'anonymous') && (
+        <div className="flex items-center gap-2">
+          <Switch
+            id="allowPeerComments"
+            checked={content.allowPeerComments === true}
+            onCheckedChange={(checked) => onChange({ ...content, allowPeerComments: checked })}
+          />
+          <Label htmlFor="allowPeerComments">Allow peer comments</Label>
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         <Switch
-          id="showPeers"
-          checked={content.showPeerReflections !== false}
-          onCheckedChange={(checked) => onChange({ ...content, showPeerReflections: checked })}
+          id="mustSubmit"
+          checked={content.mustSubmitToComplete !== false}
+          onCheckedChange={(checked) => onChange({ ...content, mustSubmitToComplete: checked })}
         />
-        <Label htmlFor="showPeers">Show peer reflections after submission</Label>
+        <Label htmlFor="mustSubmit">Must submit to complete</Label>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Rubric / Marking Criteria (optional)</Label>
+        <Textarea
+          value={content.rubric || ""}
+          onChange={(e) => onChange({ ...content, rubric: e.target.value })}
+          placeholder="Describe what makes a good reflection..."
+          className="min-h-[60px]"
+        />
       </div>
     </div>
   );
 }
 
-// Resource Block Editor
+// Enhanced Resource Block Editor
 function ResourceBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  const fileTypeIcons: Record<string, string> = {
+    pdf: '📄',
+    doc: '📝',
+    ppt: '📊',
+    xls: '📈',
+    image: '🖼️',
+    zip: '📦',
+    other: '📎',
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>File URL</Label>
+        <Label>Resource Type</Label>
+        <Select
+          value={content.resourceType || 'file'}
+          onValueChange={(val) => onChange({ ...content, resourceType: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="file">File Download</SelectItem>
+            <SelectItem value="link">External Link</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{content.resourceType === 'link' ? 'Link URL' : 'File URL'}</Label>
         <Input
           value={content.url || ""}
           onChange={(e) => onChange({ ...content, url: e.target.value })}
           placeholder="https://..."
         />
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>File Name</Label>
+          <Label>{content.resourceType === 'link' ? 'Link Label' : 'File Name'}</Label>
           <Input
             value={content.fileName || ""}
             onChange={(e) => onChange({ ...content, fileName: e.target.value })}
-            placeholder="worksheet.pdf"
+            placeholder={content.resourceType === 'link' ? "Click here to view..." : "worksheet.pdf"}
           />
         </div>
+        {content.resourceType !== 'link' && (
+          <div className="space-y-2">
+            <Label>File Type</Label>
+            <Select
+              value={content.fileType || 'pdf'}
+              onValueChange={(val) => onChange({ ...content, fileType: val })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(fileTypeIcons).map(([type, icon]) => (
+                  <SelectItem key={type} value={type}>
+                    {icon} {type.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {content.resourceType !== 'link' && (
         <div className="space-y-2">
           <Label>File Size</Label>
           <Input
@@ -475,6 +1101,248 @@ function ResourceBlockEditor({ content, onChange }: { content: any; onChange: (c
             placeholder="2.5 MB"
           />
         </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Version Label (optional)</Label>
+          <Input
+            value={content.versionLabel || ""}
+            onChange={(e) => onChange({ ...content, versionLabel: e.target.value })}
+            placeholder="e.g., v2.0"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Expiry Date (optional)</Label>
+          <Input
+            type="date"
+            value={content.expiryDate || ""}
+            onChange={(e) => onChange({ ...content, expiryDate: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="mustOpen"
+          checked={content.mustOpenToComplete === true}
+          onCheckedChange={(checked) => onChange({ ...content, mustOpenToComplete: checked })}
+        />
+        <Label htmlFor="mustOpen">Must open to complete</Label>
+      </div>
+
+      {content.resourceType === 'link' && (
+        <div className="flex items-center gap-2">
+          <Switch
+            id="openNewTab"
+            checked={content.openInNewTab !== false}
+            onCheckedChange={(checked) => onChange({ ...content, openInNewTab: checked })}
+          />
+          <Label htmlFor="openNewTab">Open in new tab</Label>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// New Divider Block Editor
+function DividerBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Style</Label>
+        <Select
+          value={content.style || 'line'}
+          onValueChange={(val) => onChange({ ...content, style: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="line">Line</SelectItem>
+            <SelectItem value="whitespace">Whitespace</SelectItem>
+            <SelectItem value="section-break">Section Break</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {content.style === 'section-break' && (
+        <div className="space-y-2">
+          <Label>Section Heading (optional)</Label>
+          <Input
+            value={content.sectionHeading || ""}
+            onChange={(e) => onChange({ ...content, sectionHeading: e.target.value })}
+            placeholder="e.g., Part 2: Advanced Topics"
+          />
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label>Spacing</Label>
+        <Select
+          value={content.spacing || 'normal'}
+          onValueChange={(val) => onChange({ ...content, spacing: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="compact">Compact</SelectItem>
+            <SelectItem value="normal">Normal</SelectItem>
+            <SelectItem value="large">Large</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Anchor ID (for deep links)</Label>
+        <Input
+          value={content.anchorId || ""}
+          onChange={(e) => onChange({ ...content, anchorId: e.target.value })}
+          placeholder="e.g., section-2"
+        />
+        <p className="text-xs text-muted-foreground">
+          Students can link directly to this section using #anchor-id
+        </p>
+      </div>
+
+      {/* Preview */}
+      <div className="mt-4">
+        <Label className="mb-2 block">Preview</Label>
+        <div className={cn(
+          "border rounded-lg p-4",
+          content.spacing === 'compact' && "py-2",
+          content.spacing === 'large' && "py-8",
+        )}>
+          {content.style === 'line' && <hr className="border-t" />}
+          {content.style === 'whitespace' && <div className="h-8" />}
+          {content.style === 'section-break' && (
+            <div className="text-center">
+              <hr className="border-t mb-4" />
+              {content.sectionHeading && (
+                <p className="font-semibold text-lg">{content.sectionHeading}</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// New Q&A Thread Block Editor
+function QAThreadBlockEditor({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  const categories = content.categories || [];
+
+  const addCategory = () => {
+    onChange({ ...content, categories: [...categories, ""] });
+  };
+
+  const updateCategory = (index: number, value: string) => {
+    const newCategories = [...categories];
+    newCategories[index] = value;
+    onChange({ ...content, categories: newCategories });
+  };
+
+  const removeCategory = (index: number) => {
+    onChange({
+      ...content,
+      categories: categories.filter((_: any, i: number) => i !== index),
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Who Can Post</Label>
+        <Select
+          value={content.whoCanPost || 'students-only'}
+          onValueChange={(val) => onChange({ ...content, whoCanPost: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="students-only">Students Only</SelectItem>
+            <SelectItem value="students-and-tutors">Students and Tutors</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Anonymity</Label>
+        <Select
+          value={content.anonymity || 'off'}
+          onValueChange={(val) => onChange({ ...content, anonymity: val })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="off">Names visible</SelectItem>
+            <SelectItem value="optional">Optional anonymous</SelectItem>
+            <SelectItem value="always-anonymous">Always anonymous to peers</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          {content.anonymity === 'always-anonymous' && "Student names are hidden from other students"}
+          {content.anonymity === 'optional' && "Students can choose to post anonymously"}
+          {(!content.anonymity || content.anonymity === 'off') && "All names are visible"}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="allowAttachments"
+          checked={content.allowAttachments === true}
+          onCheckedChange={(checked) => onChange({ ...content, allowAttachments: checked })}
+        />
+        <Label htmlFor="allowAttachments">Allow attachments (images/files)</Label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="moderationEnabled"
+          checked={content.moderationEnabled !== false}
+          onCheckedChange={(checked) => onChange({ ...content, moderationEnabled: checked })}
+        />
+        <Label htmlFor="moderationEnabled">Enable moderation (tutors can pin/lock threads)</Label>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>Categories (optional)</Label>
+          <Button variant="outline" size="sm" onClick={addCategory}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Category
+          </Button>
+        </div>
+        {categories.length > 0 ? (
+          <div className="space-y-2">
+            {categories.map((cat: string, index: number) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  value={cat}
+                  onChange={(e) => updateCategory(index, e.target.value)}
+                  placeholder={`Category ${index + 1} (e.g., Homework)`}
+                  className="flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive"
+                  onClick={() => removeCategory(index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No categories defined. Questions will be untagged.
+          </p>
+        )}
       </div>
     </div>
   );

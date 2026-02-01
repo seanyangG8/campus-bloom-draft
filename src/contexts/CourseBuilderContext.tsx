@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Chapter, Page, Block, BlockType, demoChapters, demoPages, demoBlocks } from '@/lib/demo-data';
+import { BlockProgress, checkQuizPassed, checkReorderCorrect } from '@/lib/completion-rules';
 import { toast } from 'sonner';
 
 interface CourseBuilderContextType {
@@ -9,6 +10,9 @@ interface CourseBuilderContextType {
   blocks: Block[];
   selectedPageId: string | null;
   selectedBlockId: string | null;
+  
+  // Student Progress
+  studentProgress: Map<string, BlockProgress>;
   
   // Selection
   setSelectedPageId: (id: string | null) => void;
@@ -33,6 +37,16 @@ interface CourseBuilderContextType {
   reorderBlocks: (pageId: string, orderedIds: string[]) => void;
   duplicateBlock: (id: string) => void;
   
+  // Student Progress Actions
+  markBlockViewed: (blockId: string) => void;
+  submitQuizAnswer: (blockId: string, answers: Record<string, number | number[]>) => { passed: boolean; score: number };
+  submitReorderAttempt: (blockId: string, userOrder: number[]) => { correct: boolean; score: number };
+  submitWhiteboardWork: (blockId: string, data: any) => void;
+  submitReflection: (blockId: string, text: string) => void;
+  updateVideoProgress: (blockId: string, watchedPercentage: number) => void;
+  getBlockProgress: (blockId: string) => BlockProgress | undefined;
+  resetBlockProgress: (blockId: string) => void;
+  
   // Page helpers
   getPagesByChapter: (chapterId: string) => Page[];
   getBlocksByPage: (pageId: string) => Block[];
@@ -52,6 +66,7 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
   const [blocks, setBlocks] = useState<Block[]>(demoBlocks);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [studentProgress, setStudentProgress] = useState<Map<string, BlockProgress>>(new Map());
 
   // Chapter operations
   const addChapter = useCallback((courseId: string, title: string) => {
@@ -274,6 +289,164 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
     toast.success('Block duplicated');
   }, [blocks]);
 
+  // Student Progress Actions
+  const markBlockViewed = useCallback((blockId: string) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      
+      // For video blocks, check watch threshold
+      if (block.type === 'video') {
+        const threshold = block.content?.watchThreshold || 80;
+        const watched = existing?.watchedPercentage || 0;
+        if (watched >= threshold) {
+          newMap.set(blockId, {
+            ...existing,
+            blockId,
+            status: 'completed',
+            attempts: (existing?.attempts || 0),
+            completedAt: new Date().toISOString(),
+          });
+        }
+      } else {
+        // For other viewable blocks, mark complete immediately
+        newMap.set(blockId, {
+          blockId,
+          status: 'completed',
+          attempts: 1,
+          completedAt: new Date().toISOString(),
+        });
+      }
+      return newMap;
+    });
+  }, [blocks]);
+
+  const submitQuizAnswer = useCallback((blockId: string, answers: Record<string, number | number[]>) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return { passed: false, score: 0 };
+    
+    const questions = block.content?.questions || [];
+    const result = checkQuizPassed(block, answers, questions);
+    
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      newMap.set(blockId, {
+        blockId,
+        status: result.passed ? 'completed' : 'in_progress',
+        attempts: (existing?.attempts || 0) + 1,
+        score: result.score,
+        maxScore: result.maxScore,
+        lastAttemptAt: new Date().toISOString(),
+        completedAt: result.passed ? new Date().toISOString() : undefined,
+        responses: answers,
+      });
+      return newMap;
+    });
+    
+    return result;
+  }, [blocks]);
+
+  const submitReorderAttempt = useCallback((blockId: string, userOrder: number[]) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return { correct: false, score: 0 };
+    
+    const result = checkReorderCorrect(block, userOrder);
+    
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      newMap.set(blockId, {
+        blockId,
+        status: result.correct ? 'completed' : 'in_progress',
+        attempts: (existing?.attempts || 0) + 1,
+        score: result.score,
+        maxScore: result.maxScore,
+        lastAttemptAt: new Date().toISOString(),
+        completedAt: result.correct ? new Date().toISOString() : undefined,
+        responses: userOrder,
+      });
+      return newMap;
+    });
+    
+    return result;
+  }, [blocks]);
+
+  const submitWhiteboardWork = useCallback((blockId: string, data: any) => {
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      newMap.set(blockId, {
+        blockId,
+        status: 'completed',
+        attempts: (existing?.attempts || 0) + 1,
+        lastAttemptAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        responses: data,
+      });
+      return newMap;
+    });
+  }, []);
+
+  const submitReflection = useCallback((blockId: string, text: string) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    
+    const minWords = block.content?.minWords || 0;
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const meetsMinimum = wordCount >= minWords;
+    
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      newMap.set(blockId, {
+        blockId,
+        status: meetsMinimum ? 'completed' : 'in_progress',
+        attempts: (existing?.attempts || 0) + 1,
+        lastAttemptAt: new Date().toISOString(),
+        completedAt: meetsMinimum ? new Date().toISOString() : undefined,
+        responses: { text, wordCount },
+      });
+      return newMap;
+    });
+  }, [blocks]);
+
+  const updateVideoProgress = useCallback((blockId: string, watchedPercentage: number) => {
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    
+    const threshold = block.content?.watchThreshold || 80;
+    const isComplete = watchedPercentage >= threshold;
+    
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      const existing = newMap.get(blockId);
+      newMap.set(blockId, {
+        blockId,
+        status: isComplete ? 'completed' : 'in_progress',
+        attempts: existing?.attempts || 1,
+        watchedPercentage,
+        completedAt: isComplete ? new Date().toISOString() : undefined,
+      });
+      return newMap;
+    });
+  }, [blocks]);
+
+  const getBlockProgress = useCallback((blockId: string) => {
+    return studentProgress.get(blockId);
+  }, [studentProgress]);
+
+  const resetBlockProgress = useCallback((blockId: string) => {
+    setStudentProgress(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(blockId);
+      return newMap;
+    });
+  }, []);
+
   // Helpers
   const getPagesByChapter = useCallback((chapterId: string) => {
     return pages
@@ -301,6 +474,7 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
         blocks,
         selectedPageId,
         selectedBlockId,
+        studentProgress,
         setSelectedPageId,
         setSelectedBlockId,
         addChapter,
@@ -316,6 +490,14 @@ export function CourseBuilderProvider({ children, courseId }: { children: ReactN
         deleteBlock,
         reorderBlocks,
         duplicateBlock,
+        markBlockViewed,
+        submitQuizAnswer,
+        submitReorderAttempt,
+        submitWhiteboardWork,
+        submitReflection,
+        updateVideoProgress,
+        getBlockProgress,
+        resetBlockProgress,
         getPagesByChapter,
         getBlocksByPage,
         getChaptersByCourse,

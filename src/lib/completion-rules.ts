@@ -1,8 +1,8 @@
 // Unified completion rules for the learning platform
-import { Block, BlockType, Page, Chapter, Course } from './demo-data';
+import { Block, BlockType, Page, Chapter, Course, MicroQuizBlockContent } from './demo-data';
 
 // Block completion rules by type
-export type CompletionMethod = 'viewed' | 'answered' | 'correct_order' | 'submitted' | 'not_counted';
+export type CompletionMethod = 'viewed' | 'answered' | 'correct_order' | 'submitted' | 'passed' | 'not_counted';
 
 export interface BlockCompletionRule {
   type: BlockType;
@@ -10,6 +10,7 @@ export interface BlockCompletionRule {
   label: string;
   description: string;
   countsTowardsCompletion: boolean;
+  supportsPassMark?: boolean;
 }
 
 export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
@@ -24,7 +25,7 @@ export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
     type: 'video',
     method: 'viewed',
     label: 'Watch video',
-    description: 'Complete when viewed',
+    description: 'Complete when watch threshold met',
     countsTowardsCompletion: true,
   },
   'image': {
@@ -38,12 +39,12 @@ export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
     type: 'resource',
     method: 'viewed',
     label: 'Access resource',
-    description: 'Complete when viewed',
+    description: 'Complete when opened',
     countsTowardsCompletion: true,
   },
   'divider': {
     type: 'divider',
-    method: 'viewed',
+    method: 'not_counted',
     label: 'Visual only',
     description: 'No completion required',
     countsTowardsCompletion: false,
@@ -52,8 +53,9 @@ export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
     type: 'micro-quiz',
     method: 'answered',
     label: 'Answer quiz',
-    description: 'Complete when answered',
+    description: 'Complete when answered or passed',
     countsTowardsCompletion: true,
+    supportsPassMark: true,
   },
   'drag-drop-reorder': {
     type: 'drag-drop-reorder',
@@ -61,6 +63,7 @@ export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
     label: 'Correct order',
     description: 'Complete when correct order achieved',
     countsTowardsCompletion: true,
+    supportsPassMark: true,
   },
   'whiteboard': {
     type: 'whiteboard',
@@ -85,13 +88,26 @@ export const blockCompletionRules: Record<BlockType, BlockCompletionRule> = {
   },
 };
 
+// Student progress tracking for a block
+export interface BlockProgress {
+  blockId: string;
+  status: 'not_started' | 'in_progress' | 'completed';
+  attempts: number;
+  score?: number;
+  maxScore?: number;
+  lastAttemptAt?: string;
+  completedAt?: string;
+  responses?: any; // Block-specific response data
+  watchedPercentage?: number; // For video blocks
+}
+
 // Get completion rule for a block type
 export function getBlockCompletionRule(type: BlockType): BlockCompletionRule {
   return blockCompletionRules[type];
 }
 
-// Check if a block is complete based on its type and state
-export function isBlockComplete(block: Block): boolean {
+// Check if a block is complete based on its type, state, and progress
+export function isBlockComplete(block: Block, progress?: BlockProgress): boolean {
   const rule = getBlockCompletionRule(block.type);
   
   // Blocks that don't count are always "complete" for calculation purposes
@@ -99,9 +115,79 @@ export function isBlockComplete(block: Block): boolean {
     return true;
   }
   
+  // If we have progress data, use it
+  if (progress) {
+    return progress.status === 'completed';
+  }
+  
   // For demo purposes, we rely on the isCompleted flag
-  // In a real app, this would check specific conditions per type
   return block.isCompleted;
+}
+
+// Check if a quiz attempt passes based on content settings
+export function checkQuizPassed(
+  block: Block,
+  answers: Record<string, number | number[]>,
+  questions: any[]
+): { passed: boolean; score: number; maxScore: number } {
+  const content = block.content as MicroQuizBlockContent;
+  const passMark = content.passMark || 0;
+  const completionRule = content.completionRule || 'attempted';
+  
+  let correct = 0;
+  let total = questions.length;
+  
+  questions.forEach((q, i) => {
+    const userAnswer = answers[q.id];
+    const correctAnswer = q.correctAnswer;
+    
+    if (q.type === 'multi-select') {
+      // For multi-select, compare arrays
+      const userArr = Array.isArray(userAnswer) ? userAnswer.sort() : [];
+      const correctArr = Array.isArray(correctAnswer) ? correctAnswer.sort() : [];
+      if (JSON.stringify(userArr) === JSON.stringify(correctArr)) {
+        correct++;
+      }
+    } else {
+      // For single choice, true/false, short answer
+      if (userAnswer === correctAnswer) {
+        correct++;
+      }
+    }
+  });
+  
+  const score = Math.round((correct / total) * 100);
+  const passed = completionRule === 'attempted' || score >= passMark;
+  
+  return { passed, score, maxScore: 100 };
+}
+
+// Check if a reorder attempt is correct
+export function checkReorderCorrect(
+  block: Block,
+  userOrder: number[]
+): { correct: boolean; score: number; maxScore: number } {
+  const content = block.content;
+  const correctOrder = content.correctOrder || [];
+  const scoringMode = content.scoringMode || 'all-or-nothing';
+  
+  if (scoringMode === 'all-or-nothing') {
+    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
+    return { correct: isCorrect, score: isCorrect ? 100 : 0, maxScore: 100 };
+  } else {
+    // Partial credit - count correct positions
+    let correctCount = 0;
+    const total = correctOrder.length;
+    
+    userOrder.forEach((item, index) => {
+      if (correctOrder[index] === item) {
+        correctCount++;
+      }
+    });
+    
+    const score = Math.round((correctCount / total) * 100);
+    return { correct: score === 100, score, maxScore: 100 };
+  }
 }
 
 // Calculate page completion percentage and status
