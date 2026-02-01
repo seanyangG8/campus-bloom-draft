@@ -1,425 +1,173 @@
 
-# Plan: Enhanced Block-by-Block Features for Course Builder
-
-## Summary
-
-This plan implements comprehensive authoring and student runtime features for all 10 block types in the Course Builder. Each block will have enhanced configuration options, proper student interaction, progress tracking, and completion logic integration.
+## Goal
+Make the Course Builder blocks “actually work” end-to-end without users needing to know HTML, fix Micro‑Quiz correctness across all quiz types, and make Whiteboard truly usable (draw + submit). Also run a systematic audit so you don’t have to test every block manually.
 
 ---
 
-## Current State Analysis
+## What I found (root causes)
+### 1) Text block authoring still expects HTML
+`TextBlockEditor` currently uses a plain `<Textarea>` for `content.html` and shows “Supports basic HTML…”. That forces authors to write HTML.
 
-The existing implementation has:
-- Basic block editors with minimal configuration options
-- Simple preview rendering in the PageEditor
-- Basic student preview dialog showing content
-- Completion rules defined but not fully interactive
-- No advanced settings like attempts, scoring, visibility rules
+### 2) Micro‑Quiz correctness bugs are caused by mismatched data/answer representations
+Current quiz system mixes:
+- **Index-based answers** for choice questions (`0..n-1`)
+- **Array-of-indices** for multi-select
+- **Short-answer** is configured in the editor, but the **student UI doesn’t render short-answer input**, and scoring doesn’t properly compare text answers.
+Additionally, if we enable shuffling later (or it’s partially enabled), correct-answer indices can become misaligned unless we map “displayed option → original option index”.
 
----
-
-## Block Enhancement Overview
-
-### Content Blocks
-
-| Block | Current | Enhanced |
-|-------|---------|----------|
-| Text | Plain textarea | Rich callout styles, math support placeholder, completion tracking |
-| Video | URL + duration only | Captions, transcript, watch threshold, chapter markers, resume playback |
-| Image | URL + alt + caption | Size constraints, gallery mode, zoom preview, download toggle |
-| Resource | URL + filename | File type badges, must-open toggle, version label, expiry date |
-| Divider | Line only | Style options (line/whitespace/section), section heading, spacing |
-
-### Active Learning Blocks
-
-| Block | Current | Enhanced |
-|-------|---------|----------|
-| Micro-Quiz | MCQ only | Multi-select, true/false, short answer, hints, explanations, max attempts, shuffle, pass mark |
-| Reorder | Basic items list | Instruction field, partial credit toggle, show correct order after, max attempts |
-| Whiteboard | Basic prompt | Canvas size, background style, tool toggles, rubric field, max attempts |
-| Reflection | Prompt + minWords | Max words, privacy mode (private/peer gallery/anonymous), peer comments toggle |
-| Q&A Thread | Minimal | Posting permissions, anonymity settings, moderation tools, attachments toggle |
+### 3) Whiteboard is not interactive
+Student runtime uses `WhiteboardBlockPreview` (a placeholder card + “Start Drawing” button) but there is no canvas or input, and it doesn’t call `submitWhiteboardWork`.
 
 ---
 
-## Implementation Phases
+## Implementation plan (what I will build next)
 
-### Phase 1: Enhanced Block Data Model
+### A) Replace Text block textarea with a real Rich Text Editor (no HTML required)
+**Target files**
+- `src/components/course-builder/BlockEditorDialog.tsx` (TextBlockEditor)
+- Add a reusable editor component: `src/components/ui/rich-text-editor.tsx` (or `src/components/course-builder/RichTextEditor.tsx`)
 
-**File:** `src/lib/demo-data.ts`
+**Approach**
+1. Build a lightweight WYSIWYG editor using `contentEditable` + toolbar buttons:
+   - Paragraph, Heading 2/3
+   - Bold / Italic / Underline
+   - Bullet list / Number list
+   - Link insertion (URL prompt + validation)
+   - Quote
+   - Inline code / Code block
+   - Simple table insert (2×2 and 3×3)
+2. Store output as **HTML** (same as now), but authors never touch HTML.
+3. Add a small “View HTML (advanced)” toggle for power users.
+4. Add link safety in student rendering:
+   - Ensure links open in new tab with `rel="noopener noreferrer"`
+   - Basic validation warning in editor for malformed URLs.
 
-Extend the `Block` interface with new common and type-specific fields:
-
-```text
-Block (common fields):
-- points: number (optional)
-- availabilityStart: string (optional datetime)
-- availabilityEnd: string (optional datetime)
-- visibilityCondition: 'always' | 'after_prev_complete' | 'score_threshold'
-- visibilityThreshold: number (for score-based visibility)
-- maxAttempts: number (optional, default unlimited)
-- completionStatus: 'not_started' | 'in_progress' | 'completed'
-```
-
----
-
-### Phase 2: Enhanced Block Editors
-
-**File:** `src/components/course-builder/BlockEditorDialog.tsx`
-
-Restructure into a tabbed interface for complex blocks:
-- **Content Tab**: Block-specific content configuration
-- **Settings Tab**: Common settings (required, points, visibility, attempts)
-
-#### 2.1 TextBlockEditor Enhancements
-
-```text
-New fields:
-- calloutStyle: 'none' | 'info' | 'warning' | 'tip' | 'success'
-- enableMathSupport: boolean (placeholder for future LaTeX)
-- showCompletionTracking: boolean
-
-UI Changes:
-- Callout style dropdown with visual preview
-- Math toggle (shows "Coming soon" tooltip)
-- Rich text toolbar placeholder
-```
-
-#### 2.2 VideoBlockEditor Enhancements
-
-```text
-New fields:
-- captionsUrl: string (VTT/SRT upload URL)
-- transcript: string (text field)
-- startTime: string (e.g., "0:30")
-- endTime: string
-- watchThreshold: number (percentage 0-100, default 80)
-- allowDownload: boolean
-- chapters: Array<{time: string, title: string}>
-
-UI Changes:
-- Collapsible sections for basic/advanced settings
-- Chapter markers list with add/remove
-- Watch threshold slider
-```
-
-#### 2.3 ImageBlockEditor Enhancements
-
-```text
-New fields:
-- displaySize: 'small' | 'medium' | 'large' | 'full'
-- allowDownload: boolean
-- galleryMode: boolean (for multiple images)
-- images: Array<{url, alt, caption}> (when gallery mode)
-
-UI Changes:
-- Size selector with visual indicators
-- Download toggle
-- Gallery mode switch (shows multi-image UI when enabled)
-```
-
-#### 2.4 ResourceBlockEditor Enhancements
-
-```text
-New fields:
-- resourceType: 'file' | 'link'
-- fileType: 'pdf' | 'doc' | 'ppt' | 'xls' | 'image' | 'zip' | 'other'
-- mustOpenToComplete: boolean
-- versionLabel: string
-- expiryDate: string
-- openInNewTab: boolean
-
-UI Changes:
-- File type selector with icons
-- Must-open completion toggle
-- Version and expiry fields
-```
-
-#### 2.5 DividerBlockEditor (New)
-
-```text
-Fields:
-- style: 'line' | 'whitespace' | 'section-break'
-- sectionHeading: string (optional)
-- anchorId: string (for deep links)
-- spacing: 'compact' | 'normal' | 'large'
-
-UI Changes:
-- Style selector with visual preview
-- Section heading input (appears when style is 'section-break')
-- Spacing control
-```
-
-#### 2.6 MicroQuizEditor Enhancements
-
-```text
-New question types:
-- type: 'single-choice' | 'multi-select' | 'true-false' | 'short-answer'
-
-Per-question fields:
-- hint: string
-- explanation: string
-- points: number
-- caseSensitive: boolean (for short-answer)
-
-Quiz settings:
-- maxAttempts: number
-- shuffleQuestions: boolean
-- shuffleAnswers: boolean
-- showCorrectAfterAttempt: boolean
-- allowRetryImmediately: boolean
-- passMark: number (percentage)
-- completionRule: 'attempted' | 'passed'
-
-UI Changes:
-- Question type selector
-- Hint and explanation fields per question
-- Settings panel with all quiz options
-- Points input per question
-```
-
-#### 2.7 ReorderBlockEditor Enhancements
-
-```text
-New fields:
-- scoringMode: 'all-or-nothing' | 'partial-credit'
-- showCorrectOrderAfter: boolean
-- explanation: string
-- maxAttempts: number
-- completionRule: 'attempted' | 'passed'
-- distractorItems: string[] (optional wrong items)
-
-UI Changes:
-- Scoring mode toggle with explanation
-- Explanation field
-- Distractor items section (optional)
-```
-
-#### 2.8 WhiteboardBlockEditor Enhancements
-
-```text
-New fields:
-- canvasSize: 'a4' | 'square' | 'wide'
-- background: 'blank' | 'grid' | 'ruled'
-- enabledTools: {pen, highlighter, eraser, shapes, text, undo}
-- multiPage: boolean
-- maxAttempts: number
-- rubric: string
-- dueDate: string
-
-UI Changes:
-- Canvas size and background selectors
-- Tool toggle checkboxes
-- Rubric text area
-- Due date picker
-```
-
-#### 2.9 ReflectionBlockEditor Enhancements
-
-```text
-New fields:
-- maxWords: number
-- rubric: string
-- points: number
-- privacyMode: 'private' | 'peer-gallery' | 'anonymous'
-- allowPeerComments: boolean
-- mustSubmitToComplete: boolean
-- exampleResponse: string
-
-UI Changes:
-- Min/max word inputs
-- Privacy mode selector with descriptions
-- Peer comments toggle (when peer-gallery mode)
-- Example response field
-```
-
-#### 2.10 QAThreadBlockEditor (New)
-
-```text
-Fields:
-- whoCanPost: 'students-only' | 'students-and-tutors'
-- anonymity: 'off' | 'optional' | 'always-anonymous'
-- allowAttachments: boolean
-- categories: string[] (e.g., Homework, Concepts, Admin)
-- moderationEnabled: boolean
-
-UI Changes:
-- Posting permissions selector
-- Anonymity mode selector
-- Attachments toggle
-- Categories list editor
-```
+**Acceptance criteria**
+- Author can format text via toolbar; no HTML typing needed.
+- Student preview renders formatted text correctly and safely.
 
 ---
 
-### Phase 3: Common Block Settings Panel
+### B) Fix Micro‑Quiz correctness for all types (single, multi, true/false, short-answer)
+**Target files**
+- `src/lib/demo-data.ts` (tighten MicroQuizQuestion typing)
+- `src/lib/completion-rules.ts` (`checkQuizPassed`)
+- `src/components/course-builder/StudentPreviewDialog.tsx` (`QuizBlockInteractive`)
+- `src/components/course-builder/BlockEditorDialog.tsx` (`MicroQuizEditor`)
+- Add tests: `src/test/*` (Vitest)
 
-**New Component:** `src/components/course-builder/BlockSettingsPanel.tsx`
+**Approach**
+1. **Normalize the quiz question schema**
+   - Update `MicroQuizQuestion` so short-answer has an explicit expected answer field (recommended) rather than abusing `options[0]`.
+   - Expand `correctAnswer` to support short-answer cleanly (either `correctAnswerText: string` or allow `correctAnswer: string`).
+2. **Update student runtime UI**
+   - Add a short-answer input UI:
+     - Text input
+     - Submit button
+     - Compare with case-sensitive toggle
+3. **Make scoring robust**
+   - In `checkQuizPassed`, branch by question type:
+     - `single-choice` / `true-false`: compare selected index to correct index
+     - `multi-select`: compare sorted arrays (without mutating original arrays)
+     - `short-answer`: compare user string to expected string (case-sensitive optional; trim whitespace; optionally normalize multiple spaces)
+4. **Fix correctness under shuffling**
+   - If `shuffleAnswers` is enabled:
+     - Render options using a derived array of `{ label, originalIndex }`
+     - Store user answers as **original indices**, so scoring is stable regardless of shuffle order.
+5. **Add unit tests so this can’t regress**
+   - Tests for all four question types
+   - Tests for `shuffleAnswers` mapping correctness
+   - Tests for multi-select ordering invariance
 
-A reusable panel for common block settings that appears in all block editors:
-
-```text
-Sections:
-1. Completion Settings
-   - Required toggle
-   - Points input
-   - Completion tracking method display
-
-2. Availability (collapsible)
-   - Start date/time picker
-   - End date/time picker
-
-3. Visibility Rules (collapsible)
-   - Condition selector: Always visible, After previous complete, Score threshold
-   - Threshold input (when score-based)
-   - Student group/cohort selector (future)
-
-4. Attempts (for interactive blocks)
-   - Max attempts: unlimited or number
-```
-
----
-
-### Phase 4: Enhanced Block Preview Components
-
-**File:** `src/components/course-builder/PageEditor.tsx`
-
-Update `BlockPreview` to show enhanced configuration:
-
-```text
-Improvements:
-- Show callout styling for text blocks
-- Show watch threshold badge for videos
-- Show file type icon for resources
-- Show question count and types for quizzes
-- Show scoring mode for reorder blocks
-- Show canvas size preview for whiteboard
-- Show privacy mode badge for reflections
-```
+**Acceptance criteria**
+- Setting correct answer in the editor determines whether the student is marked correct.
+- No more “defaults to D” behavior.
+- Short-answer is answerable and scored correctly.
+- Multi-select is scored correctly regardless of selection order.
+- Tests pass.
 
 ---
 
-### Phase 5: Interactive Student Preview
+### C) Make Whiteboard truly usable (draw + submit + progress)
+**Target files**
+- `src/components/course-builder/StudentPreviewDialog.tsx` (replace `WhiteboardBlockPreview` with interactive component)
+- `src/contexts/CourseBuilderContext.tsx` (`submitWhiteboardWork` integration; progress state)
+- Add new component: `src/components/course-builder/WhiteboardCanvas.tsx` (or similar)
 
-**File:** `src/components/course-builder/StudentPreviewDialog.tsx`
+**Approach (MVP that “works perfectly” for demo)**
+1. Implement a Canvas-based whiteboard with pointer events:
+   - Pen tool (color + size)
+   - Eraser
+   - Undo/redo
+   - Clear canvas
+2. Respect authoring settings:
+   - Canvas size (a4/square/wide)
+   - Background (blank/grid/ruled)
+   - Enabled tools toggles (hide/disable buttons)
+   - Multi-page (if enabled): pages navigation (Page 1/2/3…)
+3. Submission flow:
+   - Autosave draft locally in component state
+   - “Submit” button calls `submitWhiteboardWork(blockId, data)` with:
+     - `pngDataUrl` (for preview)
+     - `strokesJson` (for future tutor annotation)
+     - `meta` (tool settings used)
+4. Mark completion based on submission (and reflect it in progress UI)
 
-Upgrade to support actual block interactions:
-
-```text
-Student Block Components:
-- StudentTextBlock: Rendered HTML with callout styling
-- StudentVideoBlock: Playable embed or placeholder with controls
-- StudentQuizBlock: Interactive MCQ with answer selection and feedback
-- StudentReorderBlock: Drag-and-drop with submit and feedback
-- StudentWhiteboardBlock: Canvas placeholder with tool indicators
-- StudentReflectionBlock: Text input with word count
-- StudentResourceBlock: Download button with tracking indicator
-```
-
-Each block shows:
-- Completion indicator (circle icon that fills when complete)
-- Required badge
-- Points badge (if applicable)
-- Interactive elements based on block type
-
----
-
-### Phase 6: Student Runtime State Management
-
-**File:** `src/contexts/CourseBuilderContext.tsx`
-
-Add student progress tracking:
-
-```text
-New state:
-- studentProgress: Map<blockId, BlockProgress>
-
-BlockProgress interface:
-- status: 'not_started' | 'in_progress' | 'completed'
-- attempts: number
-- score: number (for scored blocks)
-- lastAttemptAt: string
-- completedAt: string
-- responses: any (block-specific data)
-```
-
-New functions:
-- markBlockViewed(blockId)
-- submitQuizAnswer(blockId, answers)
-- submitReorderAttempt(blockId, order)
-- submitWhiteboardWork(blockId, data)
-- submitReflection(blockId, text)
+**Acceptance criteria**
+- Student can actually draw on the whiteboard.
+- Student can submit; submission is stored in `studentProgress`.
+- Block shows completed state after submission.
 
 ---
 
-## Files to Create/Modify
+### D) “Check everything” systematic audit (so you don’t test block-by-block)
+**Target**
+- Runtime stability, required-field handling, and no dead UI controls across all blocks.
 
-| File | Action | Description |
-|------|--------|-------------|
-| `src/lib/demo-data.ts` | Modify | Extend Block interface with new fields |
-| `src/components/course-builder/BlockEditorDialog.tsx` | Major rewrite | Tabbed interface with all enhanced editors |
-| `src/components/course-builder/BlockSettingsPanel.tsx` | Create | Reusable common settings component |
-| `src/components/course-builder/PageEditor.tsx` | Modify | Enhanced BlockPreview with new field display |
-| `src/components/course-builder/StudentPreviewDialog.tsx` | Major update | Interactive student experience |
-| `src/contexts/CourseBuilderContext.tsx` | Modify | Add student progress tracking functions |
-| `src/lib/completion-rules.ts` | Modify | Add pass/fail completion logic for scored blocks |
+**Approach**
+1. Add a “Block QA checklist” pass inside code:
+   - Ensure every block type has:
+     - Authoring editor fields wired to `content`
+     - Student runtime renderer/interaction (or explicitly labeled “coming soon”)
+     - Completion logic hook (mark viewed / submit / passed)
+2. Add a small internal “Block Diagnostics” helper (dev-only):
+   - For each block on a page, show warnings if content is incomplete (e.g., image missing alt, resource missing URL, quiz missing questions/options)
+3. Add unit tests for core non-UI logic:
+   - completion rules for quiz/reorder/video threshold
+   - visibility conditions (if currently used in runtime)
 
----
-
-## Technical Considerations
-
-### State Management
-- Block content objects will grow significantly
-- Use deep cloning when editing to prevent state leakage
-- Consider lazy loading for complex block editors
-
-### Performance
-- Large quiz blocks may have many questions
-- Use virtualization if needed for long lists
-- Debounce auto-save for student responses
-
-### Validation
-- Add form validation for required fields
-- Show warnings for incomplete configuration
-- Validate URL formats for video/image/resource blocks
+**Acceptance criteria**
+- No block type renders a non-functional control without either working behavior or a clear “not implemented yet” message.
+- Core logic covered by tests.
 
 ---
 
-## Priority Order
-
-1. **MicroQuizEditor** - Most complex, highest value for learning
-2. **BlockSettingsPanel** - Enables common features across all blocks
-3. **VideoBlockEditor** - High usage, watch threshold is key feature
-4. **ReorderBlockEditor** - Interactive learning, needs scoring options
-5. **WhiteboardBlockEditor** - Canvas configuration is important
-6. **ReflectionBlockEditor** - Privacy modes are differentiating
-7. **ResourceBlockEditor** - Must-open completion is useful
-8. **TextBlockEditor** - Callout styles enhance content
-9. **ImageBlockEditor** - Size/gallery options
-10. **QAThreadBlockEditor** - Moderation settings
-11. **DividerBlockEditor** - Section break styling
-12. **StudentPreviewDialog** - Make all blocks interactive
+## Deliverables (what you’ll see after implementation)
+- Text blocks edited with a proper WYSIWYG editor (toolbar).
+- Micro‑Quiz correctness fixed for all supported quiz types; short-answer works.
+- Whiteboard becomes a real drawable canvas with submit and completion tracking.
+- A repeatable QA process + tests so regressions don’t keep appearing.
 
 ---
 
-## Estimated Complexity
-
-- **BlockEditorDialog rewrite**: ~800 lines (from ~500)
-- **BlockSettingsPanel**: ~200 lines
-- **StudentPreviewDialog interactive**: ~600 lines (from ~400)
-- **Context updates**: ~100 lines
-- **Demo data updates**: ~50 lines
-
-Total: ~1750 lines of new/modified code
+## Files that will change
+- `src/components/course-builder/BlockEditorDialog.tsx`
+- `src/components/course-builder/StudentPreviewDialog.tsx`
+- `src/lib/completion-rules.ts`
+- `src/lib/demo-data.ts`
+- `src/contexts/CourseBuilderContext.tsx`
+- New: `src/components/ui/rich-text-editor.tsx` (or course-builder equivalent)
+- New: `src/components/course-builder/WhiteboardCanvas.tsx`
+- Tests: `src/test/*`
 
 ---
 
-## Testing Recommendations
+## Manual test script (fast, end-to-end)
+1. Add a Text block → use toolbar (bold, list, link) → save → preview as student → verify formatting and link behavior.
+2. Add Micro‑Quiz:
+   - single-choice with correct=B → student selects B → should be correct
+   - multi-select with correct=[A,C] → student selects A+C → correct
+   - true/false → correct respected
+   - short-answer (case sensitive off) → “Quadratic Formula” vs “quadratic formula” → correct
+3. Add Whiteboard → draw → submit → verify completion indicator updates.
 
-After implementation:
-1. Create a new micro-quiz with multi-select questions and test all options
-2. Configure a video with watch threshold and verify it shows in preview
-3. Set up a reorder block with partial credit scoring
-4. Test visibility rules by setting "after previous complete"
-5. Verify student preview shows interactive elements correctly
-6. Check that completion logic respects pass marks for quizzes
