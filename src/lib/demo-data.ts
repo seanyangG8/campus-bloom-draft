@@ -87,6 +87,13 @@ export interface Block {
   order: number;
   isRequired: boolean;
   isCompleted: boolean;
+  // Enhanced fields
+  points?: number;
+  availabilityStart?: string;
+  availabilityEnd?: string;
+  visibilityCondition?: 'always' | 'after_prev_complete' | 'score_threshold';
+  visibilityThreshold?: number;
+  maxAttempts?: number;
 }
 
 export type BlockType = 
@@ -100,6 +107,129 @@ export type BlockType =
   | 'qa-thread'
   | 'resource'
   | 'divider';
+
+// Enhanced content types for each block
+export interface TextBlockContent {
+  html: string;
+  calloutStyle?: 'none' | 'info' | 'warning' | 'tip' | 'success';
+  enableMathSupport?: boolean;
+}
+
+export interface VideoBlockContent {
+  url: string;
+  duration?: string;
+  thumbnail?: string;
+  captionsUrl?: string;
+  transcript?: string;
+  startTime?: string;
+  endTime?: string;
+  watchThreshold?: number; // percentage 0-100
+  allowDownload?: boolean;
+  chapters?: Array<{ time: string; title: string }>;
+}
+
+export interface ImageBlockContent {
+  url: string;
+  alt: string;
+  caption?: string;
+  displaySize?: 'small' | 'medium' | 'large' | 'full';
+  allowDownload?: boolean;
+  galleryMode?: boolean;
+  images?: Array<{ url: string; alt: string; caption?: string }>;
+}
+
+export interface ResourceBlockContent {
+  url: string;
+  fileName: string;
+  fileSize?: string;
+  resourceType?: 'file' | 'link';
+  fileType?: 'pdf' | 'doc' | 'ppt' | 'xls' | 'image' | 'zip' | 'other';
+  mustOpenToComplete?: boolean;
+  versionLabel?: string;
+  expiryDate?: string;
+  openInNewTab?: boolean;
+}
+
+export interface DividerBlockContent {
+  style?: 'line' | 'whitespace' | 'section-break';
+  sectionHeading?: string;
+  anchorId?: string;
+  spacing?: 'compact' | 'normal' | 'large';
+}
+
+export interface MicroQuizQuestion {
+  id: string;
+  type?: 'single-choice' | 'multi-select' | 'true-false' | 'short-answer';
+  question: string;
+  options: string[];
+  correctAnswer: number | number[]; // number for single, array for multi
+  hint?: string;
+  explanation?: string;
+  points?: number;
+  caseSensitive?: boolean; // for short-answer
+}
+
+export interface MicroQuizBlockContent {
+  questions: MicroQuizQuestion[];
+  maxAttempts?: number;
+  shuffleQuestions?: boolean;
+  shuffleAnswers?: boolean;
+  showCorrectAfterAttempt?: boolean;
+  allowRetryImmediately?: boolean;
+  passMark?: number; // percentage
+  completionRule?: 'attempted' | 'passed';
+}
+
+export interface ReorderBlockContent {
+  instruction: string;
+  items: string[];
+  correctOrder: number[];
+  scoringMode?: 'all-or-nothing' | 'partial-credit';
+  showCorrectOrderAfter?: boolean;
+  explanation?: string;
+  distractorItems?: string[];
+}
+
+export interface WhiteboardBlockContent {
+  prompt: string;
+  allowImage?: boolean;
+  canvasSize?: 'a4' | 'square' | 'wide';
+  background?: 'blank' | 'grid' | 'ruled';
+  enabledTools?: {
+    pen: boolean;
+    highlighter: boolean;
+    eraser: boolean;
+    shapes: boolean;
+    text: boolean;
+    undo: boolean;
+  };
+  multiPage?: boolean;
+  rubric?: string;
+  dueDate?: string;
+}
+
+export interface ReflectionBlockContent {
+  prompt: string;
+  minWords?: number;
+  maxWords?: number;
+  rubric?: string;
+  points?: number;
+  privacyMode?: 'private' | 'peer-gallery' | 'anonymous';
+  allowPeerComments?: boolean;
+  mustSubmitToComplete?: boolean;
+  exampleResponse?: string;
+  showPeerReflections?: boolean;
+}
+
+export interface QAThreadBlockContent {
+  whoCanPost?: 'students-only' | 'students-and-tutors';
+  anonymity?: 'off' | 'optional' | 'always-anonymous';
+  allowAttachments?: boolean;
+  categories?: string[];
+  moderationEnabled?: boolean;
+  questions?: any[];
+  allowAnonymous?: boolean;
+}
 
 export interface Student {
   id: string;

@@ -706,16 +706,43 @@ function DraggableBlockCard({
 
 // Old BlockCard removed - using DraggableBlockCard above
 
-// Block Preview Component
+// Block Preview Component with enhanced field display
 function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
   if (block.type === "divider") {
-    return <div className="mt-4 ml-11 border-t" />;
+    const style = block.content?.style || 'line';
+    const spacing = block.content?.spacing || 'normal';
+    
+    return (
+      <div className={cn(
+        "mt-4 ml-11",
+        spacing === 'compact' && "py-1",
+        spacing === 'normal' && "py-2",
+        spacing === 'large' && "py-4",
+      )}>
+        {style === 'line' && <hr className="border-t" />}
+        {style === 'whitespace' && <div className="h-4" />}
+        {style === 'section-break' && (
+          <div className="text-center">
+            <hr className="border-t mb-2" />
+            {block.content?.sectionHeading && (
+              <p className="font-semibold text-sm">{block.content.sectionHeading}</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
     <div className="mt-4 ml-11">
       {block.type === "text" && (
-        <div className="p-3 bg-muted/30 rounded-lg text-sm prose prose-sm max-w-none">
+        <div className={cn(
+          "p-3 bg-muted/30 rounded-lg text-sm prose prose-sm max-w-none",
+          block.content?.calloutStyle === 'info' && "bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-950/30",
+          block.content?.calloutStyle === 'warning' && "bg-amber-50 border-l-4 border-amber-500 dark:bg-amber-950/30",
+          block.content?.calloutStyle === 'tip' && "bg-green-50 border-l-4 border-green-500 dark:bg-green-950/30",
+          block.content?.calloutStyle === 'success' && "bg-emerald-50 border-l-4 border-emerald-500 dark:bg-emerald-950/30",
+        )}>
           {block.content?.html ? (
             <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
           ) : (
@@ -725,28 +752,50 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
       )}
 
       {block.type === "video" && (
-        <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-          {block.content?.url ? (
-            <div className="text-center">
-              <Play className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{block.content.duration || "Video"}</p>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No video URL set</p>
+        <div className="space-y-2">
+          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+            {block.content?.url ? (
+              <div className="text-center">
+                <Play className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">{block.content.duration || "Video"}</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No video URL set</p>
+            )}
+          </div>
+          {block.content?.watchThreshold && (
+            <p className="text-xs text-muted-foreground">
+              Watch threshold: {block.content.watchThreshold}%
+            </p>
+          )}
+          {block.content?.transcript && (
+            <p className="text-xs text-muted-foreground">📝 Transcript available</p>
           )}
         </div>
       )}
 
       {block.type === "image" && (
-        <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+        <div className={cn(
+          "bg-muted rounded-lg flex items-center justify-center overflow-hidden",
+          block.content?.displaySize === 'small' && "max-w-[25%]",
+          block.content?.displaySize === 'medium' && "max-w-[50%]",
+          block.content?.displaySize === 'large' && "max-w-[75%]",
+        )}>
           {block.content?.url ? (
-            <img
-              src={block.content.url}
-              alt={block.content.alt || ""}
-              className="w-full h-full object-cover"
-            />
+            <div>
+              <img
+                src={block.content.url}
+                alt={block.content.alt || ""}
+                className="w-full h-auto max-h-48 object-cover"
+              />
+              {block.content.caption && (
+                <p className="text-xs text-center text-muted-foreground p-2">{block.content.caption}</p>
+              )}
+            </div>
           ) : (
-            <Image className="h-12 w-12 text-muted-foreground/50" />
+            <div className="p-8">
+              <Image className="h-12 w-12 text-muted-foreground/50" />
+            </div>
           )}
         </div>
       )}
@@ -756,11 +805,16 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
           {block.content?.questions?.length > 0 ? (
             <>
               <div className="p-3 bg-muted/50 rounded-lg text-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs bg-muted px-1.5 py-0.5 rounded capitalize">
+                    {block.content.questions[0].type || 'single-choice'}
+                  </span>
+                </div>
                 Q1: {block.content.questions[0].question || "Enter question..."}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {block.content.questions[0].options?.map((opt: string, i: number) => (
-                  <Button key={i} variant="outline" size="sm">
+                  <Button key={i} variant="outline" size="sm" className="justify-start">
                     {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
                   </Button>
                 ))}
@@ -770,6 +824,13 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
                   +{block.content.questions.length - 1} more questions
                 </p>
               )}
+              <div className="flex gap-2 text-xs text-muted-foreground flex-wrap">
+                {block.content.passMark && (
+                  <span>Pass mark: {block.content.passMark}%</span>
+                )}
+                {block.content.shuffleQuestions && <span>• Shuffled</span>}
+                {block.content.completionRule === 'passed' && <span>• Must pass</span>}
+              </div>
             </>
           ) : (
             <p className="text-sm text-muted-foreground italic">No questions configured</p>
@@ -802,11 +863,22 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
           ) : (
             <p className="text-sm text-muted-foreground italic">No items configured</p>
           )}
+          <div className="flex gap-2 text-xs text-muted-foreground">
+            <span className="capitalize">{block.content?.scoringMode || 'all-or-nothing'}</span>
+            {block.content?.showCorrectOrderAfter !== false && <span>• Shows correct order</span>}
+          </div>
         </div>
       )}
 
       {block.type === "whiteboard" && (
-        <div className="h-32 bg-muted/30 border-2 border-dashed rounded-lg flex items-center justify-center">
+        <div className={cn(
+          "border-2 border-dashed rounded-lg flex items-center justify-center",
+          block.content?.canvasSize === 'square' && "aspect-square h-32",
+          block.content?.canvasSize === 'wide' && "aspect-video h-24",
+          (!block.content?.canvasSize || block.content?.canvasSize === 'a4') && "aspect-[1/1.2] h-32",
+          block.content?.background === 'grid' && "bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[size:12px_12px]",
+          block.content?.background === 'ruled' && "bg-[linear-gradient(transparent_15px,#e5e7eb_16px)] bg-[size:100%_16px]",
+        )}>
           <div className="text-center">
             <PenTool className="h-6 w-6 mx-auto text-muted-foreground/50 mb-1" />
             <p className="text-sm text-muted-foreground">
@@ -826,31 +898,50 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
             placeholder="Type your reflection..."
             disabled={isAdmin}
           />
-          {block.content?.minWords && (
-            <p className="text-xs text-muted-foreground">
-              Minimum {block.content.minWords} words
-            </p>
-          )}
+          <div className="flex gap-2 text-xs text-muted-foreground">
+            {block.content?.minWords && <span>Min: {block.content.minWords} words</span>}
+            {block.content?.maxWords && <span>Max: {block.content.maxWords} words</span>}
+            {block.content?.privacyMode && block.content.privacyMode !== 'private' && (
+              <span className="capitalize">• {block.content.privacyMode.replace('-', ' ')}</span>
+            )}
+          </div>
         </div>
       )}
 
       {block.type === "resource" && (
         <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-          <FileText className="h-8 w-8 text-primary" />
-          <div>
-            <p className="text-sm font-medium">
+          <span className="text-xl">
+            {block.content?.fileType === 'pdf' && '📄'}
+            {block.content?.fileType === 'doc' && '📝'}
+            {block.content?.fileType === 'ppt' && '📊'}
+            {block.content?.fileType === 'xls' && '📈'}
+            {block.content?.fileType === 'image' && '🖼️'}
+            {block.content?.fileType === 'zip' && '📦'}
+            {(!block.content?.fileType || block.content?.fileType === 'other') && '📎'}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
               {block.content?.fileName || "Resource file"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {block.content?.fileSize || "Click to download"}
-            </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {block.content?.fileSize && <span>{block.content.fileSize}</span>}
+              {block.content?.versionLabel && <span>• {block.content.versionLabel}</span>}
+              {block.content?.mustOpenToComplete && <span>• Must open</span>}
+            </div>
           </div>
+          <FileText className="h-5 w-5 text-primary" />
         </div>
       )}
 
       {block.type === "qa-thread" && (
         <div className="p-3 bg-muted/30 rounded-lg">
           <p className="text-sm text-muted-foreground mb-2">Q&A Thread</p>
+          <div className="flex gap-2 text-xs text-muted-foreground mb-2">
+            <span className="capitalize">{block.content?.whoCanPost || 'students-only'}</span>
+            {block.content?.anonymity && block.content.anonymity !== 'off' && (
+              <span>• {block.content.anonymity === 'always-anonymous' ? 'Anonymous' : 'Optional anonymous'}</span>
+            )}
+          </div>
           <Button variant="outline" size="sm" className="w-full">
             Ask a Question
           </Button>
