@@ -11,6 +11,7 @@ export default defineConfig(() => ({
       overlay: false,
     },
   },
+  base: "/campus-bloom-draft/",
   plugins: [react()],
   resolve: {
     alias: {
