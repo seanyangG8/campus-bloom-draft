@@ -272,7 +272,7 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
             {chapter.isLocked ? (
               <Lock className="h-3 w-3 text-muted-foreground" />
             ) : (
-              <span className="text-xs text-muted-foreground">{pages.length}</span>
+              <span className="text-xs text-muted-foreground">{chapterPages.length}</span>
             )}
             {isAdmin && (
               <DropdownMenu>
@@ -315,7 +315,7 @@ function ChapterItem({ chapter, selectedPageId, onSelectPage, isAdmin }: Chapter
           </div>
           <CollapsibleContent>
             <div className="ml-5 mt-1 space-y-0.5">
-              {pages.map((page) => (
+              {chapterPages.map((page) => (
                 <div key={page.id} className="group/page">
                   {editingPageId === page.id ? (
                     <div className="flex items-center gap-1 p-1">

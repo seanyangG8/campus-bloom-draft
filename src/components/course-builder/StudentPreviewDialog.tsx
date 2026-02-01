@@ -250,22 +250,117 @@ export function StudentPreviewDialog({
                             <p className="text-xs text-muted-foreground">
                               {getBlockTypeLabel(block.type)} • {rule.description}
                             </p>
-                            {/* Placeholder content */}
-                            <div className="mt-3 p-4 bg-muted/50 rounded border-2 border-dashed text-center text-sm text-muted-foreground">
-                              {block.type === 'video' && (
-                                <div className="flex items-center justify-center gap-2">
-                                  <Play className="h-5 w-5" />
-                                  <span>Video player would appear here</span>
+                            {/* Actual content preview */}
+                            <div className="mt-3">
+                              {block.type === 'text' && (
+                                <div className="p-4 bg-muted/50 rounded prose prose-sm max-w-none">
+                                  {block.content?.html ? (
+                                    <div dangerouslySetInnerHTML={{ __html: block.content.html }} />
+                                  ) : (
+                                    <p className="text-muted-foreground italic">No content yet</p>
+                                  )}
                                 </div>
                               )}
-                              {block.type === 'micro-quiz' && 'Quiz questions would appear here'}
-                              {block.type === 'whiteboard' && 'Whiteboard canvas would appear here'}
-                              {block.type === 'reflection' && 'Text input for reflection would appear here'}
-                              {block.type === 'text' && 'Rich text content would appear here'}
-                              {block.type === 'image' && 'Image would appear here'}
-                              {block.type === 'drag-drop-reorder' && 'Drag and drop interface would appear here'}
-                              {block.type === 'resource' && 'Download link would appear here'}
-                              {block.type === 'qa-thread' && 'Q&A thread would appear here'}
+                              {block.type === 'video' && (
+                                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                                  {block.content?.url ? (
+                                    <div className="text-center">
+                                      <Play className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
+                                      <p className="text-sm text-muted-foreground">{block.content.duration || "Video"}</p>
+                                      <p className="text-xs text-muted-foreground truncate max-w-xs">{block.content.url}</p>
+                                    </div>
+                                  ) : (
+                                    <p className="text-sm text-muted-foreground">No video URL set</p>
+                                  )}
+                                </div>
+                              )}
+                              {block.type === 'image' && (
+                                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                                  {block.content?.url ? (
+                                    <img
+                                      src={block.content.url}
+                                      alt={block.content.alt || ""}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <p className="text-sm text-muted-foreground">No image URL set</p>
+                                  )}
+                                </div>
+                              )}
+                              {block.type === 'micro-quiz' && block.content?.questions?.length > 0 && (
+                                <div className="space-y-3">
+                                  {block.content.questions.map((q: any, qIndex: number) => (
+                                    <div key={q.id || qIndex} className="p-4 bg-muted/50 rounded-lg">
+                                      <p className="font-medium text-sm mb-3">Q{qIndex + 1}: {q.question || "Enter question..."}</p>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        {q.options?.map((opt: string, i: number) => (
+                                          <button 
+                                            key={i} 
+                                            className="p-2 text-left text-sm border rounded-lg hover:bg-muted transition-colors"
+                                          >
+                                            {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {block.type === 'drag-drop-reorder' && block.content?.items?.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-sm text-muted-foreground">{block.content.instruction || "Drag and drop to reorder:"}</p>
+                                  {block.content.items.map((item: string, i: number) => (
+                                    <div key={i} className="flex items-center gap-2 p-3 bg-muted/50 rounded border cursor-move">
+                                      <span className="text-muted-foreground">≡</span>
+                                      <span className="text-sm">{item || `Item ${i + 1}`}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {block.type === 'whiteboard' && (
+                                <div className="h-32 bg-muted/30 border-2 border-dashed rounded-lg flex items-center justify-center">
+                                  <div className="text-center">
+                                    <span className="text-2xl mb-2 block">✏️</span>
+                                    <p className="text-sm text-muted-foreground">{block.content?.prompt || "Draw or write your answer"}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {block.type === 'reflection' && (
+                                <div className="space-y-2">
+                                  <p className="text-sm text-muted-foreground">{block.content?.prompt || "Share your reflection..."}</p>
+                                  <textarea 
+                                    className="w-full p-3 border rounded-lg text-sm min-h-[100px] bg-background"
+                                    placeholder="Type your reflection here..."
+                                    disabled
+                                  />
+                                  {block.content?.minWords > 0 && (
+                                    <p className="text-xs text-muted-foreground">Minimum {block.content.minWords} words required</p>
+                                  )}
+                                </div>
+                              )}
+                              {block.type === 'resource' && (
+                                <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                                  <span className="text-2xl">📎</span>
+                                  <div>
+                                    <p className="text-sm font-medium">{block.content?.fileName || "Resource file"}</p>
+                                    {block.content?.fileSize && (
+                                      <p className="text-xs text-muted-foreground">{block.content.fileSize}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                              {block.type === 'qa-thread' && (
+                                <div className="p-4 bg-muted/50 rounded-lg text-center">
+                                  <span className="text-2xl mb-2 block">💬</span>
+                                  <p className="text-sm text-muted-foreground">Ask questions and discuss with your tutor</p>
+                                </div>
+                              )}
+                              {block.type === 'divider' && (
+                                <div className="border-t my-4" />
+                              )}
                             </div>
                           </div>
                         );

@@ -593,7 +593,13 @@ function DraggableBlockCard({
                 className={cn("h-5 w-5", isActiveBlock ? "text-accent" : "text-primary")}
               />
             </div>
-            <div className="flex-1 min-w-0">
+            <div 
+              className={cn(
+                "flex-1 min-w-0",
+                isAdmin && "cursor-pointer hover:bg-muted/50 rounded-lg transition-colors -m-2 p-2"
+              )}
+              onClick={() => isAdmin && onEdit()}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium text-sm">{block.title}</h3>
@@ -607,7 +613,12 @@ function DraggableBlockCard({
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -747,9 +758,9 @@ function BlockPreview({ block, isAdmin }: { block: Block; isAdmin: boolean }) {
               <div className="p-3 bg-muted/50 rounded-lg text-sm">
                 Q1: {block.content.questions[0].question || "Enter question..."}
               </div>
-              <div className="flex gap-2 flex-wrap">
-                {block.content.questions[0].options?.slice(0, 2).map((opt: string, i: number) => (
-                  <Button key={i} variant="outline" size="sm" className="flex-1">
+              <div className="grid grid-cols-2 gap-2">
+                {block.content.questions[0].options?.map((opt: string, i: number) => (
+                  <Button key={i} variant="outline" size="sm">
                     {String.fromCharCode(65 + i)}) {opt || `Option ${i + 1}`}
                   </Button>
                 ))}
