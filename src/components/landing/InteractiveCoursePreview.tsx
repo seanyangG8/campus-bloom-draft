@@ -14,12 +14,44 @@ import {
   Download
 } from "lucide-react";
 
-export function InteractiveCoursePreview() {
+type PreviewProps = {
+  play?: boolean;
+  restartKey?: number;
+  onAnimationComplete?: () => void;
+  prefersReducedMotion?: boolean;
+};
+
+const COURSE_ANIMATION_MS = 8000;
+const COURSE_ANIMATION_MS_REDUCED = 1200;
+
+export function InteractiveCoursePreview({
+  play,
+  restartKey = 0,
+  onAnimationComplete,
+  prefersReducedMotion = false,
+}: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const isControlled = play !== undefined;
 
   useEffect(() => {
+    // Reset local animation state whenever the parent explicitly restarts this preview.
+    setIsAnimating(false);
+    setHasAnimated(false);
+  }, [restartKey]);
+
+  useEffect(() => {
+    if (isControlled) {
+      if (play) {
+        setIsAnimating(true);
+        setHasAnimated(true);
+      } else {
+        setIsAnimating(false);
+      }
+      return;
+    }
+
     if (hasAnimated) return;
 
     const handleScroll = () => {
@@ -41,14 +73,24 @@ export function InteractiveCoursePreview() {
     handleScroll(); // Check initial position
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasAnimated, isAnimating]);
+  }, [hasAnimated, isAnimating, isControlled, play]);
+
+  useEffect(() => {
+    if (!onAnimationComplete || !isAnimating) return;
+    const duration = prefersReducedMotion ? COURSE_ANIMATION_MS_REDUCED : COURSE_ANIMATION_MS;
+    const id = window.setTimeout(() => {
+      onAnimationComplete();
+    }, duration);
+
+    return () => window.clearTimeout(id);
+  }, [isAnimating, onAnimationComplete, restartKey, prefersReducedMotion]);
 
   const animationClass = isAnimating ? "animate" : "paused";
 
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/60 overflow-hidden preview-container ${animationClass}`}
+      className={`relative w-full min-h-[520px] sm:min-h-[560px] bg-gradient-to-br from-muted/30 to-muted/60 overflow-visible preview-container ${animationClass}`}
     >
       {/* Browser Chrome */}
       <div className="absolute inset-4 bg-card rounded-xl shadow-lg border overflow-hidden flex flex-col">

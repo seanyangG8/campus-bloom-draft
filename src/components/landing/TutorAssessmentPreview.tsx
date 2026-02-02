@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { 
   CheckCircle2,
   Circle,
@@ -10,7 +10,22 @@ import {
   Plus,
 } from "lucide-react";
 
-export function TutorAssessmentPreview() {
+type PreviewProps = {
+  play?: boolean;
+  restartKey?: number;
+  onAnimationComplete?: () => void;
+  prefersReducedMotion?: boolean;
+};
+
+const TUTOR_ANIMATION_MS = 7400;
+const TUTOR_ANIMATION_MS_REDUCED = 1400;
+
+export function TutorAssessmentPreview({
+  play,
+  restartKey = 0,
+  onAnimationComplete,
+  prefersReducedMotion = false,
+}: PreviewProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showNewQuestion, setShowNewQuestion] = useState(false);
@@ -18,8 +33,84 @@ export function TutorAssessmentPreview() {
   const [editorStage, setEditorStage] = useState(0);
   const [selectionStage, setSelectionStage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isControlled = play !== undefined;
+  const timeouts = useRef<number[]>([]);
+
+  const clearTimers = useCallback(() => {
+    timeouts.current.forEach((id) => window.clearTimeout(id));
+    timeouts.current = [];
+  }, []);
+
+  const resetSequence = useCallback(() => {
+    clearTimers();
+    setIsAnimating(false);
+    setShowNewQuestion(false);
+    setShowNewEditor(false);
+    setEditorStage(0);
+    setSelectionStage(0);
+  }, [clearTimers]);
+
+  const schedule = useCallback(
+    (fn: () => void, delayMs: number) => {
+      const scaledDelay = prefersReducedMotion ? Math.min(delayMs, 400) : delayMs;
+      const id = window.setTimeout(fn, scaledDelay);
+      timeouts.current.push(id);
+    },
+    [prefersReducedMotion],
+  );
+
+  const runAnimation = useCallback(() => {
+    resetSequence();
+    setIsAnimating(true);
+    setHasAnimated(true);
+
+    schedule(() => {
+      setShowNewQuestion(true);
+    }, 2400);
+
+    schedule(() => {
+      setShowNewEditor(true);
+      schedule(() => setEditorStage(1), 0);       // Header
+      schedule(() => setEditorStage(2), 300);     // Question text starts typing
+      schedule(() => setEditorStage(3), 2000);    // Option 1
+      schedule(() => setEditorStage(4), 2600);    // Option 2
+      schedule(() => setEditorStage(5), 3200);    // Option 3
+      schedule(() => setEditorStage(6), 3800);    // Option 4
+      schedule(() => setEditorStage(7), 4400);    // Points input
+      schedule(() => setEditorStage(8), 4800);    // Add option button
+
+      // Selection phase - cursor clicks correct answers
+      schedule(() => setSelectionStage(1), 5600);
+      schedule(() => setSelectionStage(2), 6400);
+    }, 2600);
+
+    if (onAnimationComplete) {
+      schedule(
+        () => onAnimationComplete(),
+        prefersReducedMotion ? TUTOR_ANIMATION_MS_REDUCED : TUTOR_ANIMATION_MS,
+      );
+    }
+  }, [resetSequence, schedule, onAnimationComplete, prefersReducedMotion]);
 
   useEffect(() => {
+    resetSequence();
+    setHasAnimated(false);
+  }, [restartKey, resetSequence]);
+
+  useEffect(() => {
+    return () => clearTimers();
+  }, [clearTimers]);
+
+  useEffect(() => {
+    if (isControlled) {
+      if (play) {
+        runAnimation();
+      } else {
+        resetSequence();
+      }
+      return;
+    }
+
     const handleScroll = () => {
       if (hasAnimated || !containerRef.current) return;
       
@@ -27,31 +118,7 @@ export function TutorAssessmentPreview() {
       const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
       
       if (isVisible && window.scrollY > 50) {
-        setIsAnimating(true);
-        setHasAnimated(true);
-        
-        // Show new question after drag animation completes
-        setTimeout(() => {
-          setShowNewQuestion(true);
-        }, 2400);
-        
-        // Update editor to show new question type with progressive reveal
-        setTimeout(() => {
-          setShowNewEditor(true);
-          // Progressive editor build-out - SLOWER timing
-          setTimeout(() => setEditorStage(1), 0);       // Header
-          setTimeout(() => setEditorStage(2), 300);     // Question text starts typing (1.5s duration)
-          setTimeout(() => setEditorStage(3), 2000);    // Option 1 (after typing done)
-          setTimeout(() => setEditorStage(4), 2600);    // Option 2 (600ms gap)
-          setTimeout(() => setEditorStage(5), 3200);    // Option 3
-          setTimeout(() => setEditorStage(6), 3800);    // Option 4
-          setTimeout(() => setEditorStage(7), 4400);    // Points input
-          setTimeout(() => setEditorStage(8), 4800);    // Add option button
-          
-          // Selection phase - cursor clicks correct answers
-          setTimeout(() => setSelectionStage(1), 5600); // Cursor appears, clicks option "2"
-          setTimeout(() => setSelectionStage(2), 6400); // Cursor moves, clicks option "7"
-        }, 2600);
+        runAnimation();
       }
     };
 
@@ -59,12 +126,12 @@ export function TutorAssessmentPreview() {
     handleScroll();
     
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasAnimated]);
+  }, [hasAnimated, isControlled, play, runAnimation, resetSequence]);
 
   return (
     <div 
       ref={containerRef}
-      className={`tutor-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${isAnimating ? 'animate' : 'paused'}`}
+      className={`tutor-preview-container relative w-full min-h-[520px] sm:min-h-[560px] bg-gradient-to-br from-muted/30 to-muted/50 overflow-visible ${isAnimating ? 'animate' : 'paused'}`}
     >
       {/* Browser Chrome - Always visible, entire UI static from start */}
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">

@@ -13,12 +13,43 @@ import {
   MessageSquare,
 } from "lucide-react";
 
-export function ParentProgressPreview() {
+type PreviewProps = {
+  play?: boolean;
+  restartKey?: number;
+  onAnimationComplete?: () => void;
+  prefersReducedMotion?: boolean;
+};
+
+const PARENT_ANIMATION_MS = 6500;
+const PARENT_ANIMATION_MS_REDUCED = 1200;
+
+export function ParentProgressPreview({
+  play,
+  restartKey = 0,
+  onAnimationComplete,
+  prefersReducedMotion = false,
+}: PreviewProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isControlled = play !== undefined;
 
   useEffect(() => {
+    setIsAnimating(false);
+    setHasAnimated(false);
+  }, [restartKey]);
+
+  useEffect(() => {
+    if (isControlled) {
+      if (play) {
+        setIsAnimating(true);
+        setHasAnimated(true);
+      } else {
+        setIsAnimating(false);
+      }
+      return;
+    }
+
     const handleScroll = () => {
       if (hasAnimated || !containerRef.current) return;
       
@@ -35,14 +66,21 @@ export function ParentProgressPreview() {
     handleScroll();
     
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasAnimated]);
+  }, [hasAnimated, isControlled, play]);
+
+  useEffect(() => {
+    if (!onAnimationComplete || !isAnimating) return;
+    const duration = prefersReducedMotion ? PARENT_ANIMATION_MS_REDUCED : PARENT_ANIMATION_MS;
+    const id = window.setTimeout(() => onAnimationComplete(), duration);
+    return () => window.clearTimeout(id);
+  }, [isAnimating, onAnimationComplete, restartKey, prefersReducedMotion]);
 
   const animationClass = isAnimating ? "animate" : "paused";
 
   return (
     <div 
       ref={containerRef}
-      className={`parent-preview-container relative w-full h-full bg-gradient-to-br from-muted/30 to-muted/50 overflow-hidden ${animationClass}`}
+      className={`parent-preview-container relative w-full min-h-[520px] sm:min-h-[560px] bg-gradient-to-br from-muted/30 to-muted/50 overflow-visible ${animationClass}`}
     >
       {/* Browser Chrome */}
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">

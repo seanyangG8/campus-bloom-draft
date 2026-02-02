@@ -12,14 +12,9 @@ import {
   Sparkles,
   GraduationCap,
   MessageSquare,
-  Trophy,
-  ClipboardList,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { InteractiveCoursePreview } from "@/components/landing/InteractiveCoursePreview";
-import { AdminDashboardPreview } from "@/components/landing/AdminDashboardPreview";
-import { ParentProgressPreview } from "@/components/landing/ParentProgressPreview";
-import { TutorAssessmentPreview } from "@/components/landing/TutorAssessmentPreview";
+import { LandingDemoStage } from "@/components/landing/DemoStage";
 
 const features = [
   {
@@ -147,122 +142,21 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Capability Showcase - Courses */}
-      <section className="py-12 px-4">
+      {/* Unified Demo Stage - tabs + auto-rotation */}
+      <section className="py-14 px-4">
         <div className="container mx-auto max-w-5xl">
           <motion.div 
-            className="bg-card rounded-2xl border overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-          >
-            {/* Bento Header */}
-            <div className="p-5 border-b">
-              <div className="flex items-center gap-3 mb-1.5">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <BookOpen className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Interactive Courses</h3>
-              </div>
-              <p className="text-sm text-muted-foreground ml-12">
-                Students progress through modular chapters with videos, quizzes, and active learning blocks.
-              </p>
-            </div>
-            
-            {/* Interactive Preview */}
-            <div className="aspect-[16/9]">
-              <InteractiveCoursePreview />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Capability Showcase - Admin Dashboard */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <motion.div 
-            className="bg-card rounded-2xl border overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.45 }}
           >
-            <div className="p-5 border-b">
-              <div className="flex items-center gap-3 mb-1.5">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <BarChart3 className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Centre Command</h3>
-              </div>
-              <p className="text-sm text-muted-foreground ml-12">
-                Real-time overview of students, revenue, sessions, and at-risk alerts—all in one dashboard.
-              </p>
-            </div>
-            <div className="aspect-[16/9]">
-              <AdminDashboardPreview />
-            </div>
+            <LandingDemoStage />
           </motion.div>
         </div>
       </section>
-
-      {/* Capability Showcase - Parent Portal */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <motion.div 
-            className="bg-card rounded-2xl border overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="p-5 border-b">
-              <div className="flex items-center gap-3 mb-1.5">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Trophy className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Parent Portal</h3>
-              </div>
-              <p className="text-sm text-muted-foreground ml-12">
-                Parents track their child's learning journey, achievements, and upcoming classes.
-              </p>
-            </div>
-            <div className="aspect-[16/9]">
-              <ParentProgressPreview />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Capability Showcase - Assessment Builder */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <motion.div 
-            className="bg-card rounded-2xl border overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="p-5 border-b">
-              <div className="flex items-center gap-3 mb-1.5">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <ClipboardList className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Assessment Builder</h3>
-              </div>
-              <p className="text-sm text-muted-foreground ml-12">
-                Create quizzes and exams with drag-and-drop ease. Auto-graded or manual marking.
-              </p>
-            </div>
-            <div className="aspect-[16/9]">
-              <TutorAssessmentPreview />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Features Section */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-14 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <motion.div 
             className="text-center mb-16"
@@ -298,7 +192,7 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-8 px-4">
         <div className="container mx-auto max-w-4xl">
           <motion.div 
             className="gradient-hero rounded-2xl p-8 md:p-12 text-center text-primary-foreground"
@@ -347,3 +241,4 @@ export function LandingPage() {
     </div>
   );
 }
+
