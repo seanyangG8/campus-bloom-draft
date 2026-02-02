@@ -136,22 +136,23 @@ export function TutorAssessmentPreview({
       {/* Browser Chrome - Always visible, entire UI static from start */}
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
         {/* Status Bar */}
-        <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-2">
-          <div className="flex gap-1.5 shrink-0">
-            <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-            <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
-            <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
-          </div>
-          <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="bg-background/80 rounded px-3 py-0.5 text-[10px] text-muted-foreground truncate">
-                app.learncampus.com/assessments/new
-              </div>
+        <div className="h-8 bg-muted/50 border-b grid grid-cols-[1fr_auto_1fr] items-center px-3 gap-3 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 justify-start">
+            <div className="flex gap-1.5 shrink-0">
+              <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
             </div>
-            <div className="text-[11px] font-medium text-foreground/80 truncate text-right min-w-[110px]">
+            <div className="bg-background/80 rounded px-3 py-0.5 text-[10px] text-muted-foreground truncate max-w-[50%] sm:max-w-[320px] min-w-0">
+              app.learncampus.com/assessments/new
+            </div>
+          </div>
+          <div className="flex items-center justify-center min-w-0">
+            <div className="text-sm font-medium text-foreground/80 truncate text-center">
               Assessment Builder
             </div>
           </div>
+          <div className="min-w-0" aria-hidden />
         </div>
 
         {/* Assessment Builder Header */}
