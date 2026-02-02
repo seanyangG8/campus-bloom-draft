@@ -137,14 +137,19 @@ export function TutorAssessmentPreview({
       <div className="absolute inset-3 bg-background rounded-lg shadow-lg border overflow-hidden flex flex-col">
         {/* Status Bar */}
         <div className="h-8 bg-muted/50 border-b flex items-center px-3 gap-2">
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 shrink-0">
             <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
             <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
             <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
           </div>
-          <div className="flex-1 flex justify-center">
-            <div className="bg-background/80 rounded px-3 py-0.5 text-[10px] text-muted-foreground">
-              app.learncampus.com/assessments/new
+          <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="bg-background/80 rounded px-3 py-0.5 text-[10px] text-muted-foreground truncate">
+                app.learncampus.com/assessments/new
+              </div>
+            </div>
+            <div className="text-[11px] font-medium text-foreground/80 truncate text-right min-w-[110px]">
+              Assessment Builder
             </div>
           </div>
         </div>

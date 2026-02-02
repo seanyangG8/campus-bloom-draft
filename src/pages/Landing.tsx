@@ -48,6 +48,14 @@ const features = [
     description: "Micro-quizzes, whiteboard activities, reflections, and peer galleries.",
   },
 ];
+const featureAccents = [
+  "text-accent",
+  "text-primary",
+  "text-success",
+  "text-warning",
+  "text-info",
+  "text-foreground",
+];
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -174,17 +182,17 @@ export function LandingPage() {
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                className="bg-card rounded-xl p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border"
+                className="group relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-primary/5 via-accent/5 to-muted/50 p-6 shadow-md shadow-black/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.08 }}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-xl border border-border/60 bg-gradient-to-br from-primary/12 via-accent/10 to-secondary/30 shadow-sm flex items-center justify-center mb-4 transition-all duration-200 group-hover:shadow-md group-hover:border-primary/30">
+                  <feature.icon className={`h-6 w-6 ${featureAccents[index % featureAccents.length]}`} />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -192,33 +200,37 @@ export function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-8 px-4">
+      <section className="py-12 px-4">
         <div className="container mx-auto max-w-4xl">
           <motion.div 
-            className="gradient-hero rounded-2xl p-8 md:p-12 text-center text-primary-foreground"
+            className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-foreground via-foreground to-foreground/90 p-10 md:p-16 text-center text-primary-foreground shadow-lg shadow-black/20"
             {...fadeInUp}
           >
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-4">
-              Ready to Transform Your Centre?
-            </h2>
-            <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
-              Join leading tuition centres in SG & MY already using LearnCampus to deliver premium learning experiences.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/app">
-                <Button size="lg" variant="secondary" className="gap-2">
-                  <Play className="h-4 w-4" />
-                  View Demo
+            <div className="pointer-events-none absolute inset-0 opacity-50 [background:radial-gradient(circle_at_18%_22%,hsl(var(--accent)/0.25),transparent_42%),radial-gradient(circle_at_82%_12%,hsl(var(--primary)/0.25),transparent_38%),radial-gradient(circle_at_50%_100%,hsl(var(--muted-foreground)/0.2),transparent_45%)]" />
+            <div className="relative">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight mb-4 text-primary-foreground">
+                Ready to Transform Your Centre?
+              </h2>
+              <p className="text-primary-foreground/80 mb-10 max-w-lg mx-auto">
+                Join leading tuition centres in SG & MY already using LearnCampus to deliver premium learning experiences.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link to="/app">
+                  <Button size="lg" variant="secondary" className="gap-2 bg-background text-foreground hover:bg-background/90">
+                    <Play className="h-4 w-4" />
+                    View Demo
+                  </Button>
+                </Link>
+                <Button 
+                  size="lg" 
+                  variant="default"
+                  className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleGetStarted}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Get Started Free
                 </Button>
-              </Link>
-              <Button 
-                size="lg" 
-                className="bg-white text-primary hover:bg-white/90 gap-2"
-                onClick={handleGetStarted}
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Get Started Free
-              </Button>
+              </div>
             </div>
           </motion.div>
         </div>

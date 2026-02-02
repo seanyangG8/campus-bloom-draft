@@ -96,14 +96,19 @@ export function InteractiveCoursePreview({
       <div className="absolute inset-4 bg-card rounded-xl shadow-lg border overflow-hidden flex flex-col">
         {/* Browser Bar */}
         <div className="h-8 bg-muted/80 flex items-center px-3 gap-2 border-b shrink-0">
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 shrink-0">
             <div className="w-2.5 h-2.5 rounded-full bg-destructive/40" />
             <div className="w-2.5 h-2.5 rounded-full bg-warning/40" />
             <div className="w-2.5 h-2.5 rounded-full bg-success/40" />
           </div>
-          <div className="ml-3 flex-1 max-w-xs">
-            <div className="bg-background/60 rounded px-2 py-0.5 text-[10px] text-muted-foreground">
-              brightminds.learncampus.app/course/sec3-math
+          <div className="flex-1 min-w-0 flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="bg-background/60 rounded px-2 py-0.5 text-[10px] text-muted-foreground truncate">
+                brightminds.learncampus.app/course/sec3-math
+              </div>
+            </div>
+            <div className="text-[11px] font-medium text-foreground/80 truncate text-right min-w-[110px]">
+              Interactive Courses
             </div>
           </div>
         </div>

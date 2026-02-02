@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InteractiveCoursePreview } from "./InteractiveCoursePreview";
 import { AdminDashboardPreview } from "./AdminDashboardPreview";
 import { ParentProgressPreview } from "./ParentProgressPreview";
@@ -23,7 +25,7 @@ const demos: DemoDefinition[] = [
   {
     id: "demo-1",
     label: "Students",
-    description: "An interactive learning journey with progress, practice, and feedback.",
+    description: "An engaging learning journey with progress, practice, and feedback.",
     Component: InteractiveCoursePreview,
   },
   {
@@ -78,20 +80,20 @@ export function LandingDemoStage() {
   const [isCountdownRunning, setIsCountdownRunning] = useState(false);
   const [countdownProgress, setCountdownProgress] = useState(0);
   const [stageHeight, setStageHeight] = useState<number | undefined>();
-  const [descVisible, setDescVisible] = useState(true);
   const [tabsHeight, setTabsHeight] = useState(0);
   const [stageVisibility, setStageVisibility] = useState(0);
   const [shouldFloatTabs, setShouldFloatTabs] = useState(false);
   const [dockVisible, setDockVisible] = useState(false);
+  const [browserWidth, setBrowserWidth] = useState<number | undefined>();
   const tabBarRef = useRef<HTMLDivElement>(null);
   const dockSentinelRef = useRef<HTMLDivElement>(null);
+  const browserRef = useRef<HTMLElement | null>(null);
 
   const rafRef = useRef<number | null>(null);
   const countdownStartRef = useRef<number | null>(null);
   const activeIndexRef = useRef(activeIndex);
 
   const activeDemo = useMemo(() => demos[activeIndex], [activeIndex]);
-  const activeDescription = activeDemo.description;
 
   useEffect(() => {
     activeIndexRef.current = activeIndex;
@@ -202,18 +204,33 @@ export function LandingDemoStage() {
   }, [activeIndex, playSession]);
 
   useEffect(() => {
-    return () => cancelCountdown();
-  }, [cancelCountdown]);
+    const stageNode = stageRef.current;
+    if (!stageNode) return;
+
+    const findBrowserNode = () =>
+      (stageNode.querySelector(
+        ".preview-container, .admin-preview-container, .parent-preview-container, .tutor-preview-container",
+      ) as HTMLElement | null);
+
+    const target = findBrowserNode();
+    if (!target) return;
+    browserRef.current = target;
+    const updateWidth = () => {
+      setBrowserWidth(target.getBoundingClientRect().width);
+    };
+    updateWidth();
+    const ro = new ResizeObserver(updateWidth);
+    ro.observe(target);
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [activeIndex, playSession]);
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      setDescVisible(true);
-      return;
-    }
-    setDescVisible(false);
-    const id = requestAnimationFrame(() => setDescVisible(true));
-    return () => cancelAnimationFrame(id);
-  }, [activeDescription, prefersReducedMotion]);
+    return () => cancelCountdown();
+  }, [cancelCountdown]);
 
   useEffect(() => {
     const stageNode = stageRef.current;
@@ -279,23 +296,9 @@ export function LandingDemoStage() {
 
   return (
     <div className="bg-card rounded-2xl border shadow-sm overflow-visible">
-      <div className="px-4 sm:px-6 pt-3 pb-1">
-        <div
-          key={activeDemo.id}
-          className="text-sm text-muted-foreground text-center"
-          style={{
-            opacity: descVisible ? 1 : 0,
-            transform: descVisible ? "translateY(0px)" : "translateY(6px)",
-            transition: prefersReducedMotion ? "none" : "opacity 220ms ease, transform 220ms ease",
-          }}
-        >
-          {activeDescription}
-        </div>
-      </div>
-
       <div
         ref={stageRef}
-        className="relative px-4 sm:px-6 pt-1 pb-8 overflow-visible"
+        className="relative px-4 sm:px-6 pt-3 pb-4 overflow-visible"
         style={{
           height: stageHeight ? `${stageHeight}px` : undefined,
           transition: prefersReducedMotion ? "none" : "height 320ms ease",
@@ -319,77 +322,86 @@ export function LandingDemoStage() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 mt-5 pb-1">
-        <div
-          key={activeDemo.id}
-          className="text-sm text-muted-foreground text-center"
-          style={{
-            opacity: descVisible ? 1 : 0,
-            transform: descVisible ? "translateY(0px)" : "translateY(6px)",
-            transition: prefersReducedMotion ? "none" : "opacity 220ms ease, transform 220ms ease",
-          }}
-        >
-          {activeDescription}
-        </div>
-      </div>
-
       <div ref={dockSentinelRef} aria-hidden />
       {shouldFloatTabs && <div aria-hidden style={{ height: tabsHeight }} />}
 
-      <div
-        ref={tabBarRef}
+      <TooltipProvider delayDuration={120} skipDelayDuration={0}>
+        <div
+          ref={tabBarRef}
         role="tablist"
         aria-label="LearnCampus demos"
         data-floating={shouldFloatTabs}
-        className={`grid grid-cols-2 sm:grid-cols-4 gap-1.5 px-2 sm:px-2.5 pt-2 pb-2 max-w-5xl mx-auto ${
+        className={`grid grid-cols-2 sm:grid-cols-4 gap-0 px-2 sm:px-2.5 pt-2 pb-2 max-w-5xl mx-auto overflow-hidden rounded-md border border-border bg-card ${
           shouldFloatTabs ? "fixed left-1/2 -translate-x-1/2 z-30" : ""
         }`}
         style={
           shouldFloatTabs
             ? {
                 ...tabBarBaseStyle,
+                width: browserWidth ? `${browserWidth}px` : tabBarBaseStyle.width,
                 bottom: `calc(16px + env(safe-area-inset-bottom))`,
-                background: "hsl(var(--background) / 0.95)",
+                background: "hsl(var(--card) / 0.96)",
                 backdropFilter: "blur(10px)",
                 boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-                borderRadius: 9999,
+                borderRadius: 8,
               }
-            : tabBarBaseStyle
+            : { ...tabBarBaseStyle, width: browserWidth ? `${browserWidth}px` : tabBarBaseStyle.width }
         }
       >
         {demos.map((demo, index) => {
-          const isActive = index === activeIndex;
-          const showUnderline = isActive && isCountdownRunning && !isDemoAnimating;
-          return (
-            <button
-              key={demo.id}
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`demo-panel-${demo.id}`}
-              id={`demo-tab-${demo.id}`}
-              className={`relative w-full rounded-full border px-2 py-1.5 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors ${
-                isActive
-                  ? "border-border bg-primary/10 text-foreground shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
-                  : "border-border bg-muted/60 text-muted-foreground hover:border-primary/30"
-              }`}
-              onClick={() => handleTabChange(index)}
-            >
-              <div className="text-[10.75px] font-semibold leading-tight">{demo.label}</div>
-              {showUnderline && (
-                <span
-                  className="pointer-events-none absolute left-2 right-2 bottom-1.5 h-[1.4px] rounded-full"
-                  style={{
-                    transform: `scaleX(${Math.max(0, countdownProgress)})`,
-                    transformOrigin: "left",
-                    background: "hsl(var(--primary))",
-                    transition: prefersReducedMotion ? "none" : "transform 120ms linear",
-                  }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
+            const isActive = index === activeIndex;
+            const showUnderline = isActive && isCountdownRunning && !isDemoAnimating;
+            const shouldForceTooltip = showUnderline;
+            return (
+              <Tooltip key={demo.id} open={shouldForceTooltip ? true : undefined}>
+                <TooltipTrigger asChild>
+                  <button
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`demo-panel-${demo.id}`}
+                    id={`demo-tab-${demo.id}`}
+                    className={`relative w-full px-3 py-2 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors transition-transform duration-150 ease-out border-l border-border/70 first:border-l-0 rounded-none first:rounded-l-[6px] last:rounded-r-[6px] ${
+                      isActive
+                        ? "bg-background text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                        : "bg-transparent text-muted-foreground hover:bg-background/40"
+                    } hover:-translate-y-0.5 focus-visible:-translate-y-0.5`}
+                    onClick={() => handleTabChange(index)}
+                  >
+                    <div className="text-[10.75px] font-semibold leading-tight">{demo.label}</div>
+                    {showUnderline && (
+                      <span
+                        className="pointer-events-none absolute left-2 right-2 bottom-[2.4px] h-px rounded-full"
+                        style={{
+                          transform: `scaleX(${Math.max(0, countdownProgress)})`,
+                          transformOrigin: "left",
+                          background: "hsl(var(--accent))",
+                          transition: prefersReducedMotion ? "none" : "transform 120ms linear",
+                        }}
+                      />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  align="center"
+                  sideOffset={12}
+                  className={`max-w-[260px] text-center text-[12.5px] leading-relaxed px-3 py-2 rounded-lg border border-white/20 bg-[hsl(var(--card)/0.66)] backdrop-blur-[12px] shadow-[0_16px_40px_-18px_rgba(0,0,0,0.28)] ${
+                    prefersReducedMotion
+                      ? "animate-none data-[state=open]:animate-none data-[state=closed]:animate-none"
+                      : "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom-1 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-bottom-1"
+                  }`}
+                  avoidCollisions
+                  collisionPadding={12}
+                  sideOffset={12}
+                >
+                  <div className="text-foreground/90">{demo.description}</div>
+                  <TooltipPrimitive.Arrow className="fill-[hsl(var(--card)/0.66)]" />
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </div>
+      </TooltipProvider>
     </div>
   );
 }
